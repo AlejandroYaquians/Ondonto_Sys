@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface PacienteMapper {
 
+    
     @Mapping(target = "idPaciente", ignore = true)
     @Mapping(target = "activo", ignore = true)
     @Mapping(target = "fechaRegistro", ignore = true)

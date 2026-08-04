@@ -7,11 +7,16 @@ import com.ferancheta.odonto_sys.mapper.InsumoMapper;
 import com.ferancheta.odonto_sys.repository.InsumoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * El stock_minimo NO se toca desde crear()/actualizar(): solo el rol ADMIN puede
+ * definirlo o modificarlo, a través de actualizarStockMinimo() (regla de negocio del proyecto).
+ */
 @Service
 @RequiredArgsConstructor
 public class InsumoService {
@@ -43,6 +48,7 @@ public class InsumoService {
     public InsumoResponse crear(InsumoRequest request) {
         Insumo entidad = mapper.toEntity(request);
         entidad.setActivo(true);
+        entidad.setStockMinimo(0);
         aplicarValoresPorDefecto(entidad);
         return mapper.toResponse(repository.save(entidad));
     }
@@ -53,8 +59,21 @@ public class InsumoService {
         Insumo actualizado = mapper.toEntity(request);
         actualizado.setIdInsumo(existente.getIdInsumo());
         actualizado.setActivo(existente.getActivo());
+        actualizado.setStockMinimo(existente.getStockMinimo());
         aplicarValoresPorDefecto(actualizado);
         return mapper.toResponse(repository.save(actualizado));
+    }
+
+    /**
+     * Único punto del sistema donde se puede definir/modificar el stock mínimo,
+     * restringido al rol ADMIN.
+     */
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
+    public InsumoResponse actualizarStockMinimo(Integer id, Integer stockMinimo) {
+        Insumo insumo = obtenerEntidad(id);
+        insumo.setStockMinimo(stockMinimo);
+        return mapper.toResponse(repository.save(insumo));
     }
 
     /**
@@ -69,15 +88,12 @@ public class InsumoService {
     }
 
     /**
-     * El builder de Lombok no aplica los valores por defecto (=0) de la entidad,
-     * así que se completan aquí si el request no los envía.
+     * El builder de Lombok no aplica el valor por defecto (=0) de la entidad,
+     * así que se completa acá si el request no lo envía.
      */
     private void aplicarValoresPorDefecto(Insumo insumo) {
         if (insumo.getStockActual() == null) {
             insumo.setStockActual(0);
-        }
-        if (insumo.getStockMinimo() == null) {
-            insumo.setStockMinimo(0);
         }
     }
 

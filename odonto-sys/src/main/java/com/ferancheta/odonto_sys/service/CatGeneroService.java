@@ -7,6 +7,7 @@ import com.ferancheta.odonto_sys.mapper.CatGeneroMapper;
 import com.ferancheta.odonto_sys.repository.CatGeneroRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +31,14 @@ public class CatGeneroService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CatGeneroResponse crear(CatGeneroRequest request) {
         CatGenero entidad = mapper.toEntity(request);
         return mapper.toResponse(repository.save(entidad));
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CatGeneroResponse actualizar(Integer id, CatGeneroRequest request) {
         CatGenero existente = obtenerEntidad(id);
         CatGenero actualizada = mapper.toEntity(request);
@@ -44,6 +47,7 @@ public class CatGeneroService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
         repository.delete(obtenerEntidad(id));
     }

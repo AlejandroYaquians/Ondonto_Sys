@@ -13,16 +13,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Year;
 import java.util.List;
 
 /**
- * NOTA: este servicio genera el numero_comprobante automáticamente, pero NO calcula
- * montoBruto/montoNeto/comisionTarjeta a partir de los detalles del pago (PagoDetalle) —
- * esos montos se reciben tal como los envía el cliente. Las reglas "descontar comision_tarjeta
- * cuando el método es tarjeta" y "calcular comision_doctor" quedan pendientes de definir
- * explícitamente, porque requieren datos (como el doctor) que no están directamente
- * disponibles en Pago/PagoDetalle con la relación actual.
+ * NOTA: montoBruto/montoNeto se reciben tal como los envía el cliente (el cálculo de
+ * comision_doctor por servicio vive en PagoDetalleService, que sí tiene acceso al doctor).
+ * Este servicio valida que, si hay pago mixto, monto_efectivo + monto_tarjeta = monto_bruto.
  */
 @Service
 @RequiredArgsConstructor
@@ -51,6 +49,7 @@ public class PagoService {
 
     @Transactional
     public PagoResponse crear(PagoRequest request) {
+        validarMontosMixtos(request);
         Pago entidad = mapper.toEntity(request);
         entidad.setEstado("pendiente");
         entidad.setNumeroComprobante(generarNumeroComprobante());
@@ -60,6 +59,7 @@ public class PagoService {
 
     @Transactional
     public PagoResponse actualizar(Integer id, PagoRequest request) {
+        validarMontosMixtos(request);
         Pago existente = obtenerEntidad(id);
         Pago actualizado = mapper.toEntity(request);
         actualizado.setIdPago(existente.getIdPago());
@@ -67,6 +67,23 @@ public class PagoService {
         actualizado.setNumeroComprobante(existente.getNumeroComprobante());
         aplicarRelaciones(actualizado, request);
         return mapper.toResponse(repository.save(actualizado));
+    }
+
+    /**
+     * Se permite pago mixto (parte efectivo, parte tarjeta), pero la suma tiene que
+     * cuadrar exactamente con el monto bruto cobrado.
+     */
+    private void validarMontosMixtos(PagoRequest request) {
+        if (request.montoBruto() == null) {
+            return;
+        }
+        BigDecimal efectivo = request.montoEfectivo() != null ? request.montoEfectivo() : BigDecimal.ZERO;
+        BigDecimal tarjeta = request.montoTarjeta() != null ? request.montoTarjeta() : BigDecimal.ZERO;
+
+        if (efectivo.add(tarjeta).compareTo(request.montoBruto()) != 0) {
+            throw new IllegalArgumentException(
+                    "monto_efectivo + monto_tarjeta debe ser igual a monto_bruto");
+        }
     }
 
     @Transactional

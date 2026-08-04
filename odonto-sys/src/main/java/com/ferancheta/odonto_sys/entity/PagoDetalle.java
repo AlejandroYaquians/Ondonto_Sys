@@ -43,4 +43,10 @@ public class PagoDetalle {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private CatMetodoPago metodoPago;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_consulta_tratamiento", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private ConsultaTratamiento consultaTratamiento;
 }

@@ -8,7 +8,6 @@ public record InsumoRequest(
 
         String descripcion,
         String unidadMedida,
-        Integer stockActual,
-        Integer stockMinimo
+        Integer stockActual
 ) {
 }

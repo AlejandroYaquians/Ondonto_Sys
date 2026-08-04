@@ -7,6 +7,7 @@ import com.ferancheta.odonto_sys.mapper.CatEspecialidadMapper;
 import com.ferancheta.odonto_sys.repository.CatEspecialidadRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +31,14 @@ public class CatEspecialidadService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CatEspecialidadResponse crear(CatEspecialidadRequest request) {
         CatEspecialidad entidad = mapper.toEntity(request);
         return mapper.toResponse(repository.save(entidad));
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CatEspecialidadResponse actualizar(Integer id, CatEspecialidadRequest request) {
         CatEspecialidad existente = obtenerEntidad(id);
         CatEspecialidad actualizada = mapper.toEntity(request);
@@ -44,6 +47,7 @@ public class CatEspecialidadService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
         repository.delete(obtenerEntidad(id));
     }

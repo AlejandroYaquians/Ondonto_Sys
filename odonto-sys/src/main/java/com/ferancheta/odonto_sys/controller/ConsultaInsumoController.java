@@ -33,11 +33,6 @@ public class ConsultaInsumoController {
         return service.crear(request);
     }
 
-    @PutMapping("/{id}")
-    public ConsultaInsumoResponse actualizar(@PathVariable Integer id, @Valid @RequestBody ConsultaInsumoRequest request) {
-        return service.actualizar(id, request);
-    }
-
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminar(@PathVariable Integer id) {

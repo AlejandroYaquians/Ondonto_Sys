@@ -7,6 +7,7 @@ import com.ferancheta.odonto_sys.mapper.ModuloMapper;
 import com.ferancheta.odonto_sys.repository.ModuloRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +36,7 @@ public class ModuloService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ModuloResponse crear(ModuloRequest request) {
         Modulo entidad = mapper.toEntity(request);
         entidad.setActivo(true);
@@ -42,6 +44,7 @@ public class ModuloService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ModuloResponse actualizar(Integer id, ModuloRequest request) {
         Modulo existente = obtenerEntidad(id);
         Modulo actualizado = mapper.toEntity(request);
@@ -54,6 +57,7 @@ public class ModuloService {
      * Se desactiva en vez de borrar porque los menús (y por lo tanto los permisos) referencian el módulo.
      */
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
         Modulo modulo = obtenerEntidad(id);
         modulo.setActivo(false);

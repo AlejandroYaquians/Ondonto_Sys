@@ -9,6 +9,7 @@ import com.ferancheta.odonto_sys.repository.PermisoRepository;
 import com.ferancheta.odonto_sys.repository.RolRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,7 @@ public class PermisoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public PermisoResponse crear(PermisoRequest request) {
         Permiso entidad = mapper.toEntity(request);
         aplicarRelaciones(entidad, request);
@@ -41,6 +43,7 @@ public class PermisoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public PermisoResponse actualizar(Integer id, PermisoRequest request) {
         Permiso existente = obtenerEntidad(id);
         Permiso actualizado = mapper.toEntity(request);
@@ -50,6 +53,7 @@ public class PermisoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
         repository.delete(obtenerEntidad(id));
     }

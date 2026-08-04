@@ -9,6 +9,7 @@ import com.ferancheta.odonto_sys.repository.MenuRepository;
 import com.ferancheta.odonto_sys.repository.ModuloRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ public class MenuService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public MenuResponse crear(MenuRequest request) {
         Menu entidad = mapper.toEntity(request);
         entidad.setActivo(true);
@@ -46,6 +48,7 @@ public class MenuService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public MenuResponse actualizar(Integer id, MenuRequest request) {
         Menu existente = obtenerEntidad(id);
         Menu actualizado = mapper.toEntity(request);
@@ -59,6 +62,7 @@ public class MenuService {
      * Se desactiva en vez de borrar porque los permisos referencian el menú.
      */
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
         Menu menu = obtenerEntidad(id);
         menu.setActivo(false);

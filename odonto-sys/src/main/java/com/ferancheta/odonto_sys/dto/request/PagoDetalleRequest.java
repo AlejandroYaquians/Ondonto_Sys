@@ -17,6 +17,9 @@ public record PagoDetalleRequest(
         Integer idServicio,
 
         @NotNull(message = "El método de pago es obligatorio")
-        Integer idMetodoPago
+        Integer idMetodoPago,
+
+        @NotNull(message = "La consulta tratamiento es obligatoria")
+        Integer idConsultaTratamiento
 ) {
 }

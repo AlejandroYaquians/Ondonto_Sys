@@ -7,6 +7,7 @@ import com.ferancheta.odonto_sys.mapper.CatMovimientoMapper;
 import com.ferancheta.odonto_sys.repository.CatMovimientoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +31,14 @@ public class CatMovimientoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CatMovimientoResponse crear(CatMovimientoRequest request) {
         CatMovimiento entidad = mapper.toEntity(request);
         return mapper.toResponse(repository.save(entidad));
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CatMovimientoResponse actualizar(Integer id, CatMovimientoRequest request) {
         CatMovimiento existente = obtenerEntidad(id);
         CatMovimiento actualizada = mapper.toEntity(request);
@@ -44,6 +47,7 @@ public class CatMovimientoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
         repository.delete(obtenerEntidad(id));
     }

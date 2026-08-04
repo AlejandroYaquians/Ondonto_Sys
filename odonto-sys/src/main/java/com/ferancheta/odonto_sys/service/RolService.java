@@ -7,6 +7,7 @@ import com.ferancheta.odonto_sys.mapper.RolMapper;
 import com.ferancheta.odonto_sys.repository.RolRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +31,14 @@ public class RolService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public RolResponse crear(RolRequest request) {
         Rol entidad = mapper.toEntity(request);
         return mapper.toResponse(repository.save(entidad));
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public RolResponse actualizar(Integer id, RolRequest request) {
         Rol existente = obtenerEntidad(id);
         Rol actualizada = mapper.toEntity(request);
@@ -44,6 +47,7 @@ public class RolService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
         repository.delete(obtenerEntidad(id));
     }

@@ -9,6 +9,7 @@ public record PagoDetalleResponse(
         BigDecimal comisionDoctorCalculada,
         Integer idPago,
         Integer idServicio,
-        Integer idMetodoPago
+        Integer idMetodoPago,
+        Integer idConsultaTratamiento
 ) {
 }

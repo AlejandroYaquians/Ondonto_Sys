@@ -7,6 +7,7 @@ import com.ferancheta.odonto_sys.mapper.DepartamentoMapper;
 import com.ferancheta.odonto_sys.repository.DepartamentoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +31,14 @@ public class DepartamentoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public DepartamentoResponse crear(DepartamentoRequest request) {
         Departamento entidad = mapper.toEntity(request);
         return mapper.toResponse(repository.save(entidad));
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public DepartamentoResponse actualizar(Integer id, DepartamentoRequest request) {
         Departamento existente = obtenerEntidad(id);
         Departamento actualizado = mapper.toEntity(request);
@@ -44,6 +47,7 @@ public class DepartamentoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
         repository.delete(obtenerEntidad(id));
     }

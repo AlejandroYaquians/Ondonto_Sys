@@ -7,6 +7,7 @@ import com.ferancheta.odonto_sys.mapper.CatParentescoMapper;
 import com.ferancheta.odonto_sys.repository.CatParentescoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +31,14 @@ public class CatParentescoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CatParentescoResponse crear(CatParentescoRequest request) {
         CatParentesco entidad = mapper.toEntity(request);
         return mapper.toResponse(repository.save(entidad));
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CatParentescoResponse actualizar(Integer id, CatParentescoRequest request) {
         CatParentesco existente = obtenerEntidad(id);
         CatParentesco actualizada = mapper.toEntity(request);
@@ -44,6 +47,7 @@ public class CatParentescoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
         repository.delete(obtenerEntidad(id));
     }

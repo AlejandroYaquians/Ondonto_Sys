@@ -7,6 +7,7 @@ import com.ferancheta.odonto_sys.mapper.CatEstadoCitaMapper;
 import com.ferancheta.odonto_sys.repository.CatEstadoCitaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +31,14 @@ public class CatEstadoCitaService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CatEstadoCitaResponse crear(CatEstadoCitaRequest request) {
         CatEstadoCita entidad = mapper.toEntity(request);
         return mapper.toResponse(repository.save(entidad));
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CatEstadoCitaResponse actualizar(Integer id, CatEstadoCitaRequest request) {
         CatEstadoCita existente = obtenerEntidad(id);
         CatEstadoCita actualizada = mapper.toEntity(request);
@@ -44,6 +47,7 @@ public class CatEstadoCitaService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
         repository.delete(obtenerEntidad(id));
     }

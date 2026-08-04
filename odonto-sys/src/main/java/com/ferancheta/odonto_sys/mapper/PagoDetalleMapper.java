@@ -14,10 +14,12 @@ public interface PagoDetalleMapper {
     @Mapping(target = "pago", ignore = true)
     @Mapping(target = "servicio", ignore = true)
     @Mapping(target = "metodoPago", ignore = true)
+    @Mapping(target = "consultaTratamiento", ignore = true)
     PagoDetalle toEntity(PagoDetalleRequest request);
 
     @Mapping(target = "idPago", source = "pago.idPago")
     @Mapping(target = "idServicio", source = "servicio.idServicio")
     @Mapping(target = "idMetodoPago", source = "metodoPago.idMetodoPago")
+    @Mapping(target = "idConsultaTratamiento", source = "consultaTratamiento.idConsultaTratamiento")
     PagoDetalleResponse toResponse(PagoDetalle entity);
 }

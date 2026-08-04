@@ -7,6 +7,7 @@ import com.ferancheta.odonto_sys.mapper.ServicioMapper;
 import com.ferancheta.odonto_sys.repository.ServicioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +36,7 @@ public class ServicioService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ServicioResponse crear(ServicioRequest request) {
         Servicio entidad = mapper.toEntity(request);
         entidad.setActivo(true);
@@ -42,6 +44,7 @@ public class ServicioService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ServicioResponse actualizar(Integer id, ServicioRequest request) {
         Servicio existente = obtenerEntidad(id);
         Servicio actualizado = mapper.toEntity(request);
@@ -54,6 +57,7 @@ public class ServicioService {
      * Se desactiva en vez de borrar porque queda referenciado desde consulta_tratamiento e insumo_servicio.
      */
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
         Servicio servicio = obtenerEntidad(id);
         servicio.setActivo(false);

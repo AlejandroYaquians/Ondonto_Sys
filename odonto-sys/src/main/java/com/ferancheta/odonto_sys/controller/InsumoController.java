@@ -44,6 +44,11 @@ public class InsumoController {
         return service.actualizar(id, request);
     }
 
+    @PatchMapping("/{id}/stock-minimo")
+    public InsumoResponse actualizarStockMinimo(@PathVariable Integer id, @RequestParam Integer stockMinimo) {
+        return service.actualizarStockMinimo(id, stockMinimo);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminar(@PathVariable Integer id) {

@@ -7,6 +7,7 @@ import com.ferancheta.odonto_sys.mapper.CatProfesionMapper;
 import com.ferancheta.odonto_sys.repository.CatProfesionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +31,14 @@ public class CatProfesionService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CatProfesionResponse crear(CatProfesionRequest request) {
         CatProfesion entidad = mapper.toEntity(request);
         return mapper.toResponse(repository.save(entidad));
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CatProfesionResponse actualizar(Integer id, CatProfesionRequest request) {
         CatProfesion existente = obtenerEntidad(id);
         CatProfesion actualizada = mapper.toEntity(request);
@@ -44,6 +47,7 @@ public class CatProfesionService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
         repository.delete(obtenerEntidad(id));
     }

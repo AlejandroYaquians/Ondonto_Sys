@@ -50,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (JwtException ignored) {
-            // Token inválido o expirado: la petición continúa sin autenticación
+
         }
 
         filterChain.doFilter(request, response);

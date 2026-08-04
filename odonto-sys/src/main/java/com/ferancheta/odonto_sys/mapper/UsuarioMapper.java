@@ -17,6 +17,7 @@ public interface UsuarioMapper {
     @Mapping(target = "updatedAt", ignore = true)
     Usuario toEntity(UsuarioRequest request);
 
+    
     @Mapping(target = "idRol", source = "rol.idRol")
     UsuarioResponse toResponse(Usuario entity);
 }

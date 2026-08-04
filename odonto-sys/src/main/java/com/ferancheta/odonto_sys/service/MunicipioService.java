@@ -9,6 +9,7 @@ import com.ferancheta.odonto_sys.repository.DepartamentoRepository;
 import com.ferancheta.odonto_sys.repository.MunicipioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ public class MunicipioService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public MunicipioResponse crear(MunicipioRequest request) {
         Municipio entidad = mapper.toEntity(request);
         entidad.setDepartamento(obtenerDepartamento(request.idDepartamento()));
@@ -45,6 +47,7 @@ public class MunicipioService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public MunicipioResponse actualizar(Integer id, MunicipioRequest request) {
         Municipio existente = obtenerEntidad(id);
         Municipio actualizado = mapper.toEntity(request);
@@ -54,6 +57,7 @@ public class MunicipioService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
         repository.delete(obtenerEntidad(id));
     }

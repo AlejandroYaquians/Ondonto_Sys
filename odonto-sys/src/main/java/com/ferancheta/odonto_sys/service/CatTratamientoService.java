@@ -7,6 +7,7 @@ import com.ferancheta.odonto_sys.mapper.CatTratamientoMapper;
 import com.ferancheta.odonto_sys.repository.CatTratamientoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +31,14 @@ public class CatTratamientoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CatTratamientoResponse crear(CatTratamientoRequest request) {
         CatTratamiento entidad = mapper.toEntity(request);
         return mapper.toResponse(repository.save(entidad));
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CatTratamientoResponse actualizar(Integer id, CatTratamientoRequest request) {
         CatTratamiento existente = obtenerEntidad(id);
         CatTratamiento actualizada = mapper.toEntity(request);
@@ -44,6 +47,7 @@ public class CatTratamientoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
         repository.delete(obtenerEntidad(id));
     }

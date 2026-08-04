@@ -20,6 +20,7 @@ public interface CitaRepository extends JpaRepository<Cita, Integer> {
         WHERE c.doctor.idDoctor = :idDoctor
           AND c.fecha = :fecha
           AND (:idCita IS NULL OR c.idCita <> :idCita)
+          AND c.estadoCita.nombre <> 'Cancelada'
           AND c.hora < :horaFin
           AND c.horaFin > :horaInicio
         """)

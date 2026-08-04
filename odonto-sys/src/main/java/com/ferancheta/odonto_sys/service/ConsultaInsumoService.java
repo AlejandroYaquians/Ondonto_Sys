@@ -3,7 +3,6 @@ package com.ferancheta.odonto_sys.service;
 import com.ferancheta.odonto_sys.dto.request.ConsultaInsumoRequest;
 import com.ferancheta.odonto_sys.dto.response.ConsultaInsumoResponse;
 import com.ferancheta.odonto_sys.entity.ConsultaInsumo;
-import com.ferancheta.odonto_sys.entity.Insumo;
 import com.ferancheta.odonto_sys.mapper.ConsultaInsumoMapper;
 import com.ferancheta.odonto_sys.repository.ConsultaInsumoRepository;
 import com.ferancheta.odonto_sys.repository.ConsultaTratamientoRepository;
@@ -17,8 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Al registrar un consumo de insumo en una consulta, se descuenta el stock_actual
- * del insumo correspondiente (regla de negocio del proyecto).
+ * El stock_actual del insumo NO se toca acá: lo maneja un trigger de PostgreSQL en la
+ * tabla consulta_insumo (AFTER INSERT resta, AFTER DELETE restaura). Por eso este registro
+ * es de solo crear/borrar — no existe actualizar(): si hay un error, se borra (el trigger
+ * restaura el stock) y se crea uno nuevo, en vez de editar la cantidad o el insumo in situ.
  */
 @Service
 @RequiredArgsConstructor
@@ -44,70 +45,22 @@ public class ConsultaInsumoService {
     @Transactional
     public ConsultaInsumoResponse crear(ConsultaInsumoRequest request) {
         ConsultaInsumo entidad = mapper.toEntity(request);
-
-        entidad.setConsultaTratamiento(consultaTratamientoRepository.findById(request.idConsultaTratamiento())
-                .orElseThrow(() -> new EntityNotFoundException("Consulta tratamiento no encontrada: " + request.idConsultaTratamiento())));
-
-        Insumo insumo = insumoRepository.findById(request.idInsumo())
-                .orElseThrow(() -> new EntityNotFoundException("Insumo no encontrado: " + request.idInsumo()));
-        entidad.setInsumo(insumo);
-
-        entidad.setUsuarioCreacion(usuarioRepository.findById(request.idUsuarioCreacion())
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + request.idUsuarioCreacion())));
-
-        descontarStock(insumo, request.cantidadUsada());
-
+        aplicarRelaciones(entidad, request);
         return mapper.toResponse(repository.save(entidad));
     }
 
-    /**
-     * Revierte el descuento de stock del insumo original y aplica el nuevo consumo,
-     * incluso si cambió el insumo o la consulta_tratamiento.
-     */
-    @Transactional
-    public ConsultaInsumoResponse actualizar(Integer id, ConsultaInsumoRequest request) {
-        ConsultaInsumo existente = obtenerEntidad(id);
-        restaurarStock(existente.getInsumo(), existente.getCantidadUsada());
-
-        ConsultaInsumo actualizado = mapper.toEntity(request);
-        actualizado.setIdConsultaInsumo(existente.getIdConsultaInsumo());
-        actualizado.setFecha(existente.getFecha());
-
-        actualizado.setConsultaTratamiento(consultaTratamientoRepository.findById(request.idConsultaTratamiento())
-                .orElseThrow(() -> new EntityNotFoundException("Consulta tratamiento no encontrada: " + request.idConsultaTratamiento())));
-
-        Insumo insumo = insumoRepository.findById(request.idInsumo())
-                .orElseThrow(() -> new EntityNotFoundException("Insumo no encontrado: " + request.idInsumo()));
-        actualizado.setInsumo(insumo);
-
-        actualizado.setUsuarioCreacion(usuarioRepository.findById(request.idUsuarioCreacion())
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + request.idUsuarioCreacion())));
-
-        descontarStock(insumo, request.cantidadUsada());
-
-        return mapper.toResponse(repository.save(actualizado));
-    }
-
-    /**
-     * Se restaura el stock del insumo al eliminar el registro, para no dejar el stock desfasado.
-     */
     @Transactional
     public void eliminar(Integer id) {
-        ConsultaInsumo entidad = obtenerEntidad(id);
-        restaurarStock(entidad.getInsumo(), entidad.getCantidadUsada());
-        repository.delete(entidad);
+        repository.delete(obtenerEntidad(id));
     }
 
-    private void descontarStock(Insumo insumo, Integer cantidad) {
-        int stockActual = insumo.getStockActual() != null ? insumo.getStockActual() : 0;
-        insumo.setStockActual(stockActual - cantidad);
-        insumoRepository.save(insumo);
-    }
-
-    private void restaurarStock(Insumo insumo, Integer cantidad) {
-        int stockActual = insumo.getStockActual() != null ? insumo.getStockActual() : 0;
-        insumo.setStockActual(stockActual + cantidad);
-        insumoRepository.save(insumo);
+    private void aplicarRelaciones(ConsultaInsumo entidad, ConsultaInsumoRequest request) {
+        entidad.setConsultaTratamiento(consultaTratamientoRepository.findById(request.idConsultaTratamiento())
+                .orElseThrow(() -> new EntityNotFoundException("Consulta tratamiento no encontrada: " + request.idConsultaTratamiento())));
+        entidad.setInsumo(insumoRepository.findById(request.idInsumo())
+                .orElseThrow(() -> new EntityNotFoundException("Insumo no encontrado: " + request.idInsumo())));
+        entidad.setUsuarioCreacion(usuarioRepository.findById(request.idUsuarioCreacion())
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + request.idUsuarioCreacion())));
     }
 
     private ConsultaInsumo obtenerEntidad(Integer id) {
