@@ -20,15 +20,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-/**
- * Regla de negocio confirmada por la clínica:
- *   monto_neto = precio_aplicado - costo_laboratorio - comision_tarjeta (si aplica)
- *   comision_doctor = monto_neto * porcentaje_comision_del_doctor
- *
- * La comisión bancaria sale de cat_metodo_pago.comision_porcentaje (0 para efectivo/transferencia,
- * así que no hace falta distinguir el método por texto). El porcentaje del doctor se obtiene
- * navegando pago_detalle -> consulta_tratamiento -> consulta -> doctor.
- */
 @Service
 @RequiredArgsConstructor
 public class PagoDetalleService {

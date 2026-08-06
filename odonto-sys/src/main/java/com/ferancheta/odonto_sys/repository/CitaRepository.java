@@ -13,6 +13,8 @@ public interface CitaRepository extends JpaRepository<Cita, Integer> {
 
     List<Cita> findByDoctor_IdDoctorAndFecha(Integer idDoctor, LocalDate fecha);
 
+    List<Cita> findByDoctor_IdDoctor(Integer idDoctor);
+
     List<Cita> findByPaciente_IdPaciente(Integer idPaciente);
 
     @Query("""

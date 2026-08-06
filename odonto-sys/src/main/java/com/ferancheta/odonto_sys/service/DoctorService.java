@@ -58,10 +58,6 @@ public class DoctorService {
         return mapper.toResponse(doctorRepository.save(actualizado));
     }
 
-    /**
-     * Los doctores no se eliminan físicamente porque quedan referenciados desde citas,
-     * consultas y comisiones históricas; se desactivan.
-     */
     @Transactional
     public void eliminar(Integer id) {
         Doctor doctor = obtenerEntidad(id);

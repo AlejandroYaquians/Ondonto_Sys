@@ -20,10 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * Al crear un Usuario con rol DOCTOR, además del registro en usuario se crea
- * automáticamente el registro correspondiente en doctor (regla de negocio del proyecto).
- */
 @Service
 @RequiredArgsConstructor
 public class UsuarioService {

@@ -58,9 +58,7 @@ public class MenuService {
         return mapper.toResponse(repository.save(actualizado));
     }
 
-    /**
-     * Se desactiva en vez de borrar porque los permisos referencian el menú.
-     */
+
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {

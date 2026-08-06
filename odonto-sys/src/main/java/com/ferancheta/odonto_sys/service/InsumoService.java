@@ -13,10 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * El stock_minimo NO se toca desde crear()/actualizar(): solo el rol ADMIN puede
- * definirlo o modificarlo, a través de actualizarStockMinimo() (regla de negocio del proyecto).
- */
+
 @Service
 @RequiredArgsConstructor
 public class InsumoService {
@@ -64,10 +61,7 @@ public class InsumoService {
         return mapper.toResponse(repository.save(actualizado));
     }
 
-    /**
-     * Único punto del sistema donde se puede definir/modificar el stock mínimo,
-     * restringido al rol ADMIN.
-     */
+
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public InsumoResponse actualizarStockMinimo(Integer id, Integer stockMinimo) {
@@ -76,10 +70,7 @@ public class InsumoService {
         return mapper.toResponse(repository.save(insumo));
     }
 
-    /**
-     * Se desactiva en vez de borrar porque queda referenciado desde insumo_movimiento,
-     * insumo_servicio y consulta_insumo.
-     */
+
     @Transactional
     public void eliminar(Integer id) {
         Insumo insumo = obtenerEntidad(id);
@@ -87,10 +78,7 @@ public class InsumoService {
         repository.save(insumo);
     }
 
-    /**
-     * El builder de Lombok no aplica el valor por defecto (=0) de la entidad,
-     * así que se completa acá si el request no lo envía.
-     */
+
     private void aplicarValoresPorDefecto(Insumo insumo) {
         if (insumo.getStockActual() == null) {
             insumo.setStockActual(0);

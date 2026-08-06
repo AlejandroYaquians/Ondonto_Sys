@@ -61,9 +61,7 @@ public class PacienteService {
         return mapper.toResponse(pacienteRepository.save(actualizado));
     }
 
-    /**
-     * Los pacientes no se eliminan físicamente por el historial clínico asociado; se desactivan.
-     */
+
     @Transactional
     public void eliminar(Integer id) {
         Paciente paciente = obtenerEntidad(id);

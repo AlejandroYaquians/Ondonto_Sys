@@ -53,9 +53,7 @@ public class ModuloService {
         return mapper.toResponse(repository.save(actualizado));
     }
 
-    /**
-     * Se desactiva en vez de borrar porque los menús (y por lo tanto los permisos) referencian el módulo.
-     */
+
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {

@@ -15,12 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * El stock_actual del insumo NO se toca acá: lo maneja un trigger de PostgreSQL en la
- * tabla consulta_insumo (AFTER INSERT resta, AFTER DELETE restaura). Por eso este registro
- * es de solo crear/borrar — no existe actualizar(): si hay un error, se borra (el trigger
- * restaura el stock) y se crea uno nuevo, en vez de editar la cantidad o el insumo in situ.
- */
 @Service
 @RequiredArgsConstructor
 public class ConsultaInsumoService {

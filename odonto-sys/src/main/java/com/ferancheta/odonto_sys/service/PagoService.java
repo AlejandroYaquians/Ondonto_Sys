@@ -17,11 +17,7 @@ import java.math.BigDecimal;
 import java.time.Year;
 import java.util.List;
 
-/**
- * NOTA: montoBruto/montoNeto se reciben tal como los envía el cliente (el cálculo de
- * comision_doctor por servicio vive en PagoDetalleService, que sí tiene acceso al doctor).
- * Este servicio valida que, si hay pago mixto, monto_efectivo + monto_tarjeta = monto_bruto.
- */
+
 @Service
 @RequiredArgsConstructor
 public class PagoService {
@@ -69,10 +65,7 @@ public class PagoService {
         return mapper.toResponse(repository.save(actualizado));
     }
 
-    /**
-     * Se permite pago mixto (parte efectivo, parte tarjeta), pero la suma tiene que
-     * cuadrar exactamente con el monto bruto cobrado.
-     */
+
     private void validarMontosMixtos(PagoRequest request) {
         if (request.montoBruto() == null) {
             return;

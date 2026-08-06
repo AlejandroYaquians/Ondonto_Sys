@@ -16,12 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * NOTA: este servicio registra el movimiento tal cual, pero no ajusta Insumo.stockActual
- * automáticamente, porque el tipo de movimiento (cat_movimiento) es texto libre y no hay
- * forma confiable de distinguir "entrada" de "salida" sin una convención explícita.
- * Si se necesita ese ajuste automático, hay que definir esa convención primero.
- */
 @Service
 @RequiredArgsConstructor
 public class InsumoMovimientoService {

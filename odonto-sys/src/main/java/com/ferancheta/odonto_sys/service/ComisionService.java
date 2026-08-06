@@ -15,12 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * NOTA: montoComision se recibe tal como lo envía el cliente; no se recalcula aquí
- * (precio_aplicado y costo_laboratorio viven en PagoDetalle, no en Comision), por lo que
- * automatizar el cálculo completo requiere primero decidir cómo enlazar Comision con el
- * PagoDetalle específico que la origina.
- */
+
 @Service
 @RequiredArgsConstructor
 public class ComisionService {

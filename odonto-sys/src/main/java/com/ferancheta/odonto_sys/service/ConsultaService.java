@@ -8,12 +8,15 @@ import com.ferancheta.odonto_sys.repository.CitaRepository;
 import com.ferancheta.odonto_sys.repository.ConsultaRepository;
 import com.ferancheta.odonto_sys.repository.DoctorRepository;
 import com.ferancheta.odonto_sys.repository.PacienteRepository;
+import com.ferancheta.odonto_sys.security.ContextoAutenticacion;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -23,30 +26,44 @@ public class ConsultaService {
     private final PacienteRepository pacienteRepository;
     private final DoctorRepository doctorRepository;
     private final CitaRepository citaRepository;
+    private final ContextoAutenticacion contexto;
     private final ConsultaMapper mapper;
 
     @Transactional(readOnly = true)
     public List<ConsultaResponse> listar() {
+        if (contexto.esDoctor()) {
+            return consultaRepository.findByDoctor_IdDoctor(contexto.doctorActual().getIdDoctor())
+                    .stream().map(mapper::toResponse).toList();
+        }
         return consultaRepository.findAll().stream().map(mapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
     public List<ConsultaResponse> listarPorPaciente(Integer idPaciente) {
-        return consultaRepository.findByPaciente_IdPaciente(idPaciente).stream().map(mapper::toResponse).toList();
+        List<Consulta> consultas = consultaRepository.findByPaciente_IdPaciente(idPaciente);
+        if (contexto.esDoctor()) {
+            Integer idDoctorActual = contexto.doctorActual().getIdDoctor();
+            consultas = consultas.stream().filter(c -> c.getDoctor().getIdDoctor().equals(idDoctorActual)).toList();
+        }
+        return consultas.stream().map(mapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
     public List<ConsultaResponse> listarPorDoctor(Integer idDoctor) {
+        validarAccesoADoctor(idDoctor);
         return consultaRepository.findByDoctor_IdDoctor(idDoctor).stream().map(mapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
     public ConsultaResponse buscarPorId(Integer id) {
-        return mapper.toResponse(obtenerEntidad(id));
+        Consulta consulta = obtenerEntidad(id);
+        validarPropietario(consulta);
+        return mapper.toResponse(consulta);
     }
 
     @Transactional
     public ConsultaResponse crear(ConsultaRequest request) {
+        validarAccesoADoctor(request.idDoctor());
         Consulta consulta = mapper.toEntity(request);
         aplicarRelaciones(consulta, request);
         return mapper.toResponse(consultaRepository.save(consulta));
@@ -55,6 +72,8 @@ public class ConsultaService {
     @Transactional
     public ConsultaResponse actualizar(Integer id, ConsultaRequest request) {
         Consulta existente = obtenerEntidad(id);
+        validarPropietario(existente);
+        validarAccesoADoctor(request.idDoctor());
         Consulta actualizada = mapper.toEntity(request);
         actualizada.setIdConsulta(existente.getIdConsulta());
         aplicarRelaciones(actualizada, request);
@@ -63,7 +82,21 @@ public class ConsultaService {
 
     @Transactional
     public void eliminar(Integer id) {
-        consultaRepository.delete(obtenerEntidad(id));
+        Consulta consulta = obtenerEntidad(id);
+        validarPropietario(consulta);
+        consultaRepository.delete(consulta);
+    }
+
+    private void validarPropietario(Consulta consulta) {
+        if (contexto.esDoctor() && !consulta.getDoctor().getIdDoctor().equals(contexto.doctorActual().getIdDoctor())) {
+            throw new AccessDeniedException("No tenés acceso a esta consulta");
+        }
+    }
+
+    private void validarAccesoADoctor(Integer idDoctor) {
+        if (contexto.esDoctor() && !contexto.doctorActual().getIdDoctor().equals(idDoctor)) {
+            throw new AccessDeniedException("No podés operar consultas de otro doctor");
+        }
     }
 
     private void aplicarRelaciones(Consulta consulta, ConsultaRequest request) {

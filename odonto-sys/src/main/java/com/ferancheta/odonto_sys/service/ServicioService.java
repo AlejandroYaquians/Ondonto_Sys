@@ -53,9 +53,6 @@ public class ServicioService {
         return mapper.toResponse(repository.save(actualizado));
     }
 
-    /**
-     * Se desactiva en vez de borrar porque queda referenciado desde consulta_tratamiento e insumo_servicio.
-     */
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {

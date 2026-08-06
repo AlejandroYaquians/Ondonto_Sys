@@ -49,10 +49,6 @@ public class CatMetodoPagoService {
         return mapper.toResponse(repository.save(actualizada));
     }
 
-    /**
-     * El builder de Lombok no aplica el valor por defecto (=0) de la entidad,
-     * así que se completa aquí si el request no lo envía (ej. Efectivo/Transferencia sin comisión).
-     */
     private void aplicarValorPorDefecto(CatMetodoPago entidad) {
         if (entidad.getComisionPorcentaje() == null) {
             entidad.setComisionPorcentaje(BigDecimal.ZERO);
