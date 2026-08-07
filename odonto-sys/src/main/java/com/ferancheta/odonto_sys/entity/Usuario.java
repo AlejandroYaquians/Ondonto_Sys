@@ -48,7 +48,6 @@ public class Usuario implements UserDetails {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // UserDetails methods
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + rol.getNombre()));

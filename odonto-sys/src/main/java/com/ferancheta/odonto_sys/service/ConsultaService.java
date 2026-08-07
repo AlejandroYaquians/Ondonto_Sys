@@ -89,13 +89,13 @@ public class ConsultaService {
 
     private void validarPropietario(Consulta consulta) {
         if (contexto.esDoctor() && !consulta.getDoctor().getIdDoctor().equals(contexto.doctorActual().getIdDoctor())) {
-            throw new AccessDeniedException("No tenés acceso a esta consulta");
+            throw new AccessDeniedException("No tiene acceso a esta consulta");
         }
     }
 
     private void validarAccesoADoctor(Integer idDoctor) {
         if (contexto.esDoctor() && !contexto.doctorActual().getIdDoctor().equals(idDoctor)) {
-            throw new AccessDeniedException("No podés operar consultas de otro doctor");
+            throw new AccessDeniedException("No puede operar consultas de otro doctor");
         }
     }
 

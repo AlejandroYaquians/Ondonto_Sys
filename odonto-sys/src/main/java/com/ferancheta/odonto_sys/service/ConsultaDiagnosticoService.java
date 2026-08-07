@@ -74,7 +74,7 @@ public class ConsultaDiagnosticoService {
         Consulta consulta = consultaRepository.findById(idConsulta)
                 .orElseThrow(() -> new EntityNotFoundException("Consulta no encontrada: " + idConsulta));
         if (contexto.esDoctor() && !consulta.getDoctor().getIdDoctor().equals(contexto.doctorActual().getIdDoctor())) {
-            throw new AccessDeniedException("No tenés acceso a esta consulta");
+            throw new AccessDeniedException("No tiene acceso a esta consulta");
         }
         return consulta;
     }
@@ -82,7 +82,7 @@ public class ConsultaDiagnosticoService {
     private void validarPropietario(ConsultaDiagnostico entidad) {
         if (contexto.esDoctor()
                 && !entidad.getConsulta().getDoctor().getIdDoctor().equals(contexto.doctorActual().getIdDoctor())) {
-            throw new AccessDeniedException("No tenés acceso a este diagnóstico");
+            throw new AccessDeniedException("No tiene acceso a este diagnóstico");
         }
     }
 

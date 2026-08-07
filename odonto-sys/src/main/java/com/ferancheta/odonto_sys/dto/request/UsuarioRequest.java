@@ -18,8 +18,6 @@ public record UsuarioRequest(
         @NotNull(message = "El rol es obligatorio")
         Integer idRol,
 
-        // Los siguientes tres campos solo se usan (y son obligatorios) cuando idRol es DOCTOR,
-        // para crear automáticamente el registro correspondiente en la tabla doctor.
         String apellido,
         Integer idEspecialidad,
         BigDecimal porcentajeComision

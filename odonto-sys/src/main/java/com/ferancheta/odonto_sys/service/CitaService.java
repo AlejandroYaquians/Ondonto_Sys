@@ -110,13 +110,13 @@ public class CitaService {
 
     private void validarPropietario(Cita cita) {
         if (contexto.esDoctor() && !cita.getDoctor().getIdDoctor().equals(contexto.doctorActual().getIdDoctor())) {
-            throw new AccessDeniedException("No tenés acceso a esta cita");
+            throw new AccessDeniedException("No tiene acceso a esta cita");
         }
     }
 
     private void validarAccesoADoctor(Integer idDoctor) {
         if (contexto.esDoctor() && !contexto.doctorActual().getIdDoctor().equals(idDoctor)) {
-            throw new AccessDeniedException("No podés operar citas de otro doctor");
+            throw new AccessDeniedException("No puede operar citas de otro doctor");
         }
     }
 
