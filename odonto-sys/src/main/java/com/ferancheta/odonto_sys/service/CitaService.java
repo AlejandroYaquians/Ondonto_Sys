@@ -21,6 +21,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 
+@Service
 @RequiredArgsConstructor
 public class CitaService {
 
