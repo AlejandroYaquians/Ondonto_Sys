@@ -2,6 +2,8 @@ package com.ferancheta.odonto_sys.service;
 
 import com.ferancheta.odonto_sys.dto.request.InsumoMovimientoRequest;
 import com.ferancheta.odonto_sys.dto.response.InsumoMovimientoResponse;
+import com.ferancheta.odonto_sys.entity.CatMovimiento;
+import com.ferancheta.odonto_sys.entity.Insumo;
 import com.ferancheta.odonto_sys.entity.InsumoMovimiento;
 import com.ferancheta.odonto_sys.mapper.InsumoMovimientoMapper;
 import com.ferancheta.odonto_sys.repository.CatMovimientoRepository;
@@ -41,22 +43,33 @@ public class InsumoMovimientoService {
     public InsumoMovimientoResponse crear(InsumoMovimientoRequest request) {
         InsumoMovimiento entidad = mapper.toEntity(request);
         aplicarRelaciones(entidad, request);
+        ajustarStock(entidad.getInsumo(), entidad.getTipoMovimiento(), entidad.getCantidad());
         return mapper.toResponse(repository.save(entidad));
     }
 
     @Transactional
-    public InsumoMovimientoResponse actualizar(Integer id, InsumoMovimientoRequest request) {
-        InsumoMovimiento existente = obtenerEntidad(id);
-        InsumoMovimiento actualizado = mapper.toEntity(request);
-        actualizado.setIdMovimiento(existente.getIdMovimiento());
-        actualizado.setFecha(existente.getFecha());
-        aplicarRelaciones(actualizado, request);
-        return mapper.toResponse(repository.save(actualizado));
+    public void eliminar(Integer id) {
+        InsumoMovimiento entidad = obtenerEntidad(id);
+        revertirStock(entidad.getInsumo(), entidad.getTipoMovimiento(), entidad.getCantidad());
+        repository.delete(entidad);
     }
 
-    @Transactional
-    public void eliminar(Integer id) {
-        repository.delete(obtenerEntidad(id));
+    private void ajustarStock(Insumo insumo, CatMovimiento tipoMovimiento, Integer cantidad) {
+        int stockActual = insumo.getStockActual() != null ? insumo.getStockActual() : 0;
+        int nuevoStock = Boolean.TRUE.equals(tipoMovimiento.getOperacion())
+                ? stockActual + cantidad
+                : stockActual - cantidad;
+        insumo.setStockActual(nuevoStock);
+        insumoRepository.save(insumo);
+    }
+
+    private void revertirStock(Insumo insumo, CatMovimiento tipoMovimiento, Integer cantidad) {
+        int stockActual = insumo.getStockActual() != null ? insumo.getStockActual() : 0;
+        int nuevoStock = Boolean.TRUE.equals(tipoMovimiento.getOperacion())
+                ? stockActual - cantidad
+                : stockActual + cantidad;
+        insumo.setStockActual(nuevoStock);
+        insumoRepository.save(insumo);
     }
 
     private void aplicarRelaciones(InsumoMovimiento entidad, InsumoMovimientoRequest request) {

@@ -5,6 +5,7 @@ import com.ferancheta.odonto_sys.dto.response.InsumoResponse;
 import com.ferancheta.odonto_sys.entity.Insumo;
 import com.ferancheta.odonto_sys.mapper.InsumoMapper;
 import com.ferancheta.odonto_sys.repository.InsumoRepository;
+import com.ferancheta.odonto_sys.security.ContextoAutenticacion;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +20,7 @@ import java.util.List;
 public class InsumoService {
 
     private final InsumoRepository repository;
+    private final ContextoAutenticacion contexto;
     private final InsumoMapper mapper;
 
     @Transactional(readOnly = true)
@@ -46,6 +48,7 @@ public class InsumoService {
         Insumo entidad = mapper.toEntity(request);
         entidad.setActivo(true);
         entidad.setStockMinimo(0);
+        entidad.setIdUsuarioCreacion(contexto.usuarioActual().getIdUsuario());
         aplicarValoresPorDefecto(entidad);
         return mapper.toResponse(repository.save(entidad));
     }
@@ -57,6 +60,8 @@ public class InsumoService {
         actualizado.setIdInsumo(existente.getIdInsumo());
         actualizado.setActivo(existente.getActivo());
         actualizado.setStockMinimo(existente.getStockMinimo());
+        actualizado.setIdUsuarioCreacion(existente.getIdUsuarioCreacion());
+        actualizado.setIdUsuarioModificacion(contexto.usuarioActual().getIdUsuario());
         aplicarValoresPorDefecto(actualizado);
         return mapper.toResponse(repository.save(actualizado));
     }

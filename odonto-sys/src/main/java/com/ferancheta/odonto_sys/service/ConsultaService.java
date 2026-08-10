@@ -65,6 +65,7 @@ public class ConsultaService {
     public ConsultaResponse crear(ConsultaRequest request) {
         validarAccesoADoctor(request.idDoctor());
         Consulta consulta = mapper.toEntity(request);
+        consulta.setIdUsuarioCreacion(contexto.usuarioActual().getIdUsuario());
         aplicarRelaciones(consulta, request);
         return mapper.toResponse(consultaRepository.save(consulta));
     }
@@ -76,6 +77,8 @@ public class ConsultaService {
         validarAccesoADoctor(request.idDoctor());
         Consulta actualizada = mapper.toEntity(request);
         actualizada.setIdConsulta(existente.getIdConsulta());
+        actualizada.setIdUsuarioCreacion(existente.getIdUsuarioCreacion());
+        actualizada.setIdUsuarioModificacion(contexto.usuarioActual().getIdUsuario());
         aplicarRelaciones(actualizada, request);
         return mapper.toResponse(consultaRepository.save(actualizada));
     }

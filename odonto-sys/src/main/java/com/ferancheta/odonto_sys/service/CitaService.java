@@ -72,6 +72,7 @@ public class CitaService {
         validarAccesoADoctor(request.idDoctor());
         validarTraslape(request, null);
         Cita cita = mapper.toEntity(request);
+        cita.setIdUsuarioCreacion(contexto.usuarioActual().getIdUsuario());
         aplicarRelaciones(cita, request);
         return mapper.toResponse(citaRepository.save(cita));
     }
@@ -84,6 +85,8 @@ public class CitaService {
         validarTraslape(request, id);
         Cita actualizada = mapper.toEntity(request);
         actualizada.setIdCita(existente.getIdCita());
+        actualizada.setIdUsuarioCreacion(existente.getIdUsuarioCreacion());
+        actualizada.setIdUsuarioModificacion(contexto.usuarioActual().getIdUsuario());
         aplicarRelaciones(actualizada, request);
         return mapper.toResponse(citaRepository.save(actualizada));
     }

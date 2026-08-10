@@ -9,6 +9,7 @@ import com.ferancheta.odonto_sys.mapper.DoctorMapper;
 import com.ferancheta.odonto_sys.repository.CatEspecialidadRepository;
 import com.ferancheta.odonto_sys.repository.DoctorRepository;
 import com.ferancheta.odonto_sys.repository.UsuarioRepository;
+import com.ferancheta.odonto_sys.security.ContextoAutenticacion;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final CatEspecialidadRepository catEspecialidadRepository;
     private final UsuarioRepository usuarioRepository;
+    private final ContextoAutenticacion contexto;
     private final DoctorMapper mapper;
 
     @Transactional(readOnly = true)
@@ -44,6 +46,7 @@ public class DoctorService {
     public DoctorResponse crear(DoctorRequest request) {
         Doctor doctor = mapper.toEntity(request);
         doctor.setActivo(true);
+        doctor.setIdUsuarioCreacion(contexto.usuarioActual().getIdUsuario());
         aplicarRelaciones(doctor, request);
         return mapper.toResponse(doctorRepository.save(doctor));
     }
@@ -54,6 +57,8 @@ public class DoctorService {
         Doctor actualizado = mapper.toEntity(request);
         actualizado.setIdDoctor(existente.getIdDoctor());
         actualizado.setActivo(existente.getActivo());
+        actualizado.setIdUsuarioCreacion(existente.getIdUsuarioCreacion());
+        actualizado.setIdUsuarioModificacion(contexto.usuarioActual().getIdUsuario());
         aplicarRelaciones(actualizado, request);
         return mapper.toResponse(doctorRepository.save(actualizado));
     }

@@ -33,11 +33,6 @@ public class InsumoMovimientoController {
         return service.crear(request);
     }
 
-    @PutMapping("/{id}")
-    public InsumoMovimientoResponse actualizar(@PathVariable Integer id, @Valid @RequestBody InsumoMovimientoRequest request) {
-        return service.actualizar(id, request);
-    }
-
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminar(@PathVariable Integer id) {

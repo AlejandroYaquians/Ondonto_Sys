@@ -8,6 +8,7 @@ import com.ferancheta.odonto_sys.repository.CatMetodoPagoRepository;
 import com.ferancheta.odonto_sys.repository.PacienteRepository;
 import com.ferancheta.odonto_sys.repository.PagoRepository;
 import com.ferancheta.odonto_sys.repository.UsuarioRepository;
+import com.ferancheta.odonto_sys.security.ContextoAutenticacion;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class PagoService {
     private final PacienteRepository pacienteRepository;
     private final CatMetodoPagoRepository catMetodoPagoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final ContextoAutenticacion contexto;
     private final PagoMapper mapper;
 
     @Transactional(readOnly = true)
@@ -49,6 +51,7 @@ public class PagoService {
         Pago entidad = mapper.toEntity(request);
         entidad.setEstado("pendiente");
         entidad.setNumeroComprobante(generarNumeroComprobante());
+        entidad.setIdUsuarioCreacion(contexto.usuarioActual().getIdUsuario());
         aplicarRelaciones(entidad, request);
         return mapper.toResponse(repository.save(entidad));
     }
@@ -61,6 +64,8 @@ public class PagoService {
         actualizado.setIdPago(existente.getIdPago());
         actualizado.setEstado(existente.getEstado());
         actualizado.setNumeroComprobante(existente.getNumeroComprobante());
+        actualizado.setIdUsuarioCreacion(existente.getIdUsuarioCreacion());
+        actualizado.setIdUsuarioModificacion(contexto.usuarioActual().getIdUsuario());
         aplicarRelaciones(actualizado, request);
         return mapper.toResponse(repository.save(actualizado));
     }
