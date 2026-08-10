@@ -1,6 +1,7 @@
 package com.ferancheta.odonto_sys.config;
 
 import com.ferancheta.odonto_sys.security.JwtAuthenticationFilter;
+import com.ferancheta.odonto_sys.security.PermisoFilter;
 import com.ferancheta.odonto_sys.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +33,7 @@ public class SecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final PermisoFilter permisoFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -74,7 +76,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(permisoFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }
