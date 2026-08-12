@@ -39,7 +39,7 @@ public class AuthController {
 
         String token = jwtService.generateToken(usuario);
 
-        return ResponseEntity.ok(new LoginResponse(token, usuario.getUsername(), usuario.getRol().getNombre()));
+        return ResponseEntity.ok(new LoginResponse(token, usuario.getIdUsuario(), usuario.getUsername(), usuario.getRol().getNombre()));
     }
 
     @ExceptionHandler(AuthenticationException.class)

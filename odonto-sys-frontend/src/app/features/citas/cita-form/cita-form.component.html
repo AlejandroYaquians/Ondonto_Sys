@@ -1,0 +1,107 @@
+<div class="d-flex align-items-center gap-2 mb-4">
+  <a routerLink="/citas" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left"></i>
+  </a>
+  <h1 class="h3 mb-0">{{ idCita() ? 'Editar cita' : 'Nueva cita' }}</h1>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+} @else {
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      <form [formGroup]="formulario" (ngSubmit)="onSubmit()">
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <label class="form-label" for="fecha">Fecha</label>
+            <input
+              id="fecha"
+              type="date"
+              class="form-control"
+              formControlName="fecha"
+              [class.is-invalid]="formulario.controls.fecha.touched && formulario.controls.fecha.invalid"
+            />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="hora">Hora de inicio</label>
+            <input
+              id="hora"
+              type="time"
+              class="form-control"
+              formControlName="hora"
+              [class.is-invalid]="formulario.controls.hora.touched && formulario.controls.hora.invalid"
+            />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="horaFin">Hora de fin (opcional)</label>
+            <input id="horaFin" type="time" class="form-control" formControlName="horaFin" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="idPaciente">Paciente</label>
+            <select
+              id="idPaciente"
+              class="form-select"
+              formControlName="idPaciente"
+              [class.is-invalid]="formulario.controls.idPaciente.touched && formulario.controls.idPaciente.invalid"
+            >
+              <option [ngValue]="null">Seleccione...</option>
+              @for (paciente of pacientes(); track paciente.idPaciente) {
+                <option [ngValue]="paciente.idPaciente">{{ paciente.nombre }} {{ paciente.apellido }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="idDoctor">Doctor</label>
+            <select
+              id="idDoctor"
+              class="form-select"
+              formControlName="idDoctor"
+              [class.is-invalid]="formulario.controls.idDoctor.touched && formulario.controls.idDoctor.invalid"
+            >
+              <option [ngValue]="null">Seleccione...</option>
+              @for (doctor of doctores(); track doctor.idDoctor) {
+                <option [ngValue]="doctor.idDoctor">{{ doctor.nombre }} {{ doctor.apellido }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="idEstadoCita">Estado</label>
+            <select
+              id="idEstadoCita"
+              class="form-select"
+              formControlName="idEstadoCita"
+              [class.is-invalid]="formulario.controls.idEstadoCita.touched && formulario.controls.idEstadoCita.invalid"
+            >
+              <option [ngValue]="null">Seleccione...</option>
+              @for (estado of estados(); track estado.idEstadoCita) {
+                <option [ngValue]="estado.idEstadoCita">{{ estado.nombre }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="motivo">Motivo</label>
+            <input id="motivo" type="text" class="form-control" formControlName="motivo" />
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+          <a routerLink="/citas" class="btn btn-outline-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+            @if (guardando()) {
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            }
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

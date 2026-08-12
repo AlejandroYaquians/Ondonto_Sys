@@ -6,6 +6,7 @@ import { API_BASE_URL } from '../config/api-config';
 import { LoginRequest, LoginResponse } from '../models/auth.models';
 
 const TOKEN_KEY = 'odonto_token';
+const ID_USUARIO_KEY = 'odonto_id_usuario';
 const USERNAME_KEY = 'odonto_username';
 const ROL_KEY = 'odonto_rol';
 
@@ -14,6 +15,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
 
+  readonly idUsuario = signal<number | null>(this.leerIdUsuarioAlmacenado());
   readonly username = signal<string | null>(localStorage.getItem(USERNAME_KEY));
   readonly rol = signal<string | null>(localStorage.getItem(ROL_KEY));
 
@@ -21,8 +23,10 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${API_BASE_URL}/auth/login`, credenciales).pipe(
       tap((respuesta) => {
         localStorage.setItem(TOKEN_KEY, respuesta.token);
+        localStorage.setItem(ID_USUARIO_KEY, String(respuesta.idUsuario));
         localStorage.setItem(USERNAME_KEY, respuesta.username);
         localStorage.setItem(ROL_KEY, respuesta.rol);
+        this.idUsuario.set(respuesta.idUsuario);
         this.username.set(respuesta.username);
         this.rol.set(respuesta.rol);
       })
@@ -31,8 +35,10 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(ID_USUARIO_KEY);
     localStorage.removeItem(USERNAME_KEY);
     localStorage.removeItem(ROL_KEY);
+    this.idUsuario.set(null);
     this.username.set(null);
     this.rol.set(null);
     this.router.navigateByUrl('/login');
@@ -44,5 +50,10 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  private leerIdUsuarioAlmacenado(): number | null {
+    const valor = localStorage.getItem(ID_USUARIO_KEY);
+    return valor ? Number(valor) : null;
   }
 }

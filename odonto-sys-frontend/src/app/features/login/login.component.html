@@ -1,49 +1,61 @@
-<div class="login-page">
-  <div class="login-brand">
-    <h1>Clínica Dental<br />Fernando Ancheta</h1>
-  </div>
+<div class="login-page d-flex align-items-center justify-content-center p-3">
+  <div class="d-flex flex-column align-items-center w-100">
+    <div class="login-brand text-center text-white mb-4">
+    </div>
 
-  <div class="login-form-panel">
-    <mat-card class="login-card">
-      <mat-card-header>
-        <mat-card-title>Iniciar sesión</mat-card-title>
-        <mat-card-subtitle>Ingrese sus credenciales para continuar</mat-card-subtitle>
-      </mat-card-header>
+    <div class="card login-card shadow-lg border-0 rounded-4">
+      <div class="card-body p-4">
+        <h2 class="h4 mb-1">Iniciar sesión</h2>
+        <p class="text-secondary mb-4">Ingrese sus credenciales para continuar</p>
 
-      <mat-card-content>
         <form [formGroup]="formulario" (ngSubmit)="onSubmit()">
-          <mat-form-field appearance="outline" class="campo">
-            <mat-label>Usuario</mat-label>
-            <mat-icon matPrefix>person</mat-icon>
-            <input matInput formControlName="username" autocomplete="username" />
-            @if (formulario.controls.username.touched && formulario.controls.username.invalid) {
-            }
-          </mat-form-field>
+          <div class="mb-3">
+            <label class="form-label" for="username">Usuario</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-person"></i></span>
+              <input
+                id="username"
+                type="text"
+                class="form-control"
+                formControlName="username"
+                autocomplete="username"
+                [class.is-invalid]="formulario.controls.username.touched && formulario.controls.username.invalid"
+              />
+            </div>
+          </div>
 
-          <mat-form-field appearance="outline" class="campo">
-            <mat-label>Contraseña</mat-label>
-            <mat-icon matPrefix>lock</mat-icon>
-            <input matInput type="password" formControlName="password" autocomplete="current-password" />
-            @if (formulario.controls.password.touched && formulario.controls.password.invalid) {
-            }
-          </mat-form-field>
+          <div class="mb-3">
+            <label class="form-label" for="password">Contraseña</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-lock"></i></span>
+              <input
+                id="password"
+                type="password"
+                class="form-control"
+                formControlName="password"
+                autocomplete="current-password"
+                [class.is-invalid]="formulario.controls.password.touched && formulario.controls.password.invalid"
+              />
+            </div>
+          </div>
 
           @if (error()) {
-            <p class="error">
-              <mat-icon>error_outline</mat-icon>
-              {{ error() }}
-            </p>
+            <div class="alert alert-danger d-flex align-items-center gap-2 py-2" role="alert">
+              <i class="bi bi-exclamation-circle"></i>
+              <span>{{ error() }}</span>
+            </div>
           }
 
-          <button mat-flat-button color="primary" type="submit" class="boton" [disabled]="cargando()">
+          <button type="submit" class="btn btn-primary w-100 boton mt-2" [disabled]="cargando()">
             @if (cargando()) {
-              <mat-spinner diameter="20" />
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             } @else {
               Ingresar
             }
           </button>
         </form>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
+
   </div>
 </div>

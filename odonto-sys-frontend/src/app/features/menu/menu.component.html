@@ -1,13 +1,4 @@
-<div class="menu-page">
-  <header class="topbar">
-    <h1>Clínica Dental Fernando Ancheta</h1>
-    <div class="usuario">
-      <span>{{ authService.username() }} - {{ authService.rol() }}</span>
-      <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>
-    </div>
-  </header>
-
-  <main class="contenido">
-    <p>Bienvenido/a</p>
-  </main>
-</div>
+<section>
+  <h1 class="h3 mb-2">Bienvenido/a, {{ authService.username() }}</h1>
+  <p class="text-secondary mb-0">Seleccione una opción del menú lateral para comenzar.</p>
+</section>

@@ -1,0 +1,134 @@
+<div class="d-flex align-items-center gap-2 mb-4">
+  <a routerLink="/pacientes" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left"></i>
+  </a>
+  <h1 class="h3 mb-0">{{ idPaciente() ? 'Editar paciente' : 'Nuevo paciente' }}</h1>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+} @else {
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      <form [formGroup]="formulario" (ngSubmit)="onSubmit()">
+        <h2 class="h6 text-secondary text-uppercase mb-3">Datos personales</h2>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label" for="nombre">Nombre</label>
+            <input
+              id="nombre"
+              type="text"
+              class="form-control"
+              formControlName="nombre"
+              [class.is-invalid]="formulario.controls.nombre.touched && formulario.controls.nombre.invalid"
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="apellido">Apellido</label>
+            <input
+              id="apellido"
+              type="text"
+              class="form-control"
+              formControlName="apellido"
+              [class.is-invalid]="formulario.controls.apellido.touched && formulario.controls.apellido.invalid"
+            />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="fechaNacimiento">Fecha de nacimiento</label>
+            <input id="fechaNacimiento" type="date" class="form-control" formControlName="fechaNacimiento" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="idGenero">Género</label>
+            <select id="idGenero" class="form-select" formControlName="idGenero">
+              <option [ngValue]="null">Seleccione...</option>
+              @for (genero of generos(); track genero.idGenero) {
+                <option [ngValue]="genero.idGenero">{{ genero.nombre }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="idProfesion">Profesión</label>
+            <select id="idProfesion" class="form-select" formControlName="idProfesion">
+              <option [ngValue]="null">Seleccione...</option>
+              @for (profesion of profesiones(); track profesion.idProfesion) {
+                <option [ngValue]="profesion.idProfesion">{{ profesion.nombre }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <h2 class="h6 text-secondary text-uppercase mb-3">Contacto</h2>
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <label class="form-label" for="telefono">Teléfono</label>
+            <input id="telefono" type="text" class="form-control" formControlName="telefono" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="celular">Celular</label>
+            <input id="celular" type="text" class="form-control" formControlName="celular" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="email">Correo electrónico</label>
+            <input
+              id="email"
+              type="email"
+              class="form-control"
+              formControlName="email"
+              [class.is-invalid]="formulario.controls.email.touched && formulario.controls.email.invalid"
+            />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="idDepartamento">Departamento</label>
+            <select id="idDepartamento" class="form-select" formControlName="idDepartamento">
+              <option [ngValue]="null">Seleccione...</option>
+              @for (departamento of departamentos(); track departamento.idDepartamento) {
+                <option [ngValue]="departamento.idDepartamento">{{ departamento.nombre }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="idMunicipio">Municipio</label>
+            <select id="idMunicipio" class="form-select" formControlName="idMunicipio">
+              <option [ngValue]="null">Seleccione...</option>
+              @for (municipio of municipios(); track municipio.idMunicipio) {
+                <option [ngValue]="municipio.idMunicipio">{{ municipio.nombre }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="direccion">Dirección</label>
+            <input id="direccion" type="text" class="form-control" formControlName="direccion" />
+          </div>
+        </div>
+
+        <h2 class="h6 text-secondary text-uppercase mb-3">Datos adicionales</h2>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label" for="referidoPor">Referido por</label>
+            <input id="referidoPor" type="text" class="form-control" formControlName="referidoPor" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="medicoFamilia">Médico de familia</label>
+            <input id="medicoFamilia" type="text" class="form-control" formControlName="medicoFamilia" />
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+          <a routerLink="/pacientes" class="btn btn-outline-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+            @if (guardando()) {
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            }
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
