@@ -4,6 +4,7 @@ import { CitaService } from '../../../core/services/cita.service';
 import { PacienteService } from '../../../core/services/paciente.service';
 import { DoctorService } from '../../../core/services/doctor.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Cita } from '../../../core/models/cita.models';
 import { Paciente } from '../../../core/models/paciente.models';
 import { Doctor } from '../../../core/models/doctor.models';
@@ -26,6 +27,9 @@ export class CitaListComponent {
   private readonly pacienteService = inject(PacienteService);
   private readonly doctorService = inject(DoctorService);
   private readonly catalogosService = inject(CatalogosService);
+  private readonly authService = inject(AuthService);
+
+  protected readonly esDoctor = computed(() => this.authService.rol() === 'DOCTOR');
 
   protected readonly citas = signal<Cita[]>([]);
   protected readonly pacientes = signal<Paciente[]>([]);
@@ -61,7 +65,7 @@ export class CitaListComponent {
         this.cargando.set(false);
       },
       error: () => {
-        this.error.set('No se pudo cargar la agenda.');
+        this.error.set('Error al cargar.');
         this.cargando.set(false);
       }
     });
@@ -100,7 +104,7 @@ export class CitaListComponent {
     }
     this.citaService.eliminar(cita.idCita).subscribe({
       next: () => this.cargar(),
-      error: () => this.error.set('No se pudo cancelar la cita.')
+      error: () => this.error.set('Error al eliminar.')
     });
   }
 }

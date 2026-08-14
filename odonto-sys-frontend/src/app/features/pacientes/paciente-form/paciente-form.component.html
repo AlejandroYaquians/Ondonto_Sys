@@ -53,13 +53,13 @@
             </select>
           </div>
           <div class="col-md-4">
-            <label class="form-label" for="idProfesion">Profesión</label>
-            <select id="idProfesion" class="form-select" formControlName="idProfesion">
-              <option [ngValue]="null">Seleccione...</option>
-              @for (profesion of profesiones(); track profesion.idProfesion) {
-                <option [ngValue]="profesion.idProfesion">{{ profesion.nombre }}</option>
-              }
-            </select>
+            <label class="form-label">Profesión</label>
+            <app-buscador-select
+              placeholder="Buscar profesión..."
+              [opciones]="opcionesProfesiones()"
+              [valorSeleccionado]="formulario.controls.idProfesion.value"
+              (seleccionCambio)="formulario.controls.idProfesion.setValue($event)"
+            />
           </div>
         </div>
 
@@ -117,6 +117,26 @@
             <label class="form-label" for="medicoFamilia">Médico de familia</label>
             <input id="medicoFamilia" type="text" class="form-control" formControlName="medicoFamilia" />
           </div>
+        </div>
+
+        <h2 class="h6 text-secondary text-uppercase mb-3">Afecciones</h2>
+        <div class="row g-2 mb-2">
+          @for (afeccion of afecciones(); track afeccion.idAfeccion) {
+            <div class="col-md-4">
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [id]="'afeccion-' + afeccion.idAfeccion"
+                  [checked]="estaMarcada(afeccion.idAfeccion)"
+                  (change)="toggleAfeccion(afeccion.idAfeccion)"
+                />
+                <label class="form-check-label" [for]="'afeccion-' + afeccion.idAfeccion">
+                  {{ afeccion.nombreAfeccion }}
+                </label>
+              </div>
+            </div>
+          }
         </div>
 
         <div class="d-flex justify-content-end gap-2">

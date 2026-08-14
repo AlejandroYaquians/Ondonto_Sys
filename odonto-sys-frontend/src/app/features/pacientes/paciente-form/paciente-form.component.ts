@@ -1,20 +1,32 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Observable, forkJoin } from 'rxjs';
 import { PacienteService } from '../../../core/services/paciente.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
+import { HistorialMedicoService } from '../../../core/services/historial-medico.service';
 import { PacienteRequest } from '../../../core/models/paciente.models';
-import { CatGenero, CatProfesion, Departamento, Municipio } from '../../../core/models/catalogo.models';
+import { CatAfeccion, CatGenero, CatProfesion, Departamento, Municipio } from '../../../core/models/catalogo.models';
+import { HistorialMedico } from '../../../core/models/historial-medico.models';
+import { BuscadorSelectComponent } from '../../../shared/buscador-select/buscador-select.component';
+
+function hoyIso(): string {
+  const hoy = new Date();
+  const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+  const dia = String(hoy.getDate()).padStart(2, '0');
+  return `${hoy.getFullYear()}-${mes}-${dia}`;
+}
 
 @Component({
   selector: 'app-paciente-form',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, BuscadorSelectComponent],
   templateUrl: './paciente-form.component.html'
 })
 export class PacienteFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly pacienteService = inject(PacienteService);
   private readonly catalogosService = inject(CatalogosService);
+  private readonly historialMedicoService = inject(HistorialMedicoService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -27,6 +39,14 @@ export class PacienteFormComponent implements OnInit {
   protected readonly profesiones = signal<CatProfesion[]>([]);
   protected readonly departamentos = signal<Departamento[]>([]);
   protected readonly municipios = signal<Municipio[]>([]);
+
+  protected readonly afecciones = signal<CatAfeccion[]>([]);
+  protected readonly afeccionesMarcadas = signal<Set<number>>(new Set());
+  private historialExistente: HistorialMedico[] = [];
+
+  protected readonly opcionesProfesiones = computed(() =>
+    this.profesiones().map((profesion) => ({ valor: profesion.idProfesion, etiqueta: profesion.nombre }))
+  );
 
   protected readonly formulario = this.fb.group({
     nombre: ['', Validators.required],
@@ -48,6 +68,7 @@ export class PacienteFormComponent implements OnInit {
     this.catalogosService.generos().subscribe((datos) => this.generos.set(datos));
     this.catalogosService.profesiones().subscribe((datos) => this.profesiones.set(datos));
     this.catalogosService.departamentos().subscribe((datos) => this.departamentos.set(datos));
+    this.catalogosService.afecciones().subscribe((datos) => this.afecciones.set(datos));
 
     this.formulario.controls.idDepartamento.valueChanges.subscribe((idDepartamento) => {
       this.cargarMunicipios(idDepartamento ?? undefined);
@@ -58,6 +79,10 @@ export class PacienteFormComponent implements OnInit {
       const id = Number(parametroId);
       this.idPaciente.set(id);
       this.cargarPaciente(id);
+      this.historialMedicoService.listarPorPaciente(id).subscribe((datos) => {
+        this.historialExistente = datos;
+        this.afeccionesMarcadas.set(new Set(datos.map((h) => h.idAfeccion)));
+      });
     }
   }
 
@@ -93,7 +118,7 @@ export class PacienteFormComponent implements OnInit {
         this.cargando.set(false);
       },
       error: () => {
-        this.error.set('No se pudo cargar la información del paciente.');
+        this.error.set('Error al cargar.');
         this.cargando.set(false);
       }
     });
@@ -105,6 +130,22 @@ export class PacienteFormComponent implements OnInit {
       return;
     }
     this.catalogosService.municipios(idDepartamento).subscribe((datos) => this.municipios.set(datos));
+  }
+
+  estaMarcada(idAfeccion: number): boolean {
+    return this.afeccionesMarcadas().has(idAfeccion);
+  }
+
+  toggleAfeccion(idAfeccion: number): void {
+    this.afeccionesMarcadas.update((actuales) => {
+      const nuevas = new Set(actuales);
+      if (nuevas.has(idAfeccion)) {
+        nuevas.delete(idAfeccion);
+      } else {
+        nuevas.add(idAfeccion);
+      }
+      return nuevas;
+    });
   }
 
   onSubmit(): void {
@@ -136,10 +177,43 @@ export class PacienteFormComponent implements OnInit {
     const operacion = id ? this.pacienteService.actualizar(id, request) : this.pacienteService.crear(request);
 
     operacion.subscribe({
+      next: (paciente) => this.guardarAfecciones(paciente.idPaciente),
+      error: () => {
+        this.guardando.set(false);
+        this.error.set('Error al guardar.');
+      }
+    });
+  }
+
+  private guardarAfecciones(idPaciente: number): void {
+    const marcadas = this.afeccionesMarcadas();
+    const idsExistentes = new Set(this.historialExistente.map((h) => h.idAfeccion));
+
+    const aCrear = [...marcadas].filter((idAfeccion) => !idsExistentes.has(idAfeccion));
+    const aEliminar = this.historialExistente.filter((h) => !marcadas.has(h.idAfeccion));
+
+    const operaciones: Observable<unknown>[] = [
+      ...aCrear.map((idAfeccion) =>
+        this.historialMedicoService.crear({
+          idAfeccion,
+          idPaciente,
+          fechaRegistro: hoyIso(),
+          observacionDetalle: null
+        })
+      ),
+      ...aEliminar.map((h) => this.historialMedicoService.eliminar(h.idHistorial))
+    ];
+
+    if (operaciones.length === 0) {
+      this.router.navigateByUrl('/pacientes');
+      return;
+    }
+
+    forkJoin(operaciones).subscribe({
       next: () => this.router.navigateByUrl('/pacientes'),
       error: () => {
         this.guardando.set(false);
-        this.error.set('No se pudo guardar el paciente. Verifique los datos.');
+        this.error.set('Error al guardar.');
       }
     });
   }

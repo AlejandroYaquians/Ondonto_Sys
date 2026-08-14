@@ -1,0 +1,91 @@
+<div class="d-flex align-items-center gap-2 mb-4">
+  <a routerLink="/doctores" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left"></i>
+  </a>
+  <h1 class="h3 mb-0">{{ idDoctor() ? 'Editar doctor' : 'Nuevo doctor' }}</h1>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+} @else {
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      <form [formGroup]="formulario" (ngSubmit)="onSubmit()">
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label" for="nombre">Nombre</label>
+            <input
+              id="nombre"
+              type="text"
+              class="form-control"
+              formControlName="nombre"
+              [class.is-invalid]="formulario.controls.nombre.touched && formulario.controls.nombre.invalid"
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="apellido">Apellido</label>
+            <input
+              id="apellido"
+              type="text"
+              class="form-control"
+              formControlName="apellido"
+              [class.is-invalid]="formulario.controls.apellido.touched && formulario.controls.apellido.invalid"
+            />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="telefono">Teléfono</label>
+            <input id="telefono" type="text" class="form-control" formControlName="telefono" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="email">Correo electrónico</label>
+            <input
+              id="email"
+              type="email"
+              class="form-control"
+              formControlName="email"
+              [class.is-invalid]="formulario.controls.email.touched && formulario.controls.email.invalid"
+            />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="idEspecialidad">Especialidad</label>
+            <select id="idEspecialidad" class="form-select" formControlName="idEspecialidad">
+              <option [ngValue]="null">Seleccione...</option>
+              @for (especialidad of especialidades(); track especialidad.idEspecialidad) {
+                <option [ngValue]="especialidad.idEspecialidad">{{ especialidad.nombre }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="porcentajeComision">Porcentaje de comisión (%)</label>
+            <input
+              id="porcentajeComision"
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              class="form-control"
+              formControlName="porcentajeComision"
+              [class.is-invalid]="formulario.controls.porcentajeComision.touched && formulario.controls.porcentajeComision.invalid"
+            />
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+          <a routerLink="/doctores" class="btn btn-outline-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+            @if (guardando()) {
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            }
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

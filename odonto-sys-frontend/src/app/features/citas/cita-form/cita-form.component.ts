@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CitaService } from '../../../core/services/cita.service';
@@ -10,10 +10,18 @@ import { CitaRequest } from '../../../core/models/cita.models';
 import { Paciente } from '../../../core/models/paciente.models';
 import { Doctor } from '../../../core/models/doctor.models';
 import { CatEstadoCita } from '../../../core/models/catalogo.models';
+import { BuscadorSelectComponent } from '../../../shared/buscador-select/buscador-select.component';
+
+function hoyIso(): string {
+  const hoy = new Date();
+  const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+  const dia = String(hoy.getDate()).padStart(2, '0');
+  return `${hoy.getFullYear()}-${mes}-${dia}`;
+}
 
 @Component({
   selector: 'app-cita-form',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, BuscadorSelectComponent],
   templateUrl: './cita-form.component.html'
 })
 export class CitaFormComponent implements OnInit {
@@ -34,9 +42,19 @@ export class CitaFormComponent implements OnInit {
   protected readonly pacientes = signal<Paciente[]>([]);
   protected readonly doctores = signal<Doctor[]>([]);
   protected readonly estados = signal<CatEstadoCita[]>([]);
+  protected readonly miDoctor = signal<Doctor | null>(null);
+
+  protected readonly esDoctor = computed(() => this.authService.rol() === 'DOCTOR');
+
+  protected readonly opcionesPacientes = computed(() =>
+    this.pacientes().map((paciente) => ({
+      valor: paciente.idPaciente,
+      etiqueta: `${paciente.nombre} ${paciente.apellido}`
+    }))
+  );
 
   protected readonly formulario = this.fb.group({
-    fecha: ['', Validators.required],
+    fecha: [hoyIso(), Validators.required],
     hora: ['', Validators.required],
     horaFin: [''],
     motivo: [''],
@@ -47,8 +65,20 @@ export class CitaFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.pacienteService.listar().subscribe((datos) => this.pacientes.set(datos.filter((p) => p.activo)));
-    this.doctorService.listarActivos().subscribe((datos) => this.doctores.set(datos));
     this.catalogosService.estadosCita().subscribe((datos) => this.estados.set(datos));
+
+    this.doctorService.listarActivos().subscribe((datos) => {
+      this.doctores.set(datos);
+
+      if (this.esDoctor()) {
+        const idUsuario = this.authService.idUsuario();
+        const propio = datos.find((doctor) => doctor.idUsuario === idUsuario) ?? null;
+        this.miDoctor.set(propio);
+        if (propio && !this.idCita()) {
+          this.formulario.controls.idDoctor.setValue(propio.idDoctor);
+        }
+      }
+    });
 
     const parametroId = this.route.snapshot.paramMap.get('id');
     if (parametroId) {
@@ -74,7 +104,7 @@ export class CitaFormComponent implements OnInit {
         this.cargando.set(false);
       },
       error: () => {
-        this.error.set('No se pudo cargar la cita.');
+        this.error.set('Error al cargar.');
         this.cargando.set(false);
       }
     });
@@ -114,7 +144,7 @@ export class CitaFormComponent implements OnInit {
       next: () => this.router.navigateByUrl('/citas'),
       error: (err) => {
         this.guardando.set(false);
-        this.error.set(err?.error?.mensaje ?? 'No se pudo guardar la cita. Verifique los datos y el horario.');
+        this.error.set(err?.error?.mensaje ?? 'Error al guardar.');
       }
     });
   }

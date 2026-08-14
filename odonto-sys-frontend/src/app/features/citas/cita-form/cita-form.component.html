@@ -44,32 +44,35 @@
           </div>
 
           <div class="col-md-6">
-            <label class="form-label" for="idPaciente">Paciente</label>
-            <select
-              id="idPaciente"
-              class="form-select"
-              formControlName="idPaciente"
-              [class.is-invalid]="formulario.controls.idPaciente.touched && formulario.controls.idPaciente.invalid"
-            >
-              <option [ngValue]="null">Seleccione...</option>
-              @for (paciente of pacientes(); track paciente.idPaciente) {
-                <option [ngValue]="paciente.idPaciente">{{ paciente.nombre }} {{ paciente.apellido }}</option>
-              }
-            </select>
+            <label class="form-label">Paciente</label>
+            <app-buscador-select
+              placeholder="Buscar paciente..."
+              [opciones]="opcionesPacientes()"
+              [valorSeleccionado]="formulario.controls.idPaciente.value"
+              (seleccionCambio)="formulario.controls.idPaciente.setValue($event)"
+            />
+            @if (formulario.controls.idPaciente.touched && formulario.controls.idPaciente.invalid) {
+              <div class="text-danger small mt-1">Debe seleccionar un paciente.</div>
+            }
           </div>
           <div class="col-md-6">
-            <label class="form-label" for="idDoctor">Doctor</label>
-            <select
-              id="idDoctor"
-              class="form-select"
-              formControlName="idDoctor"
-              [class.is-invalid]="formulario.controls.idDoctor.touched && formulario.controls.idDoctor.invalid"
-            >
-              <option [ngValue]="null">Seleccione...</option>
-              @for (doctor of doctores(); track doctor.idDoctor) {
-                <option [ngValue]="doctor.idDoctor">{{ doctor.nombre }} {{ doctor.apellido }}</option>
-              }
-            </select>
+            @if (esDoctor() && miDoctor()) {
+              <label class="form-label">Doctor</label>
+              <input type="text" class="form-control" disabled [value]="'Dr(a). ' + miDoctor()!.nombre + ' ' + miDoctor()!.apellido" />
+            } @else {
+              <label class="form-label" for="idDoctor">Doctor</label>
+              <select
+                id="idDoctor"
+                class="form-select"
+                formControlName="idDoctor"
+                [class.is-invalid]="formulario.controls.idDoctor.touched && formulario.controls.idDoctor.invalid"
+              >
+                <option [ngValue]="null">Seleccione...</option>
+                @for (doctor of doctores(); track doctor.idDoctor) {
+                  <option [ngValue]="doctor.idDoctor">{{ doctor.nombre }} {{ doctor.apellido }}</option>
+                }
+              </select>
+            }
           </div>
 
           <div class="col-md-6">

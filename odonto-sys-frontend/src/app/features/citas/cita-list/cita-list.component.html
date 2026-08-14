@@ -1,8 +1,5 @@
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
-  <div>
-    <h1 class="h3 mb-1">Citas</h1>
-    <p class="text-secondary mb-0">Agenda de citas de la clínica.</p>
-  </div>
+  <h1 class="h3 mb-0">Citas</h1>
   <a routerLink="/citas/nueva" class="btn btn-primary d-flex align-items-center gap-2">
     <i class="bi bi-calendar-plus"></i>
     Nueva cita
@@ -26,15 +23,17 @@
           (change)="cambiarFecha($any($event.target).value)"
         />
       </div>
-      <div class="col-md-4">
-        <label class="form-label" for="doctor">Doctor</label>
-        <select id="doctor" class="form-select" (change)="cambiarDoctor($any($event.target).value)">
-          <option value="">Todos</option>
-          @for (doctor of doctores(); track doctor.idDoctor) {
-            <option [value]="doctor.idDoctor">{{ doctor.nombre }} {{ doctor.apellido }}</option>
-          }
-        </select>
-      </div>
+      @if (!esDoctor()) {
+        <div class="col-md-4">
+          <label class="form-label" for="doctor">Doctor</label>
+          <select id="doctor" class="form-select" (change)="cambiarDoctor($any($event.target).value)">
+            <option value="">Todos</option>
+            @for (doctor of doctores(); track doctor.idDoctor) {
+              <option [value]="doctor.idDoctor">{{ doctor.nombre }} {{ doctor.apellido }}</option>
+            }
+          </select>
+        </div>
+      }
     </div>
 
     @if (cargando()) {
@@ -72,6 +71,14 @@
                 <td><span class="badge text-bg-info">{{ nombreEstado(cita.idEstadoCita) }}</span></td>
                 <td class="text-end">
                   <div class="btn-group btn-group-sm">
+                    <a
+                      routerLink="/consultas/nueva"
+                      [queryParams]="{ idCita: cita.idCita, idPaciente: cita.idPaciente, idDoctor: cita.idDoctor }"
+                      class="btn btn-outline-primary"
+                      title="Registrar consulta"
+                    >
+                      <i class="bi bi-file-earmark-medical"></i>
+                    </a>
                     <a [routerLink]="['/citas', cita.idCita, 'editar']" class="btn btn-outline-secondary" title="Editar">
                       <i class="bi bi-pencil"></i>
                     </a>

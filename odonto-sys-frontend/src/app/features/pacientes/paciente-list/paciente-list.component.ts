@@ -38,7 +38,7 @@ export class PacienteListComponent {
         this.cargando.set(false);
       },
       error: () => {
-        this.error.set('No se pudo cargar la lista de pacientes.');
+        this.error.set('Error al cargar.');
         this.cargando.set(false);
       }
     });
@@ -46,6 +46,10 @@ export class PacienteListComponent {
 
   buscar(valor: string): void {
     this.termino.set(valor);
+  }
+
+  formatoFecha(fecha: string): string {
+    return fecha ? fecha.slice(0, 16).replace('T', ' ') : '—';
   }
 
   eliminar(paciente: Paciente): void {
@@ -56,7 +60,7 @@ export class PacienteListComponent {
 
     this.pacienteService.eliminar(paciente.idPaciente).subscribe({
       next: () => this.cargar(),
-      error: () => this.error.set('No se pudo inactivar al paciente.')
+      error: () => this.error.set('Error al eliminar.')
     });
   }
 }

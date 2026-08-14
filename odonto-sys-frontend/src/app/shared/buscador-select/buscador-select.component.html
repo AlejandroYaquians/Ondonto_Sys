@@ -1,0 +1,24 @@
+<div class="position-relative">
+  <input
+    type="text"
+    class="form-control"
+    [placeholder]="placeholder"
+    [value]="termino()"
+    (focus)="enfocar()"
+    (input)="escribir($any($event.target).value)"
+  />
+
+  @if (abierto()) {
+    <div class="buscador-backdrop" (click)="cerrar()"></div>
+    <ul class="list-group buscador-resultados shadow-sm">
+      @if (opcionesFiltradas().length === 0) {
+        <li class="list-group-item text-secondary small">Sin resultados</li>
+      }
+      @for (opcion of opcionesFiltradas(); track opcion.valor) {
+        <li class="list-group-item list-group-item-action" (click)="seleccionar(opcion)">
+          {{ opcion.etiqueta }}
+        </li>
+      }
+    </ul>
+  }
+</div>

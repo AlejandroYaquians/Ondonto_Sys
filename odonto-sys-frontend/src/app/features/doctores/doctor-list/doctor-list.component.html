@@ -1,0 +1,79 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <h1 class="h3 mb-0">Doctores</h1>
+  <a routerLink="/doctores/nuevo" class="btn btn-primary d-flex align-items-center gap-2">
+    <i class="bi bi-person-plus"></i>
+    Nuevo doctor
+  </a>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+<div class="card shadow-sm border-0">
+  <div class="card-body">
+    <div class="mb-3">
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Buscar por nombre o apellido..."
+          [value]="termino()"
+          (input)="buscar($any($event.target).value)"
+        />
+      </div>
+    </div>
+
+    @if (cargando()) {
+      <div class="text-center text-secondary py-5">
+        <div class="spinner-border" role="status"></div>
+        <p class="mt-2 mb-0">Cargando doctores...</p>
+      </div>
+    } @else if (doctoresFiltrados().length === 0) {
+      <p class="text-secondary text-center py-4 mb-0">No se encontraron doctores.</p>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Especialidad</th>
+              <th scope="col">Contacto</th>
+              <th scope="col">Comisión</th>
+              <th scope="col">Estado</th>
+              <th scope="col" class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (doctor of doctoresFiltrados(); track doctor.idDoctor) {
+              <tr>
+                <td>Dr(a). {{ doctor.nombre }} {{ doctor.apellido }}</td>
+                <td>{{ nombreEspecialidad(doctor.idEspecialidad) }}</td>
+                <td>{{ doctor.telefono || doctor.email || '—' }}</td>
+                <td>{{ doctor.porcentajeComision }}%</td>
+                <td>
+                  @if (doctor.activo) {
+                    <span class="badge text-bg-success">Activo</span>
+                  } @else {
+                    <span class="badge text-bg-secondary">Inactivo</span>
+                  }
+                </td>
+                <td class="text-end">
+                  <div class="btn-group btn-group-sm">
+                    <a [routerLink]="['/doctores', doctor.idDoctor, 'editar']" class="btn btn-outline-secondary" title="Editar">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <button type="button" class="btn btn-outline-danger" title="Inactivar" (click)="eliminar(doctor)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
