@@ -1,0 +1,77 @@
+<h1 class="h3 mb-4">Bitácora</h1>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-body">
+    <div class="row g-4">
+      <div class="col-md-6">
+        <h2 class="h6 text-secondary text-uppercase mb-3">Buscar por usuario</h2>
+        <form [formGroup]="formularioUsuario" (ngSubmit)="buscarPorUsuario()" class="d-flex gap-2">
+          <select class="form-select" formControlName="idUsuario">
+            <option [ngValue]="null">Seleccione un usuario...</option>
+            @for (usuario of usuarios(); track usuario.idUsuario) {
+              <option [ngValue]="usuario.idUsuario">{{ usuario.nombre }}</option>
+            }
+          </select>
+          <button type="submit" class="btn btn-primary text-nowrap">Buscar</button>
+        </form>
+      </div>
+      <div class="col-md-6">
+        <h2 class="h6 text-secondary text-uppercase mb-3">Buscar por tabla y registro</h2>
+        <form [formGroup]="formularioRegistro" (ngSubmit)="buscarPorRegistro()" class="d-flex gap-2">
+          <input type="text" class="form-control" placeholder="Tabla (ej. paciente)" formControlName="tablaAfectada" />
+          <input type="number" class="form-control" placeholder="ID" formControlName="idRegistro" />
+          <button type="submit" class="btn btn-primary text-nowrap">Buscar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0">
+  <div class="card-body">
+    @if (cargando()) {
+      <div class="text-center text-secondary py-5">
+        <div class="spinner-border" role="status"></div>
+      </div>
+    } @else if (!busquedaRealizada()) {
+      <p class="text-secondary text-center py-4 mb-0">Realice una búsqueda para ver los registros.</p>
+    } @else if (registros().length === 0) {
+      <p class="text-secondary text-center py-4 mb-0">No se encontraron registros.</p>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th scope="col">Fecha</th>
+              <th scope="col">Tabla</th>
+              <th scope="col">Registro</th>
+              <th scope="col">Acción</th>
+              <th scope="col">Campo</th>
+              <th scope="col">Valor anterior</th>
+              <th scope="col">Valor nuevo</th>
+              <th scope="col">Usuario</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of registros(); track item.idBitacora) {
+              <tr>
+                <td>{{ formatoFecha(item.fechaHora) }}</td>
+                <td>{{ item.tablaAfectada }}</td>
+                <td>{{ item.idRegistro }}</td>
+                <td>{{ item.accion }}</td>
+                <td>{{ item.campoModificado || '—' }}</td>
+                <td>{{ item.valorAnterior || '—' }}</td>
+                <td>{{ item.valorNuevo || '—' }}</td>
+                <td>{{ nombreUsuario(item.idUsuario) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

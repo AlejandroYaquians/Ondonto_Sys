@@ -1,4 +1,80 @@
-<section>
-  <h1 class="h3 mb-2">Bienvenido/a, {{ authService.username() }}</h1>
-  <p class="text-secondary mb-0">Seleccione una opción del menú lateral para comenzar.</p>
+<section class="mb-4">
+  <h1 class="h3 mb-1">Bienvenido/a, {{ authService.username() }}</h1>
+  <p class="text-secondary mb-0">Agenda de citas del mes.</p>
 </section>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="mesAnterior()">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <h2 class="h5 mb-0 text-capitalize">{{ nombreMes() }}</h2>
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="mesSiguiente()">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+
+        @if (cargando()) {
+          <div class="text-center text-secondary py-5">
+            <div class="spinner-border" role="status"></div>
+          </div>
+        } @else {
+          <div class="calendario-grid">
+            <div class="calendario-encabezado">Dom</div>
+            <div class="calendario-encabezado">Lun</div>
+            <div class="calendario-encabezado">Mar</div>
+            <div class="calendario-encabezado">Mié</div>
+            <div class="calendario-encabezado">Jue</div>
+            <div class="calendario-encabezado">Vie</div>
+            <div class="calendario-encabezado">Sáb</div>
+
+            @for (dia of diasCalendario(); track $index) {
+              @if (dia) {
+                <button
+                  type="button"
+                  class="calendario-dia"
+                  [class.calendario-dia-hoy]="dia.esHoy"
+                  [class.calendario-dia-seleccionado]="dia.fechaIso === diaSeleccionado()"
+                  (click)="seleccionarDia(dia)"
+                >
+                  <span>{{ dia.numero }}</span>
+                  @if (dia.citas.length > 0) {
+                    <span class="badge text-bg-primary rounded-pill calendario-badge">{{ dia.citas.length }}</span>
+                  }
+                </button>
+              } @else {
+                <div></div>
+              }
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body">
+        <h2 class="h6 text-secondary text-uppercase mb-3">Citas del {{ diaSeleccionado() }}</h2>
+        @if (citasDelDiaSeleccionado().length === 0) {
+          <p class="text-secondary small mb-0">No hay citas para este día.</p>
+        } @else {
+          <ul class="list-group list-group-flush">
+            @for (cita of citasDelDiaSeleccionado(); track cita.idCita) {
+              <li class="list-group-item px-0">
+                <div class="fw-medium">{{ horaCorta(cita.hora) }} · {{ nombrePaciente(cita.idPaciente) }}</div>
+                <div class="text-secondary small">
+                  {{ nombreDoctor(cita.idDoctor) }} · {{ nombreEstado(cita.idEstadoCita) }}
+                </div>
+              </li>
+            }
+          </ul>
+        }
+        <a routerLink="/citas" class="btn btn-outline-primary btn-sm w-100 mt-3">Ver agenda completa</a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -87,7 +87,7 @@
     </div>
   </div>
 
-  <div class="card shadow-sm border-0">
+  <div class="card shadow-sm border-0 mb-4">
     <div class="card-body">
       <h2 class="h6 text-secondary text-uppercase mb-3">Afecciones</h2>
       @if (historial().length === 0) {
@@ -105,6 +105,12 @@
         Para agregar o quitar afecciones, use la opción
         <a [routerLink]="['/pacientes', p.idPaciente, 'editar']">Modificar paciente</a>.
       </p>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <app-contactos-seccion [idPaciente]="p.idPaciente" />
     </div>
   </div>
 }

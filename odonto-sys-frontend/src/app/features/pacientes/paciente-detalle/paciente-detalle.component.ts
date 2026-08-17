@@ -6,10 +6,11 @@ import { HistorialMedicoService } from '../../../core/services/historial-medico.
 import { Paciente } from '../../../core/models/paciente.models';
 import { CatAfeccion, CatGenero, CatProfesion, Municipio } from '../../../core/models/catalogo.models';
 import { HistorialMedico } from '../../../core/models/historial-medico.models';
+import { ContactosSeccionComponent } from './secciones/contactos-seccion.component';
 
 @Component({
   selector: 'app-paciente-detalle',
-  imports: [RouterLink],
+  imports: [RouterLink, ContactosSeccionComponent],
   templateUrl: './paciente-detalle.component.html'
 })
 export class PacienteDetalleComponent implements OnInit {

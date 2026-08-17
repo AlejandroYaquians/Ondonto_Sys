@@ -1,0 +1,112 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <h1 class="h3 mb-0">Gastos</h1>
+  @if (!mostrarFormulario()) {
+    <button type="button" class="btn btn-primary d-flex align-items-center gap-2" (click)="nuevo()">
+      <i class="bi bi-plus-lg"></i>
+      Nuevo
+    </button>
+  }
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (mostrarFormulario()) {
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <form [formGroup]="formulario" (ngSubmit)="guardar()">
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Descripción</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="descripcion"
+              [class.is-invalid]="formulario.controls.descripcion.touched && formulario.controls.descripcion.invalid"
+            />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Monto (Q)</label>
+            <input
+              type="number"
+              step="0.01"
+              class="form-control"
+              formControlName="monto"
+              [class.is-invalid]="formulario.controls.monto.touched && formulario.controls.monto.invalid"
+            />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Fecha</label>
+            <input type="date" class="form-control" formControlName="fecha" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Tipo de gasto</label>
+            <select
+              class="form-select"
+              formControlName="idTipoGasto"
+              [class.is-invalid]="formulario.controls.idTipoGasto.touched && formulario.controls.idTipoGasto.invalid"
+            >
+              <option [ngValue]="null">Seleccione...</option>
+              @for (tipo of tiposGasto(); track tipo.idTipoGasto) {
+                <option [ngValue]="tipo.idTipoGasto">{{ tipo.nombreCategoria }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Comprobante</label>
+            <input type="text" class="form-control" formControlName="comprobante" />
+          </div>
+        </div>
+        <div class="d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-outline-secondary" (click)="cancelar()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<div class="card shadow-sm border-0">
+  <div class="card-body">
+    @if (cargando()) {
+      <div class="text-center text-secondary py-5">
+        <div class="spinner-border" role="status"></div>
+      </div>
+    } @else if (items().length === 0) {
+      <p class="text-secondary text-center py-4 mb-0">No hay registros.</p>
+    } @else {
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th scope="col">Fecha</th>
+            <th scope="col">Descripción</th>
+            <th scope="col">Tipo</th>
+            <th scope="col">Monto</th>
+            <th scope="col" class="text-end">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of items(); track item.idGasto) {
+            <tr>
+              <td>{{ item.fecha }}</td>
+              <td>{{ item.descripcion }}</td>
+              <td>{{ nombreTipoGasto(item.idTipoGasto) }}</td>
+              <td>Q{{ item.monto }}</td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <button type="button" class="btn btn-outline-secondary" (click)="editar(item)">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-danger" (click)="eliminar(item)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>

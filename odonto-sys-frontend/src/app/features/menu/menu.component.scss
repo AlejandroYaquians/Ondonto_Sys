@@ -1,0 +1,46 @@
+.calendario-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+}
+
+.calendario-encabezado {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--bs-secondary-color);
+  text-transform: uppercase;
+  text-align: center;
+  padding-bottom: 0.5rem;
+}
+
+.calendario-dia {
+  position: relative;
+  aspect-ratio: 1;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.375rem;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: var(--bs-tertiary-bg);
+  }
+}
+
+.calendario-dia-hoy {
+  border-color: var(--bs-primary);
+  font-weight: 600;
+}
+
+.calendario-dia-seleccionado {
+  background: var(--bs-primary);
+  color: #fff;
+}
+
+.calendario-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 0.6rem;
+}

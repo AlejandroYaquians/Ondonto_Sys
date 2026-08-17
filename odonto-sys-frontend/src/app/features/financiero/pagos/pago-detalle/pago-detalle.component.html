@@ -1,0 +1,87 @@
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+} @else if (pago(); as datosPago) {
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
+    <div class="d-flex align-items-center gap-2">
+      <a routerLink="/pagos" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <div>
+        <h1 class="h3 mb-1">{{ datosPago.numeroComprobante }}</h1>
+        <span class="badge text-bg-info">{{ datosPago.estado }}</span>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      @if (datosPago.estado === 'pendiente') {
+        <button type="button" class="btn btn-outline-success" (click)="cambiarEstado('pagado')">Marcar pagado</button>
+        <button type="button" class="btn btn-outline-danger" (click)="cambiarEstado('cancelado')">Cancelar</button>
+      }
+      <a [routerLink]="['/pagos', datosPago.idPago, 'editar']" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+        <i class="bi bi-pencil"></i>
+        Editar
+      </a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Fecha</div>
+          <div class="fw-medium">{{ formatoFecha(datosPago.fecha) }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Paciente</div>
+          <div class="fw-medium">{{ paciente() ? paciente()!.nombre + ' ' + paciente()!.apellido : '—' }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Método de pago</div>
+          <div class="fw-medium">{{ nombreMetodoPago(datosPago.idMetodoPago) }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Monto bruto</div>
+          <div class="fw-medium">{{ datosPago.montoBruto !== null ? 'Q' + datosPago.montoBruto : '—' }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Efectivo</div>
+          <div class="fw-medium">{{ datosPago.montoEfectivo !== null ? 'Q' + datosPago.montoEfectivo : '—' }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Tarjeta</div>
+          <div class="fw-medium">{{ datosPago.montoTarjeta !== null ? 'Q' + datosPago.montoTarjeta : '—' }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Costo laboratorio</div>
+          <div class="fw-medium">{{ datosPago.costoLaboratorio !== null ? 'Q' + datosPago.costoLaboratorio : '—' }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Monto neto</div>
+          <div class="fw-medium">{{ datosPago.montoNeto !== null ? 'Q' + datosPago.montoNeto : '—' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <app-detalles-pago-seccion [idPago]="datosPago.idPago" [idPaciente]="datosPago.idPaciente" />
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <app-comisiones-seccion [idPago]="datosPago.idPago" />
+        </div>
+      </div>
+    </div>
+  </div>
+}

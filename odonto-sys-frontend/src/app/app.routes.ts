@@ -156,6 +156,54 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/catalogos/servicios/servicios.component').then((m) => m.ServiciosComponent)
       },
+      {
+        path: 'insumos',
+        loadComponent: () => import('./features/inventario/insumos/insumos.component').then((m) => m.InsumosComponent)
+      },
+      {
+        path: 'insumo-movimientos',
+        loadComponent: () =>
+          import('./features/inventario/insumo-movimientos/insumo-movimientos.component').then(
+            (m) => m.InsumoMovimientosComponent
+          )
+      },
+      {
+        path: 'insumo-servicios',
+        loadComponent: () =>
+          import('./features/inventario/insumo-servicios/insumo-servicios.component').then(
+            (m) => m.InsumoServiciosComponent
+          )
+      },
+      {
+        path: 'gastos',
+        loadComponent: () => import('./features/financiero/gastos/gastos.component').then((m) => m.GastosComponent)
+      },
+      {
+        path: 'pagos',
+        loadComponent: () =>
+          import('./features/financiero/pagos/pago-list/pago-list.component').then((m) => m.PagoListComponent)
+      },
+      {
+        path: 'pagos/nuevo',
+        loadComponent: () =>
+          import('./features/financiero/pagos/pago-form/pago-form.component').then((m) => m.PagoFormComponent)
+      },
+      {
+        path: 'pagos/:id/editar',
+        loadComponent: () =>
+          import('./features/financiero/pagos/pago-form/pago-form.component').then((m) => m.PagoFormComponent)
+      },
+      {
+        path: 'pagos/:id',
+        loadComponent: () =>
+          import('./features/financiero/pagos/pago-detalle/pago-detalle.component').then(
+            (m) => m.PagoDetalleComponent
+          )
+      },
+      {
+        path: 'bitacora',
+        loadComponent: () => import('./features/bitacora/bitacora.component').then((m) => m.BitacoraComponent)
+      },
       { path: '', pathMatch: 'full', redirectTo: 'menu' }
     ]
   },

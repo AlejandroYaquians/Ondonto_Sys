@@ -12,6 +12,10 @@ export class ConsultaService {
     return this.http.get<Consulta[]>(`${API_BASE_URL}/consultas`);
   }
 
+  listarPorPaciente(idPaciente: number): Observable<Consulta[]> {
+    return this.http.get<Consulta[]>(`${API_BASE_URL}/consultas`, { params: { idPaciente } });
+  }
+
   buscarPorId(id: number): Observable<Consulta> {
     return this.http.get<Consulta>(`${API_BASE_URL}/consultas/${id}`);
   }
