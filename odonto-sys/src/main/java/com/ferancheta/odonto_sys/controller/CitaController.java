@@ -50,6 +50,16 @@ public class CitaController {
         return service.actualizar(id, request);
     }
 
+    @PatchMapping("/{id}/estado")
+    public CitaResponse cambiarEstado(@PathVariable Integer id, @RequestParam String estado) {
+        return service.cambiarEstado(id, estado);
+    }
+
+    @PatchMapping("/{id}/doctor")
+    public CitaResponse cambiarDoctor(@PathVariable Integer id, @RequestParam Integer idDoctor) {
+        return service.cambiarDoctor(id, idDoctor);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminar(@PathVariable Integer id) {

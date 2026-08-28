@@ -116,9 +116,10 @@ $hover-bg: rgba(255, 255, 255, 0.08);
 }
 
 .badge-rol {
-  background-color: rgba(72, 213, 171, 0.2);
-  color: $color-mint;
-  border: 1px solid rgba(72, 213, 171, 0.4);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 500;
+  border-radius: 0.25rem;
 }
 
 .sidebar-backdrop {

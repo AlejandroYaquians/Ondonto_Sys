@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 public interface DepartamentoMapper {
 
     @Mapping(target = "idDepartamento", ignore = true)
+    @Mapping(target = "activo", ignore = true)
     Departamento toEntity(DepartamentoRequest request);
 
     DepartamentoResponse toResponse(Departamento entity);

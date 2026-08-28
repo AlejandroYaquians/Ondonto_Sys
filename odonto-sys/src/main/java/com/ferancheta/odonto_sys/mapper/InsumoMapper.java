@@ -11,8 +11,9 @@ public interface InsumoMapper {
 
     @Mapping(target = "idInsumo", ignore = true)
     @Mapping(target = "activo", ignore = true)
+    @Mapping(target = "stockActual", ignore = true)
+    @Mapping(target = "stockMinimo", ignore = true)
     @Mapping(target = "movimientos", ignore = true)
-    @Mapping(target = "servicios", ignore = true)
     Insumo toEntity(InsumoRequest request);
 
     InsumoResponse toResponse(Insumo entity);

@@ -26,6 +26,11 @@ public class CatProfesionService {
     }
 
     @Transactional(readOnly = true)
+    public List<CatProfesionResponse> listarActivos() {
+        return repository.findByActivoTrue().stream().map(mapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
     public CatProfesionResponse buscarPorId(Integer id) {
         return mapper.toResponse(obtenerEntidad(id));
     }
@@ -34,6 +39,7 @@ public class CatProfesionService {
     @PreAuthorize("hasRole('ADMIN')")
     public CatProfesionResponse crear(CatProfesionRequest request) {
         CatProfesion entidad = mapper.toEntity(request);
+        entidad.setActivo(true);
         return mapper.toResponse(repository.save(entidad));
     }
 
@@ -43,13 +49,16 @@ public class CatProfesionService {
         CatProfesion existente = obtenerEntidad(id);
         CatProfesion actualizada = mapper.toEntity(request);
         actualizada.setIdProfesion(existente.getIdProfesion());
+        actualizada.setActivo(existente.getActivo());
         return mapper.toResponse(repository.save(actualizada));
     }
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
-        repository.delete(obtenerEntidad(id));
+        CatProfesion entidad = obtenerEntidad(id);
+        entidad.setActivo(false);
+        repository.save(entidad);
     }
 
     private CatProfesion obtenerEntidad(Integer id) {

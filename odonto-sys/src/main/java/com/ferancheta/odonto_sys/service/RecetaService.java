@@ -2,10 +2,10 @@ package com.ferancheta.odonto_sys.service;
 
 import com.ferancheta.odonto_sys.dto.request.RecetaRequest;
 import com.ferancheta.odonto_sys.dto.response.RecetaResponse;
-import com.ferancheta.odonto_sys.entity.Consulta;
+import com.ferancheta.odonto_sys.entity.HistorialClinico;
 import com.ferancheta.odonto_sys.entity.Receta;
 import com.ferancheta.odonto_sys.mapper.RecetaMapper;
-import com.ferancheta.odonto_sys.repository.ConsultaRepository;
+import com.ferancheta.odonto_sys.repository.HistorialClinicoRepository;
 import com.ferancheta.odonto_sys.repository.RecetaRepository;
 import com.ferancheta.odonto_sys.security.ContextoAutenticacion;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,14 +21,27 @@ import java.util.List;
 public class RecetaService {
 
     private final RecetaRepository repository;
-    private final ConsultaRepository consultaRepository;
+    private final HistorialClinicoRepository historialClinicoRepository;
     private final ContextoAutenticacion contexto;
     private final RecetaMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<RecetaResponse> listarPorConsulta(Integer idConsulta) {
-        obtenerConsultaVerificada(idConsulta);
-        return repository.findByConsulta_IdConsulta(idConsulta).stream().map(mapper::toResponse).toList();
+    public List<RecetaResponse> listarPorHistorialClinico(Integer idHistorialClinico) {
+        obtenerHistorialVerificado(idHistorialClinico);
+        return repository.findByHistorialClinico_IdHistorialClinico(idHistorialClinico).stream()
+                .map(mapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<RecetaResponse> listarPorPaciente(Integer idPaciente) {
+        List<Receta> recetas = repository.findByHistorialClinico_Paciente_IdPaciente(idPaciente);
+        if (contexto.esDoctor()) {
+            Integer idDoctorActual = contexto.doctorActual().getIdDoctor();
+            recetas = recetas.stream()
+                    .filter(r -> r.getHistorialClinico().getDoctor().getIdDoctor().equals(idDoctorActual))
+                    .toList();
+        }
+        return recetas.stream().map(mapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
@@ -41,7 +54,7 @@ public class RecetaService {
     @Transactional
     public RecetaResponse crear(RecetaRequest request) {
         Receta entidad = mapper.toEntity(request);
-        entidad.setConsulta(obtenerConsultaVerificada(request.idConsulta()));
+        entidad.setHistorialClinico(obtenerHistorialVerificado(request.idHistorialClinico()));
         return mapper.toResponse(repository.save(entidad));
     }
 
@@ -51,7 +64,7 @@ public class RecetaService {
         validarPropietario(existente);
         Receta actualizada = mapper.toEntity(request);
         actualizada.setIdReceta(existente.getIdReceta());
-        actualizada.setConsulta(obtenerConsultaVerificada(request.idConsulta()));
+        actualizada.setHistorialClinico(obtenerHistorialVerificado(request.idHistorialClinico()));
         return mapper.toResponse(repository.save(actualizada));
     }
 
@@ -62,18 +75,18 @@ public class RecetaService {
         repository.delete(entidad);
     }
 
-    private Consulta obtenerConsultaVerificada(Integer idConsulta) {
-        Consulta consulta = consultaRepository.findById(idConsulta)
-                .orElseThrow(() -> new EntityNotFoundException("Consulta no encontrada: " + idConsulta));
-        if (contexto.esDoctor() && !consulta.getDoctor().getIdDoctor().equals(contexto.doctorActual().getIdDoctor())) {
-            throw new AccessDeniedException("No tiene acceso a esta consulta");
+    private HistorialClinico obtenerHistorialVerificado(Integer idHistorialClinico) {
+        HistorialClinico historial = historialClinicoRepository.findById(idHistorialClinico)
+                .orElseThrow(() -> new EntityNotFoundException("Historial clínico no encontrado: " + idHistorialClinico));
+        if (contexto.esDoctor() && !historial.getDoctor().getIdDoctor().equals(contexto.doctorActual().getIdDoctor())) {
+            throw new AccessDeniedException("No tiene acceso a este historial clínico");
         }
-        return consulta;
+        return historial;
     }
 
     private void validarPropietario(Receta entidad) {
         if (contexto.esDoctor()
-                && !entidad.getConsulta().getDoctor().getIdDoctor().equals(contexto.doctorActual().getIdDoctor())) {
+                && !entidad.getHistorialClinico().getDoctor().getIdDoctor().equals(contexto.doctorActual().getIdDoctor())) {
             throw new AccessDeniedException("No tiene acceso a esta receta");
         }
     }

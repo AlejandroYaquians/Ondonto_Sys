@@ -22,4 +22,7 @@ public class CatMetodoPago {
 
     @Column(name = "comision_porcentaje", precision = 5, scale = 2)
     private BigDecimal comisionPorcentaje = BigDecimal.ZERO;
+
+    @Column(name = "activo")
+    private Boolean activo = true;
 }

@@ -4,9 +4,12 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InsumoService } from '../../../core/services/insumo.service';
 import { InsumoMovimientoService } from '../../../core/services/insumo-movimiento.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
-import { AuthService } from '../../../core/services/auth.service';
+import { UsuarioService } from '../../../core/services/usuario.service';
 import { Insumo, InsumoMovimiento } from '../../../core/models/insumo.models';
 import { CatMovimiento } from '../../../core/models/catalogo.models';
+import { Usuario } from '../../../core/models/usuario.models';
+
+const TIPO_COMPRA_INSUMOS = 'Compra de insumos';
 
 @Component({
   selector: 'app-insumo-movimientos',
@@ -19,12 +22,14 @@ export class InsumoMovimientosComponent implements OnInit {
   private readonly insumoService = inject(InsumoService);
   private readonly movimientoService = inject(InsumoMovimientoService);
   private readonly catalogosService = inject(CatalogosService);
-  private readonly authService = inject(AuthService);
+  private readonly usuarioService = inject(UsuarioService);
 
   protected readonly insumos = signal<Insumo[]>([]);
   protected readonly tiposMovimiento = signal<CatMovimiento[]>([]);
+  protected readonly usuarios = signal<Usuario[]>([]);
   protected readonly movimientos = signal<InsumoMovimiento[]>([]);
   protected readonly idInsumoSeleccionado = signal<number | null>(null);
+  protected readonly modoEntrada = signal(false);
   protected readonly cargando = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly mostrarFormulario = signal(false);
@@ -38,10 +43,16 @@ export class InsumoMovimientosComponent implements OnInit {
   ngOnInit(): void {
     this.insumoService.listar().subscribe((datos) => this.insumos.set(datos));
     this.catalogosService.tiposMovimiento().subscribe((datos) => this.tiposMovimiento.set(datos));
+    this.usuarioService.listar().subscribe((datos) => this.usuarios.set(datos));
+
+    this.modoEntrada.set(this.route.snapshot.queryParamMap.get('entrada') === '1');
 
     const idInsumo = this.route.snapshot.queryParamMap.get('idInsumo');
     if (idInsumo) {
       this.seleccionarInsumo(Number(idInsumo));
+      if (this.modoEntrada()) {
+        this.nuevo();
+      }
     }
   }
 
@@ -77,12 +88,24 @@ export class InsumoMovimientosComponent implements OnInit {
     return this.tiposMovimiento().find((t) => t.idTipoMovimiento === id)?.nombreMovimiento ?? `#${id}`;
   }
 
+  nombreUsuario(idUsuario: number): string {
+    return this.usuarios().find((u) => u.idUsuario === idUsuario)?.nombre ?? `#${idUsuario}`;
+  }
+
   esEntrada(id: number): boolean {
     return this.tiposMovimiento().find((t) => t.idTipoMovimiento === id)?.operacion === true;
   }
 
   nuevo(): void {
-    this.formulario.reset({ idTipoMovimiento: null, cantidad: null, motivo: '' });
+    const idTipoCompra = this.modoEntrada()
+      ? this.tiposMovimiento().find((t) => t.nombreMovimiento === TIPO_COMPRA_INSUMOS)?.idTipoMovimiento ?? null
+      : null;
+    this.formulario.reset({ idTipoMovimiento: idTipoCompra, cantidad: null, motivo: '' });
+    if (this.modoEntrada()) {
+      this.formulario.controls.idTipoMovimiento.disable();
+    } else {
+      this.formulario.controls.idTipoMovimiento.enable();
+    }
     this.mostrarFormulario.set(true);
   }
 
@@ -97,8 +120,7 @@ export class InsumoMovimientosComponent implements OnInit {
     }
 
     const idInsumo = this.idInsumoSeleccionado();
-    const idUsuario = this.authService.idUsuario();
-    if (!idInsumo || !idUsuario) {
+    if (!idInsumo) {
       this.error.set('Error al guardar.');
       return;
     }
@@ -108,9 +130,7 @@ export class InsumoMovimientosComponent implements OnInit {
       cantidad: valores.cantidad as number,
       motivo: valores.motivo || null,
       idInsumo,
-      idTipoMovimiento: valores.idTipoMovimiento as number,
-      idGasto: null,
-      idUsuario
+      idTipoMovimiento: valores.idTipoMovimiento as number
     };
 
     this.movimientoService.crear(request).subscribe({

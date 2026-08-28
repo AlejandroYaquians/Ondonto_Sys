@@ -26,6 +26,11 @@ public class CatEspecialidadService {
     }
 
     @Transactional(readOnly = true)
+    public List<CatEspecialidadResponse> listarActivos() {
+        return repository.findByActivoTrue().stream().map(mapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
     public CatEspecialidadResponse buscarPorId(Integer id) {
         return mapper.toResponse(obtenerEntidad(id));
     }
@@ -34,6 +39,7 @@ public class CatEspecialidadService {
     @PreAuthorize("hasRole('ADMIN')")
     public CatEspecialidadResponse crear(CatEspecialidadRequest request) {
         CatEspecialidad entidad = mapper.toEntity(request);
+        entidad.setActivo(true);
         return mapper.toResponse(repository.save(entidad));
     }
 
@@ -43,13 +49,16 @@ public class CatEspecialidadService {
         CatEspecialidad existente = obtenerEntidad(id);
         CatEspecialidad actualizada = mapper.toEntity(request);
         actualizada.setIdEspecialidad(existente.getIdEspecialidad());
+        actualizada.setActivo(existente.getActivo());
         return mapper.toResponse(repository.save(actualizada));
     }
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
-        repository.delete(obtenerEntidad(id));
+        CatEspecialidad entidad = obtenerEntidad(id);
+        entidad.setActivo(false);
+        repository.save(entidad);
     }
 
     private CatEspecialidad obtenerEntidad(Integer id) {

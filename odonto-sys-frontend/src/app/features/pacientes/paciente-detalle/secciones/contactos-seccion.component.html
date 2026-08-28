@@ -1,6 +1,6 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h2 class="h6 text-uppercase text-secondary mb-0">Contactos</h2>
-  @if (!mostrarFormulario()) {
+  @if (!mostrarFormulario() && !soloLectura) {
     <button type="button" class="btn btn-sm btn-outline-primary" (click)="nuevo()">
       <i class="bi bi-plus-lg"></i>
       Agregar
@@ -61,14 +61,16 @@
             {{ item.telefonoContacto || '—' }} · {{ nombreParentesco(item.idParentesco) }}
           </div>
         </div>
-        <div class="btn-group btn-group-sm">
-          <button type="button" class="btn btn-outline-secondary" (click)="editar(item)">
-            <i class="bi bi-pencil"></i>
-          </button>
-          <button type="button" class="btn btn-outline-danger" (click)="eliminar(item)">
-            <i class="bi bi-trash"></i>
-          </button>
-        </div>
+        @if (!soloLectura) {
+          <div class="btn-group btn-group-sm">
+            <button type="button" class="btn btn-outline-secondary" (click)="editar(item)">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button type="button" class="btn btn-outline-danger" (click)="eliminar(item)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        }
       </li>
     }
   </ul>

@@ -1,0 +1,77 @@
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+} @else if (registro(); as r) {
+  <div class="d-flex align-items-center gap-2 mb-4">
+    <a routerLink="/bitacora" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <h1 class="h3 mb-0">Detalle del cambio</h1>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Tabla</div>
+          <div class="fw-medium">{{ r.tablaAfectada }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Registro</div>
+          <div class="fw-medium">#{{ r.idRegistro }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Acción</div>
+          <div class="fw-medium">{{ r.accion }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Usuario</div>
+          <div class="fw-medium">{{ nombreUsuario(r.idUsuario) }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Fecha</div>
+          <div class="fw-medium">{{ formatoFecha(r.fechaHora) }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">IP</div>
+          <div class="fw-medium">{{ r.ipOrigen || '—' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <h2 class="h6 text-secondary text-uppercase mb-3">Cambios campo por campo</h2>
+      @if (campos().length === 0) {
+        <p class="text-secondary small mb-0">No hay campos registrados para este cambio.</p>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered align-middle">
+            <thead>
+              <tr>
+                <th scope="col">Campo</th>
+                <th scope="col">Antes</th>
+                <th scope="col">Después</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (fila of campos(); track fila.campo) {
+                <tr>
+                  <td class="fw-medium">{{ fila.campo }}</td>
+                  <td>{{ fila.valorAnterior }}</td>
+                  <td>{{ fila.valorNuevo }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+}

@@ -1,0 +1,44 @@
+<h2 class="h6 text-uppercase text-secondary mb-3">Historial de cobros</h2>
+
+@if (error()) {
+  <div class="alert alert-danger py-2" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-3">
+    <div class="spinner-border spinner-border-sm" role="status"></div>
+  </div>
+} @else if (cobros().length === 0) {
+  <p class="text-secondary small mb-0">No se han registrado cobros.</p>
+} @else {
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th scope="col">Fecha</th>
+          <th scope="col">Servicio</th>
+          <th scope="col">Monto</th>
+          <th scope="col">Método de pago</th>
+          <th scope="col">Código</th>
+          <th scope="col" class="text-end">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (cobro of cobros(); track cobro.idCobro) {
+          <tr>
+            <td>{{ cobro.fecha.slice(0, 16).replace('T', ' ') }}</td>
+            <td>{{ nombreServicio(cobro.idServicio) }}</td>
+            <td>{{ cobro.montoNeto !== null ? 'Q' + cobro.montoNeto : '—' }}</td>
+            <td>{{ nombreMetodoPago(cobro.idMetodoPago) }}</td>
+            <td>{{ cobro.codigoCobro }}</td>
+            <td class="text-end">
+              <a [routerLink]="['/cobros', cobro.idCobro]" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-eye"></i>
+              </a>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

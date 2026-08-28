@@ -42,10 +42,10 @@ public class Comision {
     private Doctor doctor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_pago", nullable = false)
+    @JoinColumn(name = "id_cobro", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Pago pago;
+    private Cobro cobro;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

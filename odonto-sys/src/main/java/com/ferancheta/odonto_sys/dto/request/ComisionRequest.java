@@ -21,8 +21,8 @@ public record ComisionRequest(
         @NotNull(message = "El doctor es obligatorio")
         Integer idDoctor,
 
-        @NotNull(message = "El pago es obligatorio")
-        Integer idPago,
+        @NotNull(message = "El cobro es obligatorio")
+        Integer idCobro,
 
         Integer idUsuarioCreacion
 ) {

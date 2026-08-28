@@ -10,6 +10,6 @@ public record RecetaResponse(
         String duracion,
         String indicaciones,
         LocalDate fecha,
-        Integer idConsulta
+        Integer idHistorialClinico
 ) {
 }

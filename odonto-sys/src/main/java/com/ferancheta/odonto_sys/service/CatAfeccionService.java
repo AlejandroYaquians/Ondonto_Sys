@@ -26,6 +26,11 @@ public class CatAfeccionService {
     }
 
     @Transactional(readOnly = true)
+    public List<CatAfeccionResponse> listarActivos() {
+        return repository.findByActivoTrue().stream().map(mapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
     public CatAfeccionResponse buscarPorId(Integer id) {
         return mapper.toResponse(obtenerEntidad(id));
     }
@@ -34,6 +39,7 @@ public class CatAfeccionService {
     @PreAuthorize("hasRole('ADMIN')")
     public CatAfeccionResponse crear(CatAfeccionRequest request) {
         CatAfeccion entidad = mapper.toEntity(request);
+        entidad.setActivo(true);
         return mapper.toResponse(repository.save(entidad));
     }
 
@@ -43,13 +49,16 @@ public class CatAfeccionService {
         CatAfeccion existente = obtenerEntidad(id);
         CatAfeccion actualizada = mapper.toEntity(request);
         actualizada.setIdAfeccion(existente.getIdAfeccion());
+        actualizada.setActivo(existente.getActivo());
         return mapper.toResponse(repository.save(actualizada));
     }
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
-        repository.delete(obtenerEntidad(id));
+        CatAfeccion entidad = obtenerEntidad(id);
+        entidad.setActivo(false);
+        repository.save(entidad);
     }
 
     private CatAfeccion obtenerEntidad(Integer id) {

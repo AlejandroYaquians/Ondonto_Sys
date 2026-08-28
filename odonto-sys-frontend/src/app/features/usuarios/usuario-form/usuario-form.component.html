@@ -1,0 +1,121 @@
+<div class="d-flex align-items-center gap-2 mb-4">
+  <a routerLink="/usuarios" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left"></i>
+  </a>
+  <h1 class="h3 mb-0">{{ esNuevo() ? 'Nuevo usuario' : 'Editar usuario' }}</h1>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+} @else {
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      <form [formGroup]="formulario" (ngSubmit)="onSubmit()">
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <label class="form-label" for="nombre">Nombre</label>
+            <input
+              id="nombre"
+              type="text"
+              class="form-control"
+              formControlName="nombre"
+              [class.is-invalid]="formulario.controls.nombre.touched && formulario.controls.nombre.invalid"
+            />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="username">Usuario</label>
+            <input
+              id="username"
+              type="text"
+              class="form-control"
+              formControlName="username"
+              [class.is-invalid]="formulario.controls.username.touched && formulario.controls.username.invalid"
+            />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="password">{{ esNuevo() ? 'Contraseña' : 'Nueva contraseña' }}</label>
+            <input
+              id="password"
+              type="password"
+              class="form-control"
+              formControlName="password"
+              [class.is-invalid]="formulario.controls.password.touched && formulario.controls.password.invalid"
+            />
+            @if (!esNuevo()) {
+              <div class="form-text">Al guardar se reemplaza la contraseña actual.</div>
+            }
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="idRol">Rol</label>
+            <select
+              id="idRol"
+              class="form-select"
+              formControlName="idRol"
+              [class.is-invalid]="formulario.controls.idRol.touched && formulario.controls.idRol.invalid"
+            >
+              <option [ngValue]="null">Seleccione...</option>
+              @for (rol of roles(); track rol.idRol) {
+                <option [ngValue]="rol.idRol">{{ rol.nombre }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        @if (esRolDoctor() && !esNuevo()) {
+          <div class="alert alert-info">
+            El perfil clínico de este doctor (apellido, comisión, especialidades) se administra desde
+            <a routerLink="/doctores">Doctores</a>.
+          </div>
+        }
+
+        @if (mostrarCamposDoctor()) {
+          <div class="border rounded-3 p-3 mb-4">
+            <h2 class="h6 text-secondary text-uppercase mb-3">Datos del doctor</h2>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label" for="apellido">Apellido</label>
+                <input id="apellido" type="text" class="form-control" formControlName="apellido" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="porcentajeComision">Porcentaje de comisión (%)</label>
+                <input
+                  id="porcentajeComision"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  class="form-control"
+                  formControlName="porcentajeComision"
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="idsEspecialidad">Especialidades</label>
+                <select id="idsEspecialidad" class="form-select" multiple [size]="3" (change)="seleccionarEspecialidades($event)">
+                  @for (especialidad of especialidades(); track especialidad.idEspecialidad) {
+                    <option [value]="especialidad.idEspecialidad">{{ especialidad.nombre }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+        }
+
+        <div class="d-flex justify-content-end gap-2">
+          <a routerLink="/usuarios" class="btn btn-outline-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+            @if (guardando()) {
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            }
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

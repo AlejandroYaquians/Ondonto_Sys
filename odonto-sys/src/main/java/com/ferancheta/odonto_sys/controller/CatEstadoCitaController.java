@@ -1,12 +1,12 @@
 package com.ferancheta.odonto_sys.controller;
 
-import com.ferancheta.odonto_sys.dto.request.CatEstadoCitaRequest;
 import com.ferancheta.odonto_sys.dto.response.CatEstadoCitaResponse;
 import com.ferancheta.odonto_sys.service.CatEstadoCitaService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -25,22 +25,5 @@ public class CatEstadoCitaController {
     @GetMapping("/{id}")
     public CatEstadoCitaResponse buscarPorId(@PathVariable Integer id) {
         return service.buscarPorId(id);
-    }
-
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public CatEstadoCitaResponse crear(@Valid @RequestBody CatEstadoCitaRequest request) {
-        return service.crear(request);
-    }
-
-    @PutMapping("/{id}")
-    public CatEstadoCitaResponse actualizar(@PathVariable Integer id, @Valid @RequestBody CatEstadoCitaRequest request) {
-        return service.actualizar(id, request);
-    }
-
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void eliminar(@PathVariable Integer id) {
-        service.eliminar(id);
     }
 }

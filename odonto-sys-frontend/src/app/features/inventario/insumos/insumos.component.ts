@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InsumoService } from '../../../core/services/insumo.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Insumo } from '../../../core/models/insumo.models';
 
 @Component({
@@ -12,6 +13,7 @@ import { Insumo } from '../../../core/models/insumo.models';
 export class InsumosComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly insumoService = inject(InsumoService);
+  private readonly authService = inject(AuthService);
 
   protected readonly items = signal<Insumo[]>([]);
   protected readonly cargando = signal(true);
@@ -20,11 +22,16 @@ export class InsumosComponent implements OnInit {
   protected readonly idEditando = signal<number | null>(null);
   protected readonly idEditandoStockMinimo = signal<number | null>(null);
 
+  protected readonly esAdmin = computed(() => this.authService.rol() === 'ADMIN');
+
+  protected readonly insumosConStockBajo = computed(() => this.items().filter(this.tieneStockBajo));
+
   protected readonly formulario = this.fb.group({
     nombre: ['', Validators.required],
     descripcion: [''],
     unidadMedida: [''],
-    stockActual: [0 as number | null]
+    stockActual: [0 as number | null],
+    stockMinimo: [0 as number | null, Validators.required]
   });
 
   protected readonly formularioStockMinimo = this.fb.group({
@@ -37,7 +44,7 @@ export class InsumosComponent implements OnInit {
 
   private cargar(): void {
     this.cargando.set(true);
-    this.insumoService.listar().subscribe({
+    this.insumoService.listarActivos().subscribe({
       next: (datos) => {
         this.items.set(datos);
         this.cargando.set(false);
@@ -49,9 +56,13 @@ export class InsumosComponent implements OnInit {
     });
   }
 
+  tieneStockBajo(item: Insumo): boolean {
+    return item.stockActual !== null && item.stockMinimo !== null && item.stockActual <= item.stockMinimo;
+  }
+
   nuevo(): void {
     this.idEditando.set(null);
-    this.formulario.reset({ nombre: '', descripcion: '', unidadMedida: '', stockActual: 0 });
+    this.formulario.reset({ nombre: '', descripcion: '', unidadMedida: '', stockActual: 0, stockMinimo: 0 });
     this.mostrarFormulario.set(true);
   }
 
@@ -61,7 +72,8 @@ export class InsumosComponent implements OnInit {
       nombre: item.nombre,
       descripcion: item.descripcion ?? '',
       unidadMedida: item.unidadMedida ?? '',
-      stockActual: item.stockActual
+      stockActual: item.stockActual,
+      stockMinimo: item.stockMinimo
     });
     this.mostrarFormulario.set(true);
   }
@@ -82,7 +94,8 @@ export class InsumosComponent implements OnInit {
       nombre: valores.nombre ?? '',
       descripcion: valores.descripcion || null,
       unidadMedida: valores.unidadMedida || null,
-      stockActual: valores.stockActual
+      stockActual: valores.stockActual,
+      stockMinimo: valores.stockMinimo
     };
 
     const id = this.idEditando();

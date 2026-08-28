@@ -12,7 +12,7 @@ public record ComisionResponse(
         String estado,
         LocalDate fecha,
         Integer idDoctor,
-        Integer idPago,
+        Integer idCobro,
         Integer idUsuarioCreacion,
         LocalDateTime createdAt
 ) {

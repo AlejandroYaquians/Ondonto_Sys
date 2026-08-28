@@ -14,5 +14,4 @@ export interface GastoRequest {
   fecha: string;
   comprobante: string | null;
   idTipoGasto: number;
-  idUsuario: number;
 }

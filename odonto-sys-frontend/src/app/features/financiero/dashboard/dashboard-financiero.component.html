@@ -1,0 +1,170 @@
+<h1 class="h3 mb-4">Dashboard financiero</h1>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-body">
+    <div class="d-flex flex-wrap align-items-end gap-3">
+      <div class="btn-group">
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          [class.active]="periodo() === 'hoy'"
+          (click)="cambiarPeriodo('hoy')"
+        >
+          Hoy
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          [class.active]="periodo() === 'semana'"
+          (click)="cambiarPeriodo('semana')"
+        >
+          Semana
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          [class.active]="periodo() === 'mes'"
+          (click)="cambiarPeriodo('mes')"
+        >
+          Mes
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          [class.active]="periodo() === 'personalizado'"
+          (click)="cambiarPeriodo('personalizado')"
+        >
+          Personalizado
+        </button>
+      </div>
+
+      @if (periodo() === 'personalizado') {
+        <form [formGroup]="filtroPersonalizado" (ngSubmit)="aplicarPersonalizado()" class="d-flex align-items-end gap-2">
+          <div>
+            <label class="form-label">Desde</label>
+            <input type="date" class="form-control" formControlName="desde" />
+          </div>
+          <div>
+            <label class="form-label">Hasta</label>
+            <input type="date" class="form-control" formControlName="hasta" />
+          </div>
+          <button type="submit" class="btn btn-outline-primary">Aplicar</button>
+        </form>
+      }
+    </div>
+  </div>
+</div>
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+} @else if (reporte(); as r) {
+  <div class="row g-3 mb-4">
+    <div class="col-md-4 col-lg-2">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="text-secondary small text-uppercase">Ingresos brutos</div>
+          <div class="h4 mb-0">Q{{ r.ingresosBrutos }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="text-secondary small text-uppercase">Efectivo</div>
+          <div class="h4 mb-0">Q{{ r.cobroEfectivo }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="text-secondary small text-uppercase">Tarjeta</div>
+          <div class="h4 mb-0">Q{{ r.cobroTarjeta }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="text-secondary small text-uppercase">Comisión bancaria</div>
+          <div class="h4 mb-0">Q{{ r.comisionBancaria }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="text-secondary small text-uppercase">Costo laboratorio</div>
+          <div class="h4 mb-0">Q{{ r.costoLaboratorio }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+      <div class="card shadow-sm border-0 h-100 border-primary">
+        <div class="card-body">
+          <div class="text-secondary small text-uppercase">Monto neto</div>
+          <div class="h4 mb-0 text-primary">Q{{ r.montoNeto }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h6 text-uppercase text-secondary mb-0">Comisiones por doctor</h2>
+            <a routerLink="/financiero/comisiones" class="btn btn-sm btn-outline-primary">Ver todas</a>
+          </div>
+          @if (r.comisionesPorDoctor.length === 0) {
+            <p class="text-secondary small mb-0">No hay comisiones en este período.</p>
+          } @else {
+            <ul class="list-group list-group-flush">
+              @for (item of r.comisionesPorDoctor; track item.idDoctor) {
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                  <span>{{ item.nombreDoctor }}</span>
+                  <span class="text-secondary small">{{ item.porcentaje }}% = Q{{ item.montoComision }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h6 text-uppercase text-secondary mb-0">Cobros recientes</h2>
+            <a routerLink="/cobros" class="btn btn-sm btn-outline-primary">Ver todos</a>
+          </div>
+          @if (cobrosRecientes().length === 0) {
+            <p class="text-secondary small mb-0">No hay cobros en este período.</p>
+          } @else {
+            <ul class="list-group list-group-flush">
+              @for (cobro of cobrosRecientes(); track cobro.idCobro) {
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                  <div>
+                    <div class="fw-medium">{{ nombrePaciente(cobro.idPaciente) }}</div>
+                    <div class="text-secondary small">{{ formatoFecha(cobro.fecha) }} · {{ cobro.codigoCobro }}</div>
+                  </div>
+                  <a [routerLink]="['/cobros', cobro.idCobro]" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}

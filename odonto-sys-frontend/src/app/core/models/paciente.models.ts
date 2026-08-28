@@ -4,7 +4,6 @@ export interface Paciente {
   apellido: string;
   fechaNacimiento: string | null;
   telefono: string | null;
-  celular: string | null;
   email: string | null;
   direccion: string | null;
   referidoPor: string | null;
@@ -21,7 +20,6 @@ export interface PacienteRequest {
   apellido: string;
   fechaNacimiento: string | null;
   telefono: string | null;
-  celular: string | null;
   email: string | null;
   direccion: string | null;
   referidoPor: string | null;

@@ -18,8 +18,8 @@ public class CatMetodoPagoController {
     private final CatMetodoPagoService service;
 
     @GetMapping
-    public List<CatMetodoPagoResponse> listar() {
-        return service.listar();
+    public List<CatMetodoPagoResponse> listar(@RequestParam(required = false) Boolean activos) {
+        return Boolean.TRUE.equals(activos) ? service.listarActivos() : service.listar();
     }
 
     @GetMapping("/{id}")
@@ -27,20 +27,8 @@ public class CatMetodoPagoController {
         return service.buscarPorId(id);
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public CatMetodoPagoResponse crear(@Valid @RequestBody CatMetodoPagoRequest request) {
-        return service.crear(request);
-    }
-
     @PutMapping("/{id}")
     public CatMetodoPagoResponse actualizar(@PathVariable Integer id, @Valid @RequestBody CatMetodoPagoRequest request) {
         return service.actualizar(id, request);
-    }
-
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void eliminar(@PathVariable Integer id) {
-        service.eliminar(id);
     }
 }

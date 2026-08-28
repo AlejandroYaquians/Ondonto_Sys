@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DoctorService } from '../../../core/services/doctor.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Doctor } from '../../../core/models/doctor.models';
 import { CatEspecialidad } from '../../../core/models/catalogo.models';
 
@@ -13,12 +14,15 @@ import { CatEspecialidad } from '../../../core/models/catalogo.models';
 export class DoctorListComponent {
   private readonly doctorService = inject(DoctorService);
   private readonly catalogosService = inject(CatalogosService);
+  private readonly authService = inject(AuthService);
 
   protected readonly doctores = signal<Doctor[]>([]);
   protected readonly especialidades = signal<CatEspecialidad[]>([]);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly termino = signal('');
+
+  protected readonly esAdmin = computed(() => this.authService.rol() === 'ADMIN');
 
   protected readonly doctoresFiltrados = computed(() => {
     const texto = this.termino().trim().toLowerCase();
@@ -53,11 +57,14 @@ export class DoctorListComponent {
     this.termino.set(valor);
   }
 
-  nombreEspecialidad(idEspecialidad: number | null): string {
-    if (!idEspecialidad) {
+  nombresEspecialidades(idsEspecialidad: number[]): string {
+    if (!idsEspecialidad.length) {
       return '—';
     }
-    return this.especialidades().find((e) => e.idEspecialidad === idEspecialidad)?.nombre ?? '—';
+    return idsEspecialidad
+      .map((id) => this.especialidades().find((e) => e.idEspecialidad === id)?.nombre)
+      .filter((nombre): nombre is string => !!nombre)
+      .join(', ');
   }
 
   eliminar(doctor: Doctor): void {

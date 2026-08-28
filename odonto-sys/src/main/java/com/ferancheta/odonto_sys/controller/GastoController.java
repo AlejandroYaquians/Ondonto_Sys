@@ -22,10 +22,11 @@ public class GastoController {
     @GetMapping
     public List<GastoResponse> listar(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+            @RequestParam(required = false) Integer idTipoGasto) {
 
         if (desde != null && hasta != null) {
-            return service.listarPorRangoFecha(desde, hasta);
+            return service.listarPorRangoFecha(desde, hasta, idTipoGasto);
         }
         return service.listar();
     }

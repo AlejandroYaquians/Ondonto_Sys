@@ -9,7 +9,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { CitaRequest } from '../../../core/models/cita.models';
 import { Paciente } from '../../../core/models/paciente.models';
 import { Doctor } from '../../../core/models/doctor.models';
-import { CatEstadoCita } from '../../../core/models/catalogo.models';
+import { CatMotivoCita } from '../../../core/models/catalogo.models';
 import { BuscadorSelectComponent } from '../../../shared/buscador-select/buscador-select.component';
 
 function hoyIso(): string {
@@ -18,6 +18,8 @@ function hoyIso(): string {
   const dia = String(hoy.getDate()).padStart(2, '0');
   return `${hoy.getFullYear()}-${mes}-${dia}`;
 }
+
+const ESTADO_ATENDIDA = 'Atendida';
 
 @Component({
   selector: 'app-cita-form',
@@ -38,13 +40,14 @@ export class CitaFormComponent implements OnInit {
   protected readonly cargando = signal(false);
   protected readonly guardando = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly estadoActual = signal<string | null>(null);
+  protected readonly avisoProximidad = signal<string | null>(null);
 
   protected readonly pacientes = signal<Paciente[]>([]);
   protected readonly doctores = signal<Doctor[]>([]);
-  protected readonly estados = signal<CatEstadoCita[]>([]);
-  protected readonly miDoctor = signal<Doctor | null>(null);
+  protected readonly motivos = signal<CatMotivoCita[]>([]);
 
-  protected readonly esDoctor = computed(() => this.authService.rol() === 'DOCTOR');
+  protected readonly noEditable = computed(() => this.estadoActual() === ESTADO_ATENDIDA);
 
   protected readonly opcionesPacientes = computed(() =>
     this.pacientes().map((paciente) => ({
@@ -54,31 +57,23 @@ export class CitaFormComponent implements OnInit {
   );
 
   protected readonly formulario = this.fb.group({
-    fecha: [hoyIso(), Validators.required],
-    hora: ['', Validators.required],
-    horaFin: [''],
-    motivo: [''],
     idPaciente: [null as number | null, Validators.required],
     idDoctor: [null as number | null, Validators.required],
-    idEstadoCita: [null as number | null, Validators.required]
+    idMotivoCita: [null as number | null, Validators.required],
+    fecha: [hoyIso(), Validators.required],
+    hora: ['', Validators.required],
+    observaciones: ['']
   });
 
   ngOnInit(): void {
-    this.pacienteService.listar().subscribe((datos) => this.pacientes.set(datos.filter((p) => p.activo)));
-    this.catalogosService.estadosCita().subscribe((datos) => this.estados.set(datos));
+    if (this.authService.rol() === 'DOCTOR') {
+      this.router.navigateByUrl('/citas');
+      return;
+    }
 
-    this.doctorService.listarActivos().subscribe((datos) => {
-      this.doctores.set(datos);
-
-      if (this.esDoctor()) {
-        const idUsuario = this.authService.idUsuario();
-        const propio = datos.find((doctor) => doctor.idUsuario === idUsuario) ?? null;
-        this.miDoctor.set(propio);
-        if (propio && !this.idCita()) {
-          this.formulario.controls.idDoctor.setValue(propio.idDoctor);
-        }
-      }
-    });
+    this.pacienteService.listarActivos().subscribe((datos) => this.pacientes.set(datos));
+    this.doctorService.listarActivos().subscribe((datos) => this.doctores.set(datos));
+    this.catalogosService.motivosCita().subscribe((datos) => this.motivos.set(datos));
 
     const parametroId = this.route.snapshot.paramMap.get('id');
     if (parametroId) {
@@ -95,11 +90,17 @@ export class CitaFormComponent implements OnInit {
         this.formulario.patchValue({
           fecha: cita.fecha,
           hora: cita.hora?.slice(0, 5) ?? '',
-          horaFin: cita.horaFin?.slice(0, 5) ?? '',
-          motivo: cita.motivo ?? '',
+          observaciones: cita.observaciones ?? '',
+          idMotivoCita: cita.idMotivoCita,
           idPaciente: cita.idPaciente,
-          idDoctor: cita.idDoctor,
-          idEstadoCita: cita.idEstadoCita
+          idDoctor: cita.idDoctor
+        });
+        this.catalogosService.estadosCita().subscribe((estados) => {
+          const nombre = estados.find((e) => e.idEstadoCita === cita.idEstadoCita)?.nombre ?? null;
+          this.estadoActual.set(nombre);
+          if (nombre === ESTADO_ATENDIDA) {
+            this.formulario.disable();
+          }
         });
         this.cargando.set(false);
       },
@@ -111,6 +112,9 @@ export class CitaFormComponent implements OnInit {
   }
 
   onSubmit(): void {
+    if (this.noEditable()) {
+      return;
+    }
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
       return;
@@ -122,6 +126,24 @@ export class CitaFormComponent implements OnInit {
       return;
     }
 
+    this.avisoProximidad.set(null);
+    this.guardarCita(idUsuario, false);
+  }
+
+  confirmarProximidad(): void {
+    const idUsuario = this.authService.idUsuario();
+    if (!idUsuario) {
+      return;
+    }
+    this.avisoProximidad.set(null);
+    this.guardarCita(idUsuario, true);
+  }
+
+  cancelarProximidad(): void {
+    this.avisoProximidad.set(null);
+  }
+
+  private guardarCita(idUsuario: number, forzarGuardado: boolean): void {
     this.guardando.set(true);
     this.error.set(null);
 
@@ -129,12 +151,12 @@ export class CitaFormComponent implements OnInit {
     const request: CitaRequest = {
       fecha: valores.fecha ?? '',
       hora: valores.hora ?? '',
-      horaFin: valores.horaFin || null,
-      motivo: valores.motivo || null,
+      observaciones: valores.observaciones || null,
+      idMotivoCita: valores.idMotivoCita as number,
       idPaciente: valores.idPaciente as number,
       idDoctor: valores.idDoctor as number,
-      idEstadoCita: valores.idEstadoCita as number,
-      idUsuario
+      idUsuario,
+      forzarGuardado
     };
 
     const id = this.idCita();
@@ -144,7 +166,12 @@ export class CitaFormComponent implements OnInit {
       next: () => this.router.navigateByUrl('/citas'),
       error: (err) => {
         this.guardando.set(false);
-        this.error.set(err?.error?.mensaje ?? 'Error al guardar.');
+        const mensaje = err?.error?.mensaje ?? 'Error al guardar.';
+        if (err?.status === 409 && !forzarGuardado) {
+          this.avisoProximidad.set(mensaje);
+          return;
+        }
+        this.error.set(mensaje);
       }
     });
   }

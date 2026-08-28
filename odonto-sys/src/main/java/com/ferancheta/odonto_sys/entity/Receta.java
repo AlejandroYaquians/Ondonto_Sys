@@ -36,8 +36,8 @@ public class Receta {
     private LocalDate fecha;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_consulta", nullable = false)
+    @JoinColumn(name = "id_historial_clinico", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Consulta consulta;
+    private HistorialClinico historialClinico;
 }

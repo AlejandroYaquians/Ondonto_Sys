@@ -6,7 +6,7 @@ import com.ferancheta.odonto_sys.entity.Gasto;
 import com.ferancheta.odonto_sys.mapper.GastoMapper;
 import com.ferancheta.odonto_sys.repository.CatGastoRepository;
 import com.ferancheta.odonto_sys.repository.GastoRepository;
-import com.ferancheta.odonto_sys.repository.UsuarioRepository;
+import com.ferancheta.odonto_sys.security.ContextoAutenticacion;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class GastoService {
 
     private final GastoRepository repository;
     private final CatGastoRepository catGastoRepository;
-    private final UsuarioRepository usuarioRepository;
+    private final ContextoAutenticacion contexto;
     private final GastoMapper mapper;
 
     @Transactional(readOnly = true)
@@ -30,8 +30,11 @@ public class GastoService {
     }
 
     @Transactional(readOnly = true)
-    public List<GastoResponse> listarPorRangoFecha(LocalDate desde, LocalDate hasta) {
-        return repository.findByFechaBetween(desde, hasta).stream().map(mapper::toResponse).toList();
+    public List<GastoResponse> listarPorRangoFecha(LocalDate desde, LocalDate hasta, Integer idTipoGasto) {
+        return repository.findByFechaBetween(desde, hasta).stream()
+                .filter(g -> idTipoGasto == null || g.getTipoGasto().getIdTipoGasto().equals(idTipoGasto))
+                .map(mapper::toResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -42,6 +45,7 @@ public class GastoService {
     @Transactional
     public GastoResponse crear(GastoRequest request) {
         Gasto entidad = mapper.toEntity(request);
+        entidad.setUsuario(contexto.usuarioActual());
         aplicarRelaciones(entidad, request);
         return mapper.toResponse(repository.save(entidad));
     }
@@ -51,6 +55,7 @@ public class GastoService {
         Gasto existente = obtenerEntidad(id);
         Gasto actualizado = mapper.toEntity(request);
         actualizado.setIdGasto(existente.getIdGasto());
+        actualizado.setUsuario(existente.getUsuario());
         aplicarRelaciones(actualizado, request);
         return mapper.toResponse(repository.save(actualizado));
     }
@@ -63,8 +68,6 @@ public class GastoService {
     private void aplicarRelaciones(Gasto entidad, GastoRequest request) {
         entidad.setTipoGasto(catGastoRepository.findById(request.idTipoGasto())
                 .orElseThrow(() -> new EntityNotFoundException("Tipo de gasto no encontrado: " + request.idTipoGasto())));
-        entidad.setUsuario(usuarioRepository.findById(request.idUsuario())
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + request.idUsuario())));
     }
 
     private Gasto obtenerEntidad(Integer id) {

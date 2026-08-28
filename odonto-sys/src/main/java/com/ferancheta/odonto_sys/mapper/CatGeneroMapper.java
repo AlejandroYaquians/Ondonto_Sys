@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 public interface CatGeneroMapper {
 
     @Mapping(target = "idGenero", ignore = true)
+    @Mapping(target = "activo", ignore = true)
     CatGenero toEntity(CatGeneroRequest request);
 
     CatGeneroResponse toResponse(CatGenero entity);

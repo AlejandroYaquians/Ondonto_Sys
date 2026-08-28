@@ -1,6 +1,7 @@
 export interface CatGenero {
   idGenero: number;
   nombre: string;
+  activo: boolean;
 }
 
 export interface CatGeneroRequest {
@@ -10,6 +11,7 @@ export interface CatGeneroRequest {
 export interface CatProfesion {
   idProfesion: number;
   nombre: string;
+  activo: boolean;
 }
 
 export interface CatProfesionRequest {
@@ -19,6 +21,7 @@ export interface CatProfesionRequest {
 export interface Departamento {
   idDepartamento: number;
   nombre: string;
+  activo: boolean;
 }
 
 export interface DepartamentoRequest {
@@ -29,6 +32,7 @@ export interface Municipio {
   idMunicipio: number;
   nombre: string;
   idDepartamento: number;
+  activo: boolean;
 }
 
 export interface MunicipioRequest {
@@ -41,39 +45,19 @@ export interface CatEstadoCita {
   nombre: string;
 }
 
-export interface CatEstadoCitaRequest {
+export interface CatMotivoCita {
+  idMotivoCita: number;
   nombre: string;
 }
 
 export interface CatEspecialidad {
   idEspecialidad: number;
   nombre: string;
+  activo: boolean;
 }
 
 export interface CatEspecialidadRequest {
   nombre: string;
-}
-
-export interface CatDiagnostico {
-  idDiagnostico: number;
-  nombre: string;
-  descripcion: string | null;
-}
-
-export interface CatDiagnosticoRequest {
-  nombre: string;
-  descripcion: string | null;
-}
-
-export interface CatTratamiento {
-  idTratamiento: number;
-  nombre: string;
-  descripcion: string | null;
-}
-
-export interface CatTratamientoRequest {
-  nombre: string;
-  descripcion: string | null;
 }
 
 export interface Servicio {
@@ -94,6 +78,7 @@ export interface CatAfeccion {
   idAfeccion: number;
   nombreAfeccion: string;
   tipo: string | null;
+  activo: boolean;
 }
 
 export interface CatAfeccionRequest {
@@ -104,6 +89,7 @@ export interface CatAfeccionRequest {
 export interface CatParentesco {
   idParentesco: number;
   nombre: string;
+  activo: boolean;
 }
 
 export interface CatParentescoRequest {
@@ -114,6 +100,7 @@ export interface CatGasto {
   idTipoGasto: number;
   nombreCategoria: string;
   tipo: string | null;
+  activo: boolean;
 }
 
 export interface CatGastoRequest {
@@ -125,6 +112,7 @@ export interface CatMetodoPago {
   idMetodoPago: number;
   nombre: string;
   comisionPorcentaje: number | null;
+  activo: boolean;
 }
 
 export interface CatMetodoPagoRequest {
@@ -134,11 +122,6 @@ export interface CatMetodoPagoRequest {
 
 export interface CatMovimiento {
   idTipoMovimiento: number;
-  nombreMovimiento: string;
-  operacion: boolean;
-}
-
-export interface CatMovimientoRequest {
   nombreMovimiento: string;
   operacion: boolean;
 }

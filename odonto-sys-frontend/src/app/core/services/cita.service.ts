@@ -12,6 +12,10 @@ export class CitaService {
     return this.http.get<Cita[]>(`${API_BASE_URL}/citas`);
   }
 
+  listarPorPaciente(idPaciente: number): Observable<Cita[]> {
+    return this.http.get<Cita[]>(`${API_BASE_URL}/citas`, { params: { idPaciente } });
+  }
+
   buscarPorId(id: number): Observable<Cita> {
     return this.http.get<Cita>(`${API_BASE_URL}/citas/${id}`);
   }
@@ -22,6 +26,14 @@ export class CitaService {
 
   actualizar(id: number, request: CitaRequest): Observable<Cita> {
     return this.http.put<Cita>(`${API_BASE_URL}/citas/${id}`, request);
+  }
+
+  cambiarEstado(id: number, estado: string): Observable<Cita> {
+    return this.http.patch<Cita>(`${API_BASE_URL}/citas/${id}/estado`, null, { params: { estado } });
+  }
+
+  cambiarDoctor(id: number, idDoctor: number): Observable<Cita> {
+    return this.http.patch<Cita>(`${API_BASE_URL}/citas/${id}/doctor`, null, { params: { idDoctor } });
   }
 
   eliminar(id: number): Observable<void> {

@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 public interface CatParentescoMapper {
 
     @Mapping(target = "idParentesco", ignore = true)
+    @Mapping(target = "activo", ignore = true)
     CatParentesco toEntity(CatParentescoRequest request);
 
     CatParentescoResponse toResponse(CatParentesco entity);

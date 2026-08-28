@@ -18,8 +18,8 @@ public class CatGastoController {
     private final CatGastoService service;
 
     @GetMapping
-    public List<CatGastoResponse> listar() {
-        return service.listar();
+    public List<CatGastoResponse> listar(@RequestParam(required = false) Boolean activos) {
+        return Boolean.TRUE.equals(activos) ? service.listarActivos() : service.listar();
     }
 
     @GetMapping("/{id}")

@@ -10,9 +10,9 @@ import org.mapstruct.Mapping;
 public interface RecetaMapper {
 
     @Mapping(target = "idReceta", ignore = true)
-    @Mapping(target = "consulta", ignore = true)
+    @Mapping(target = "historialClinico", ignore = true)
     Receta toEntity(RecetaRequest request);
 
-    @Mapping(target = "idConsulta", source = "consulta.idConsulta")
+    @Mapping(target = "idHistorialClinico", source = "historialClinico.idHistorialClinico")
     RecetaResponse toResponse(Receta entity);
 }

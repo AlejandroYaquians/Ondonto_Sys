@@ -1,0 +1,95 @@
+<h1 class="h3 mb-4">Permisos por rol</h1>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+@if (mensajeExito()) {
+  <div class="alert alert-success" role="alert">{{ mensajeExito() }}</div>
+}
+
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-body">
+    <label class="form-label" for="idRol">Rol</label>
+    <select id="idRol" class="form-select" style="max-width: 20rem" (change)="seleccionarRol($any($event.target).value)">
+      <option value="">Seleccione un rol...</option>
+      @for (rol of roles(); track rol.idRol) {
+        <option [value]="rol.idRol">{{ rol.nombre }}</option>
+      }
+    </select>
+  </div>
+</div>
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+} @else if (idRolSeleccionado() !== null) {
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      @for (modulo of modulos(); track modulo.idModulo) {
+        <h2 class="h6 text-secondary text-uppercase mb-2 mt-3">{{ modulo.nombre }}</h2>
+        <div class="table-responsive mb-3">
+          <table class="table table-sm align-middle" style="table-layout: fixed;">
+            <thead>
+              <tr>
+                <th scope="col" style="width: 40%">Vista</th>
+                <th scope="col" class="text-center" style="width: 15%">Ver</th>
+                <th scope="col" class="text-center" style="width: 15%">Crear</th>
+                <th scope="col" class="text-center" style="width: 15%">Editar</th>
+                <th scope="col" class="text-center" style="width: 15%">Eliminar</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (menu of modulo.menus; track menu.idMenu) {
+                <tr>
+                  <td>{{ menu.nombre }}</td>
+                  <td class="text-center">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      [checked]="celdas()[menu.idMenu]?.puedeVer"
+                      (change)="marcar(menu.idMenu, 'puedeVer', $any($event.target).checked)"
+                    />
+                  </td>
+                  <td class="text-center">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      [checked]="celdas()[menu.idMenu]?.puedeCrear"
+                      (change)="marcar(menu.idMenu, 'puedeCrear', $any($event.target).checked)"
+                    />
+                  </td>
+                  <td class="text-center">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      [checked]="celdas()[menu.idMenu]?.puedeEditar"
+                      (change)="marcar(menu.idMenu, 'puedeEditar', $any($event.target).checked)"
+                    />
+                  </td>
+                  <td class="text-center">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      [checked]="celdas()[menu.idMenu]?.puedeEliminar"
+                      (change)="marcar(menu.idMenu, 'puedeEliminar', $any($event.target).checked)"
+                    />
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-end">
+    <button type="button" class="btn btn-primary" [disabled]="guardando()" (click)="guardar()">
+      @if (guardando()) {
+        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+      }
+      Guardar permisos
+    </button>
+  </div>
+}

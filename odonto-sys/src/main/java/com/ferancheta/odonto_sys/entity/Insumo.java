@@ -41,9 +41,4 @@ public class Insumo extends AuditableEntity {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<InsumoMovimiento> movimientos;
-
-    @OneToMany(mappedBy = "insumo", fetch = FetchType.LAZY)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private List<InsumoServicio> servicios;
 }

@@ -26,11 +26,14 @@ public class Cita extends AuditableEntity {
     @Column(name = "hora", nullable = false)
     private LocalTime hora;
 
-    @Column(name = "hora_fin")
-    private LocalTime horaFin;
+    @Column(name = "observaciones", columnDefinition = "TEXT")
+    private String observaciones;
 
-    @Column(name = "motivo", length = 255)
-    private String motivo;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_motivo_cita", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private CatMotivoCita motivoCita;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_paciente", nullable = false)

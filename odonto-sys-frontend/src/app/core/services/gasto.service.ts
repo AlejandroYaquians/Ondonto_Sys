@@ -12,6 +12,14 @@ export class GastoService {
     return this.http.get<Gasto[]>(`${API_BASE_URL}/gastos`);
   }
 
+  listarPorRango(desde: string, hasta: string, idTipoGasto: number | null): Observable<Gasto[]> {
+    const params: Record<string, string | number> = { desde, hasta };
+    if (idTipoGasto !== null) {
+      params['idTipoGasto'] = idTipoGasto;
+    }
+    return this.http.get<Gasto[]>(`${API_BASE_URL}/gastos`, { params });
+  }
+
   crear(request: GastoRequest): Observable<Gasto> {
     return this.http.post<Gasto>(`${API_BASE_URL}/gastos`, request);
   }

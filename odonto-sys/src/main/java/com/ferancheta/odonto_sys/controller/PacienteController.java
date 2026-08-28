@@ -18,7 +18,13 @@ public class PacienteController {
     private final PacienteService service;
 
     @GetMapping
-    public List<PacienteResponse> listar(@RequestParam(required = false) Boolean activos) {
+    public List<PacienteResponse> listar(
+            @RequestParam(required = false) Boolean activos,
+            @RequestParam(required = false) String busqueda) {
+
+        if (busqueda != null && !busqueda.isBlank()) {
+            return service.buscarActivos(busqueda);
+        }
         return Boolean.TRUE.equals(activos) ? service.listarActivos() : service.listar();
     }
 

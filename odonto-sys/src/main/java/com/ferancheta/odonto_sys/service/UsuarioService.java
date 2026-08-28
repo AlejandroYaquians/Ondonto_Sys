@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -30,6 +31,7 @@ public class UsuarioService {
     private final RolRepository rolRepository;
     private final DoctorRepository doctorRepository;
     private final CatEspecialidadRepository catEspecialidadRepository;
+    private final BitacoraService bitacoraService;
     private final UsuarioMapper mapper;
     private final PasswordEncoder passwordEncoder;
 
@@ -58,33 +60,44 @@ public class UsuarioService {
             crearDoctorParaUsuario(guardado, request);
         }
 
-        return mapper.toResponse(guardado);
+        UsuarioResponse resultado = mapper.toResponse(guardado);
+        bitacoraService.registrarCambio("usuario", resultado.idUsuario(), "INSERT", null, resultado);
+        return resultado;
     }
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public UsuarioResponse actualizar(Integer id, UsuarioRequest request) {
         Usuario existente = obtenerEntidad(id);
+        UsuarioResponse antes = mapper.toResponse(existente);
         Usuario actualizado = mapper.toEntity(request);
         actualizado.setIdUsuario(existente.getIdUsuario());
         actualizado.setEstado(existente.getEstado());
         actualizado.setPasswordHash(passwordEncoder.encode(request.password()));
         actualizado.setRol(obtenerRol(request.idRol()));
-        return mapper.toResponse(usuarioRepository.save(actualizado));
+        UsuarioResponse despues = mapper.toResponse(usuarioRepository.save(actualizado));
+        bitacoraService.registrarCambio("usuario", id, "UPDATE", antes, despues);
+        return despues;
     }
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public UsuarioResponse cambiarEstado(Integer id, boolean estado) {
         Usuario usuario = obtenerEntidad(id);
+        UsuarioResponse antes = mapper.toResponse(usuario);
         usuario.setEstado(estado);
-        return mapper.toResponse(usuarioRepository.save(usuario));
+        UsuarioResponse despues = mapper.toResponse(usuarioRepository.save(usuario));
+        bitacoraService.registrarCambio("usuario", id, "UPDATE", antes, despues);
+        return despues;
     }
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
-        usuarioRepository.delete(obtenerEntidad(id));
+        Usuario usuario = obtenerEntidad(id);
+        UsuarioResponse antes = mapper.toResponse(usuario);
+        usuarioRepository.delete(usuario);
+        bitacoraService.registrarCambio("usuario", id, "DELETE", antes, null);
     }
 
     private void crearDoctorParaUsuario(Usuario usuario, UsuarioRequest request) {
@@ -103,10 +116,12 @@ public class UsuarioService {
                 .usuario(usuario)
                 .build();
 
-        if (request.idEspecialidad() != null) {
-            CatEspecialidad especialidad = catEspecialidadRepository.findById(request.idEspecialidad())
-                    .orElseThrow(() -> new EntityNotFoundException("Especialidad no encontrada: " + request.idEspecialidad()));
-            doctor.setEspecialidad(especialidad);
+        if (request.idsEspecialidad() != null && !request.idsEspecialidad().isEmpty()) {
+            List<CatEspecialidad> especialidades = request.idsEspecialidad().stream()
+                    .map(id -> catEspecialidadRepository.findById(id)
+                            .orElseThrow(() -> new EntityNotFoundException("Especialidad no encontrada: " + id)))
+                    .toList();
+            doctor.setEspecialidades(new ArrayList<>(especialidades));
         }
 
         doctorRepository.save(doctor);

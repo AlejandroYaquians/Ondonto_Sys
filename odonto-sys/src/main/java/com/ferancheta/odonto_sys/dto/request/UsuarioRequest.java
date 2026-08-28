@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public record UsuarioRequest(
         @NotBlank(message = "El nombre es obligatorio")
@@ -19,7 +20,7 @@ public record UsuarioRequest(
         Integer idRol,
 
         String apellido,
-        Integer idEspecialidad,
+        List<Integer> idsEspecialidad,
         BigDecimal porcentajeComision
 ) {
 }

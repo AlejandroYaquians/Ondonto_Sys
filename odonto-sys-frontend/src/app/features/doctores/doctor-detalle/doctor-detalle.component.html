@@ -1,0 +1,65 @@
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+} @else if (doctor(); as d) {
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
+    <div class="d-flex align-items-center gap-2">
+      <a routerLink="/doctores" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <div>
+        <h1 class="h3 mb-1">Dr(a). {{ d.nombre }} {{ d.apellido }}</h1>
+        @if (d.activo) {
+          <span class="badge text-bg-success">Activo</span>
+        } @else {
+          <span class="badge text-bg-secondary">Inactivo</span>
+        }
+      </div>
+    </div>
+    <a [routerLink]="['/doctores', d.idDoctor, 'editar']" class="btn btn-primary d-flex align-items-center gap-2">
+      <i class="bi bi-pencil"></i>
+      Modificar doctor
+    </a>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <h2 class="h6 text-secondary text-uppercase mb-3">Datos de contacto</h2>
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="text-secondary small text-uppercase">Teléfono</div>
+          <div class="fw-medium">{{ d.telefono || '—' }}</div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-secondary small text-uppercase">Correo electrónico</div>
+          <div class="fw-medium">{{ d.email || '—' }}</div>
+        </div>
+      </div>
+
+      <h2 class="h6 text-secondary text-uppercase mb-3">Datos profesionales</h2>
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="text-secondary small text-uppercase">Porcentaje de comisión</div>
+          <div class="fw-medium">{{ d.porcentajeComision }}%</div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-secondary small text-uppercase">Especialidades</div>
+          <div class="fw-medium">{{ nombresEspecialidades(d.idsEspecialidad) }}</div>
+        </div>
+      </div>
+
+      <h2 class="h6 text-secondary text-uppercase mb-3">Usuario del sistema</h2>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="text-secondary small text-uppercase">Usuario vinculado</div>
+          <div class="fw-medium">{{ nombreUsuario(d.idUsuario) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

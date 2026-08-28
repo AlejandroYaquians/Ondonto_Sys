@@ -1,0 +1,50 @@
+@if (error()) {
+  <div class="alert alert-danger py-2" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-3">
+    <div class="spinner-border spinner-border-sm" role="status"></div>
+  </div>
+} @else {
+  <div class="row g-3">
+    @for (afeccion of afecciones(); track afeccion.idAfeccion) {
+      <div class="col-md-6">
+        <div class="form-check">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            [id]="'afeccion-' + afeccion.idAfeccion"
+            [checked]="estaMarcada(afeccion.idAfeccion)"
+            [disabled]="esDoctor()"
+            (change)="toggleAfeccion(afeccion.idAfeccion)"
+          />
+          <label class="form-check-label" [for]="'afeccion-' + afeccion.idAfeccion">
+            {{ afeccion.nombreAfeccion }}
+          </label>
+        </div>
+        @if (estaMarcada(afeccion.idAfeccion)) {
+          <input
+            type="text"
+            class="form-control form-control-sm mt-1"
+            placeholder="Detalle de la afección..."
+            [value]="detalleDe(afeccion.idAfeccion)"
+            [disabled]="esDoctor()"
+            (input)="cambiarDetalle(afeccion.idAfeccion, $any($event.target).value)"
+          />
+        }
+      </div>
+    }
+  </div>
+
+  @if (!esDoctor()) {
+    <div class="d-flex justify-content-end mt-3">
+      <button type="button" class="btn btn-sm btn-primary" [disabled]="guardando()" (click)="guardar()">
+        @if (guardando()) {
+          <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        }
+        Guardar antecedentes
+      </button>
+    </div>
+  }
+}

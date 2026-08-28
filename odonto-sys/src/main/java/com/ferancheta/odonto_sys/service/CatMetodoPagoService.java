@@ -27,38 +27,22 @@ public class CatMetodoPagoService {
     }
 
     @Transactional(readOnly = true)
+    public List<CatMetodoPagoResponse> listarActivos() {
+        return repository.findByActivoTrue().stream().map(mapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
     public CatMetodoPagoResponse buscarPorId(Integer id) {
         return mapper.toResponse(obtenerEntidad(id));
     }
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
-    public CatMetodoPagoResponse crear(CatMetodoPagoRequest request) {
-        CatMetodoPago entidad = mapper.toEntity(request);
-        aplicarValorPorDefecto(entidad);
-        return mapper.toResponse(repository.save(entidad));
-    }
-
-    @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
     public CatMetodoPagoResponse actualizar(Integer id, CatMetodoPagoRequest request) {
         CatMetodoPago existente = obtenerEntidad(id);
-        CatMetodoPago actualizada = mapper.toEntity(request);
-        actualizada.setIdMetodoPago(existente.getIdMetodoPago());
-        aplicarValorPorDefecto(actualizada);
-        return mapper.toResponse(repository.save(actualizada));
-    }
-
-    private void aplicarValorPorDefecto(CatMetodoPago entidad) {
-        if (entidad.getComisionPorcentaje() == null) {
-            entidad.setComisionPorcentaje(BigDecimal.ZERO);
-        }
-    }
-
-    @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
-    public void eliminar(Integer id) {
-        repository.delete(obtenerEntidad(id));
+        existente.setComisionPorcentaje(
+                request.comisionPorcentaje() != null ? request.comisionPorcentaje() : BigDecimal.ZERO);
+        return mapper.toResponse(repository.save(existente));
     }
 
     private CatMetodoPago obtenerEntidad(Integer id) {

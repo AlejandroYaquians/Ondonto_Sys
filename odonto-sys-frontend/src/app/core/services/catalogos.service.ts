@@ -5,26 +5,21 @@ import { API_BASE_URL } from '../config/api-config';
 import {
   CatAfeccion,
   CatAfeccionRequest,
-  CatDiagnostico,
-  CatDiagnosticoRequest,
   CatEspecialidad,
   CatEspecialidadRequest,
   CatEstadoCita,
-  CatEstadoCitaRequest,
   CatGasto,
   CatGastoRequest,
   CatGenero,
   CatGeneroRequest,
   CatMetodoPago,
   CatMetodoPagoRequest,
+  CatMotivoCita,
   CatMovimiento,
-  CatMovimientoRequest,
   CatParentesco,
   CatParentescoRequest,
   CatProfesion,
   CatProfesionRequest,
-  CatTratamiento,
-  CatTratamientoRequest,
   Departamento,
   DepartamentoRequest,
   Municipio,
@@ -38,7 +33,7 @@ export class CatalogosService {
   private readonly http = inject(HttpClient);
 
   generos(): Observable<CatGenero[]> {
-    return this.http.get<CatGenero[]>(`${API_BASE_URL}/catalogos/generos`);
+    return this.http.get<CatGenero[]>(`${API_BASE_URL}/catalogos/generos`, { params: { activos: true } });
   }
 
   crearGenero(request: CatGeneroRequest): Observable<CatGenero> {
@@ -54,7 +49,7 @@ export class CatalogosService {
   }
 
   profesiones(): Observable<CatProfesion[]> {
-    return this.http.get<CatProfesion[]>(`${API_BASE_URL}/catalogos/profesiones`);
+    return this.http.get<CatProfesion[]>(`${API_BASE_URL}/catalogos/profesiones`, { params: { activos: true } });
   }
 
   crearProfesion(request: CatProfesionRequest): Observable<CatProfesion> {
@@ -70,7 +65,7 @@ export class CatalogosService {
   }
 
   departamentos(): Observable<Departamento[]> {
-    return this.http.get<Departamento[]>(`${API_BASE_URL}/departamentos`);
+    return this.http.get<Departamento[]>(`${API_BASE_URL}/departamentos`, { params: { activos: true } });
   }
 
   crearDepartamento(request: DepartamentoRequest): Observable<Departamento> {
@@ -107,20 +102,12 @@ export class CatalogosService {
     return this.http.get<CatEstadoCita[]>(`${API_BASE_URL}/catalogos/estados-cita`);
   }
 
-  crearEstadoCita(request: CatEstadoCitaRequest): Observable<CatEstadoCita> {
-    return this.http.post<CatEstadoCita>(`${API_BASE_URL}/catalogos/estados-cita`, request);
-  }
-
-  actualizarEstadoCita(id: number, request: CatEstadoCitaRequest): Observable<CatEstadoCita> {
-    return this.http.put<CatEstadoCita>(`${API_BASE_URL}/catalogos/estados-cita/${id}`, request);
-  }
-
-  eliminarEstadoCita(id: number): Observable<void> {
-    return this.http.delete<void>(`${API_BASE_URL}/catalogos/estados-cita/${id}`);
+  motivosCita(): Observable<CatMotivoCita[]> {
+    return this.http.get<CatMotivoCita[]>(`${API_BASE_URL}/catalogos/motivos-cita`);
   }
 
   especialidades(): Observable<CatEspecialidad[]> {
-    return this.http.get<CatEspecialidad[]>(`${API_BASE_URL}/catalogos/especialidades`);
+    return this.http.get<CatEspecialidad[]>(`${API_BASE_URL}/catalogos/especialidades`, { params: { activos: true } });
   }
 
   crearEspecialidad(request: CatEspecialidadRequest): Observable<CatEspecialidad> {
@@ -133,38 +120,6 @@ export class CatalogosService {
 
   eliminarEspecialidad(id: number): Observable<void> {
     return this.http.delete<void>(`${API_BASE_URL}/catalogos/especialidades/${id}`);
-  }
-
-  diagnosticos(): Observable<CatDiagnostico[]> {
-    return this.http.get<CatDiagnostico[]>(`${API_BASE_URL}/catalogos/diagnosticos`);
-  }
-
-  crearDiagnostico(request: CatDiagnosticoRequest): Observable<CatDiagnostico> {
-    return this.http.post<CatDiagnostico>(`${API_BASE_URL}/catalogos/diagnosticos`, request);
-  }
-
-  actualizarDiagnostico(id: number, request: CatDiagnosticoRequest): Observable<CatDiagnostico> {
-    return this.http.put<CatDiagnostico>(`${API_BASE_URL}/catalogos/diagnosticos/${id}`, request);
-  }
-
-  eliminarDiagnostico(id: number): Observable<void> {
-    return this.http.delete<void>(`${API_BASE_URL}/catalogos/diagnosticos/${id}`);
-  }
-
-  tratamientos(): Observable<CatTratamiento[]> {
-    return this.http.get<CatTratamiento[]>(`${API_BASE_URL}/catalogos/tratamientos`);
-  }
-
-  crearTratamiento(request: CatTratamientoRequest): Observable<CatTratamiento> {
-    return this.http.post<CatTratamiento>(`${API_BASE_URL}/catalogos/tratamientos`, request);
-  }
-
-  actualizarTratamiento(id: number, request: CatTratamientoRequest): Observable<CatTratamiento> {
-    return this.http.put<CatTratamiento>(`${API_BASE_URL}/catalogos/tratamientos/${id}`, request);
-  }
-
-  eliminarTratamiento(id: number): Observable<void> {
-    return this.http.delete<void>(`${API_BASE_URL}/catalogos/tratamientos/${id}`);
   }
 
   servicios(): Observable<Servicio[]> {
@@ -184,7 +139,7 @@ export class CatalogosService {
   }
 
   afecciones(): Observable<CatAfeccion[]> {
-    return this.http.get<CatAfeccion[]>(`${API_BASE_URL}/catalogos/afecciones`);
+    return this.http.get<CatAfeccion[]>(`${API_BASE_URL}/catalogos/afecciones`, { params: { activos: true } });
   }
 
   crearAfeccion(request: CatAfeccionRequest): Observable<CatAfeccion> {
@@ -200,7 +155,7 @@ export class CatalogosService {
   }
 
   parentescos(): Observable<CatParentesco[]> {
-    return this.http.get<CatParentesco[]>(`${API_BASE_URL}/catalogos/parentescos`);
+    return this.http.get<CatParentesco[]>(`${API_BASE_URL}/catalogos/parentescos`, { params: { activos: true } });
   }
 
   crearParentesco(request: CatParentescoRequest): Observable<CatParentesco> {
@@ -216,7 +171,7 @@ export class CatalogosService {
   }
 
   tiposGasto(): Observable<CatGasto[]> {
-    return this.http.get<CatGasto[]>(`${API_BASE_URL}/catalogos/tipos-gasto`);
+    return this.http.get<CatGasto[]>(`${API_BASE_URL}/catalogos/tipos-gasto`, { params: { activos: true } });
   }
 
   crearTipoGasto(request: CatGastoRequest): Observable<CatGasto> {
@@ -232,34 +187,14 @@ export class CatalogosService {
   }
 
   metodosPago(): Observable<CatMetodoPago[]> {
-    return this.http.get<CatMetodoPago[]>(`${API_BASE_URL}/catalogos/metodos-pago`);
-  }
-
-  crearMetodoPago(request: CatMetodoPagoRequest): Observable<CatMetodoPago> {
-    return this.http.post<CatMetodoPago>(`${API_BASE_URL}/catalogos/metodos-pago`, request);
+    return this.http.get<CatMetodoPago[]>(`${API_BASE_URL}/catalogos/metodos-pago`, { params: { activos: true } });
   }
 
   actualizarMetodoPago(id: number, request: CatMetodoPagoRequest): Observable<CatMetodoPago> {
     return this.http.put<CatMetodoPago>(`${API_BASE_URL}/catalogos/metodos-pago/${id}`, request);
   }
 
-  eliminarMetodoPago(id: number): Observable<void> {
-    return this.http.delete<void>(`${API_BASE_URL}/catalogos/metodos-pago/${id}`);
-  }
-
   tiposMovimiento(): Observable<CatMovimiento[]> {
     return this.http.get<CatMovimiento[]>(`${API_BASE_URL}/catalogos/tipos-movimiento`);
-  }
-
-  crearTipoMovimiento(request: CatMovimientoRequest): Observable<CatMovimiento> {
-    return this.http.post<CatMovimiento>(`${API_BASE_URL}/catalogos/tipos-movimiento`, request);
-  }
-
-  actualizarTipoMovimiento(id: number, request: CatMovimientoRequest): Observable<CatMovimiento> {
-    return this.http.put<CatMovimiento>(`${API_BASE_URL}/catalogos/tipos-movimiento/${id}`, request);
-  }
-
-  eliminarTipoMovimiento(id: number): Observable<void> {
-    return this.http.delete<void>(`${API_BASE_URL}/catalogos/tipos-movimiento/${id}`);
   }
 }

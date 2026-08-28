@@ -20,7 +20,7 @@ export class TiposGastoComponent implements OnInit {
 
   protected readonly formulario = this.fb.group({
     nombreCategoria: ['', Validators.required],
-    tipo: ['']
+    tipo: ['', Validators.required]
   });
 
   ngOnInit(): void {

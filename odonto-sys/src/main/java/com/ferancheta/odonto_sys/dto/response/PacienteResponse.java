@@ -9,7 +9,6 @@ public record PacienteResponse(
         String apellido,
         LocalDate fechaNacimiento,
         String telefono,
-        String celular,
         String email,
         String direccion,
         String referidoPor,

@@ -13,3 +13,11 @@ export interface ModuloConMenus {
   nombre: string;
   menus: MenuItem[];
 }
+
+export interface MenuRequest {
+  nombre: string;
+  ruta: string | null;
+  icono: string | null;
+  orden: number | null;
+  idModulo: number;
+}

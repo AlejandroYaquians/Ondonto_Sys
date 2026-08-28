@@ -18,8 +18,8 @@ public class CatParentescoController {
     private final CatParentescoService service;
 
     @GetMapping
-    public List<CatParentescoResponse> listar() {
-        return service.listar();
+    public List<CatParentescoResponse> listar(@RequestParam(required = false) Boolean activos) {
+        return Boolean.TRUE.equals(activos) ? service.listarActivos() : service.listar();
     }
 
     @GetMapping("/{id}")

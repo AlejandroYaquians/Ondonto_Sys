@@ -18,8 +18,14 @@ public class RecetaController {
     private final RecetaService service;
 
     @GetMapping
-    public List<RecetaResponse> listarPorConsulta(@RequestParam Integer idConsulta) {
-        return service.listarPorConsulta(idConsulta);
+    public List<RecetaResponse> listar(
+            @RequestParam(required = false) Integer idHistorialClinico,
+            @RequestParam(required = false) Integer idPaciente) {
+
+        if (idHistorialClinico != null) {
+            return service.listarPorHistorialClinico(idHistorialClinico);
+        }
+        return service.listarPorPaciente(idPaciente);
     }
 
     @GetMapping("/{id}")

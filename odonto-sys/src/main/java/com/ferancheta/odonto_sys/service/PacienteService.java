@@ -28,6 +28,7 @@ public class PacienteService {
     private final CatProfesionRepository catProfesionRepository;
     private final MunicipioRepository municipioRepository;
     private final ContextoAutenticacion contexto;
+    private final BitacoraService bitacoraService;
     private final PacienteMapper mapper;
 
     @Transactional(readOnly = true)
@@ -41,6 +42,13 @@ public class PacienteService {
     }
 
     @Transactional(readOnly = true)
+    public List<PacienteResponse> buscarActivos(String busqueda) {
+        return pacienteRepository
+                .findByActivoTrueAndNombreContainingIgnoreCaseOrActivoTrueAndApellidoContainingIgnoreCase(busqueda, busqueda)
+                .stream().map(mapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
     public PacienteResponse buscarPorId(Integer id) {
         return mapper.toResponse(obtenerEntidad(id));
     }
@@ -51,27 +59,34 @@ public class PacienteService {
         paciente.setActivo(true);
         paciente.setIdUsuarioCreacion(contexto.usuarioActual().getIdUsuario());
         aplicarRelaciones(paciente, request);
-        return mapper.toResponse(pacienteRepository.save(paciente));
+        PacienteResponse resultado = mapper.toResponse(pacienteRepository.save(paciente));
+        bitacoraService.registrarCambio("paciente", resultado.idPaciente(), "INSERT", null, resultado);
+        return resultado;
     }
 
     @Transactional
     public PacienteResponse actualizar(Integer id, PacienteRequest request) {
         Paciente existente = obtenerEntidad(id);
+        PacienteResponse antes = mapper.toResponse(existente);
         Paciente actualizado = mapper.toEntity(request);
         actualizado.setIdPaciente(existente.getIdPaciente());
         actualizado.setActivo(existente.getActivo());
         actualizado.setIdUsuarioCreacion(existente.getIdUsuarioCreacion());
         actualizado.setIdUsuarioModificacion(contexto.usuarioActual().getIdUsuario());
         aplicarRelaciones(actualizado, request);
-        return mapper.toResponse(pacienteRepository.save(actualizado));
+        PacienteResponse despues = mapper.toResponse(pacienteRepository.save(actualizado));
+        bitacoraService.registrarCambio("paciente", id, "UPDATE", antes, despues);
+        return despues;
     }
 
 
     @Transactional
     public void eliminar(Integer id) {
         Paciente paciente = obtenerEntidad(id);
+        PacienteResponse antes = mapper.toResponse(paciente);
         paciente.setActivo(false);
-        pacienteRepository.save(paciente);
+        PacienteResponse despues = mapper.toResponse(pacienteRepository.save(paciente));
+        bitacoraService.registrarCambio("paciente", id, "DELETE", antes, despues);
     }
 
     private void aplicarRelaciones(Paciente paciente, PacienteRequest request) {

@@ -19,9 +19,6 @@ public record GastoRequest(
         String comprobante,
 
         @NotNull(message = "El tipo de gasto es obligatorio")
-        Integer idTipoGasto,
-
-        @NotNull(message = "El usuario es obligatorio")
-        Integer idUsuario
+        Integer idTipoGasto
 ) {
 }

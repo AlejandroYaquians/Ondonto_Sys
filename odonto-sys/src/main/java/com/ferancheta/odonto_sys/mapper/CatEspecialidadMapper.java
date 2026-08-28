@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 public interface CatEspecialidadMapper {
 
     @Mapping(target = "idEspecialidad", ignore = true)
+    @Mapping(target = "activo", ignore = true)
     CatEspecialidad toEntity(CatEspecialidadRequest request);
 
     CatEspecialidadResponse toResponse(CatEspecialidad entity);

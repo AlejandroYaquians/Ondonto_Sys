@@ -8,4 +8,8 @@ import java.util.List;
 public interface MunicipioRepository extends JpaRepository<Municipio, Integer> {
 
     List<Municipio> findByDepartamento_IdDepartamento(Integer idDepartamento);
+
+    List<Municipio> findByActivoTrue();
+
+    List<Municipio> findByDepartamento_IdDepartamentoAndActivoTrue(Integer idDepartamento);
 }

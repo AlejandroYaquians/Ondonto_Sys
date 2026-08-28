@@ -21,4 +21,7 @@ public class CatGasto {
 
     @Column(name = "tipo", length = 45)
     private String tipo;
+
+    @Column(name = "activo")
+    private Boolean activo = true;
 }

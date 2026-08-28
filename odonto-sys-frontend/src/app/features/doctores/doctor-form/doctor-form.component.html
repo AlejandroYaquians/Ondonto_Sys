@@ -53,15 +53,6 @@
             />
           </div>
           <div class="col-md-4">
-            <label class="form-label" for="idEspecialidad">Especialidad</label>
-            <select id="idEspecialidad" class="form-select" formControlName="idEspecialidad">
-              <option [ngValue]="null">Seleccione...</option>
-              @for (especialidad of especialidades(); track especialidad.idEspecialidad) {
-                <option [ngValue]="especialidad.idEspecialidad">{{ especialidad.nombre }}</option>
-              }
-            </select>
-          </div>
-          <div class="col-md-4">
             <label class="form-label" for="porcentajeComision">Porcentaje de comisión (%)</label>
             <input
               id="porcentajeComision"
@@ -73,6 +64,36 @@
               formControlName="porcentajeComision"
               [class.is-invalid]="formulario.controls.porcentajeComision.touched && formulario.controls.porcentajeComision.invalid"
             />
+          </div>
+          <div class="col-md-8">
+            <label class="form-label">Especialidades</label>
+            <div class="row g-2 border rounded-2 p-2">
+              @for (especialidad of especialidades(); track especialidad.idEspecialidad) {
+                <div class="col-md-4 col-sm-6">
+                  <div class="form-check">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      [id]="'especialidad-' + especialidad.idEspecialidad"
+                      [checked]="especialidadSeleccionada(especialidad.idEspecialidad)"
+                      (change)="toggleEspecialidad(especialidad.idEspecialidad)"
+                    />
+                    <label class="form-check-label" [for]="'especialidad-' + especialidad.idEspecialidad">
+                      {{ especialidad.nombre }}
+                    </label>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="idUsuario">Usuario del sistema</label>
+            <select id="idUsuario" class="form-select" formControlName="idUsuario">
+              <option [ngValue]="null">Sin vincular</option>
+              @for (usuario of usuarios(); track usuario.idUsuario) {
+                <option [ngValue]="usuario.idUsuario">{{ usuario.nombre }} ({{ usuario.username }})</option>
+              }
+            </select>
           </div>
         </div>
 

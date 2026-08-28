@@ -2,22 +2,26 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../config/api-config';
-import { Comision, ComisionRequest } from '../models/pago.models';
+import { Comision } from '../models/cobro.models';
 
 @Injectable({ providedIn: 'root' })
 export class ComisionService {
   private readonly http = inject(HttpClient);
 
-  listarPorPago(idPago: number): Observable<Comision[]> {
-    return this.http.get<Comision[]>(`${API_BASE_URL}/comisiones`, { params: { idPago } });
+  listarPorCobro(idCobro: number): Observable<Comision[]> {
+    return this.http.get<Comision[]>(`${API_BASE_URL}/comisiones`, { params: { idCobro } });
   }
 
   listarPorDoctorYEstado(idDoctor: number, estado: string): Observable<Comision[]> {
     return this.http.get<Comision[]>(`${API_BASE_URL}/comisiones`, { params: { idDoctor, estado } });
   }
 
-  crear(request: ComisionRequest): Observable<Comision> {
-    return this.http.post<Comision>(`${API_BASE_URL}/comisiones`, request);
+  listarPorRango(desde: string, hasta: string, idDoctor: number | null): Observable<Comision[]> {
+    const params: Record<string, string | number> = { desde, hasta };
+    if (idDoctor !== null) {
+      params['idDoctor'] = idDoctor;
+    }
+    return this.http.get<Comision[]>(`${API_BASE_URL}/comisiones`, { params });
   }
 
   cambiarEstado(id: number, estado: string): Observable<Comision> {

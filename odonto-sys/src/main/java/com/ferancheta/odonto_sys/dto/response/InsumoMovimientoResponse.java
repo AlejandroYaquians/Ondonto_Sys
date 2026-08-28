@@ -9,7 +9,6 @@ public record InsumoMovimientoResponse(
         String motivo,
         Integer idInsumo,
         Integer idTipoMovimiento,
-        Integer idGasto,
         Integer idUsuario
 ) {
 }

@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 public interface CatGastoMapper {
 
     @Mapping(target = "idTipoGasto", ignore = true)
+    @Mapping(target = "activo", ignore = true)
     CatGasto toEntity(CatGastoRequest request);
 
     CatGastoResponse toResponse(CatGasto entity);

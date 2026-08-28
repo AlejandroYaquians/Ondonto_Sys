@@ -1,0 +1,45 @@
+@if (error()) {
+  <div class="alert alert-danger py-2" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-3">
+    <div class="spinner-border spinner-border-sm" role="status"></div>
+  </div>
+} @else if (citas().length === 0) {
+  <p class="text-secondary small mb-0">No hay citas registradas.</p>
+} @else {
+  <div class="table-responsive">
+    <table class="table table-sm table-hover align-middle">
+      <thead>
+        <tr>
+          <th scope="col">Fecha</th>
+          <th scope="col">Hora</th>
+          <th scope="col">Doctor</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="text-end">Consulta</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (cita of citas(); track cita.idCita) {
+          <tr>
+            <td>{{ cita.fecha }}</td>
+            <td>{{ horaCorta(cita.hora) }}</td>
+            <td>{{ nombreDoctor(cita.idDoctor) }}</td>
+            <td><span class="badge text-bg-info">{{ nombreEstado(cita.idEstadoCita) }}</span></td>
+            <td class="text-end">
+              @if (idHistorialDe(cita.idCita); as idHistorial) {
+                <a [routerLink]="['/historial-clinico', idHistorial]" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-file-earmark-medical"></i>
+                  Ver consulta
+                </a>
+              } @else {
+                <span class="text-secondary small">—</span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

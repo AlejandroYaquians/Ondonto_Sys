@@ -12,8 +12,10 @@ public record CitaRequest(
         @NotNull(message = "La hora es obligatoria")
         LocalTime hora,
 
-        LocalTime horaFin,
-        String motivo,
+        String observaciones,
+
+        @NotNull(message = "El motivo es obligatorio")
+        Integer idMotivoCita,
 
         @NotNull(message = "El paciente es obligatorio")
         Integer idPaciente,
@@ -21,10 +23,9 @@ public record CitaRequest(
         @NotNull(message = "El doctor es obligatorio")
         Integer idDoctor,
 
-        @NotNull(message = "El estado de la cita es obligatorio")
-        Integer idEstadoCita,
-
         @NotNull(message = "El usuario es obligatorio")
-        Integer idUsuario
+        Integer idUsuario,
+
+        boolean forzarGuardado
 ) {
 }

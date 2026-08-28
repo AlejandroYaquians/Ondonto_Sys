@@ -1,15 +1,51 @@
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
-  <h1 class="h3 mb-0">Gastos</h1>
+  <div class="d-flex align-items-center gap-2">
+    @if (mostrarFormulario()) {
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelar()">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+    }
+    <h1 class="h3 mb-0">Gastos</h1>
+  </div>
   @if (!mostrarFormulario()) {
     <button type="button" class="btn btn-primary d-flex align-items-center gap-2" (click)="nuevo()">
       <i class="bi bi-plus-lg"></i>
-      Nuevo
+      Nuevo gasto
     </button>
   }
 </div>
 
 @if (error()) {
   <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (!mostrarFormulario()) {
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <form [formGroup]="filtros" (ngSubmit)="aplicarFiltros()" class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label">Desde</label>
+          <input type="date" class="form-control" formControlName="desde" />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Hasta</label>
+          <input type="date" class="form-control" formControlName="hasta" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Categoría</label>
+          <select class="form-select" formControlName="idTipoGasto">
+            <option [ngValue]="null">Todas</option>
+            @for (tipo of tiposGasto(); track tipo.idTipoGasto) {
+              <option [ngValue]="tipo.idTipoGasto">{{ tipo.nombreCategoria }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-outline-primary w-100">Filtrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 }
 
 @if (mostrarFormulario()) {
@@ -41,7 +77,7 @@
             <input type="date" class="form-control" formControlName="fecha" />
           </div>
           <div class="col-md-6">
-            <label class="form-label">Tipo de gasto</label>
+            <label class="form-label">Categoría</label>
             <select
               class="form-select"
               formControlName="idTipoGasto"
@@ -54,7 +90,7 @@
             </select>
           </div>
           <div class="col-md-6">
-            <label class="form-label">Comprobante</label>
+            <label class="form-label">Número de comprobante o factura (opcional)</label>
             <input type="text" class="form-control" formControlName="comprobante" />
           </div>
         </div>
@@ -76,37 +112,43 @@
     } @else if (items().length === 0) {
       <p class="text-secondary text-center py-4 mb-0">No hay registros.</p>
     } @else {
-      <table class="table table-hover align-middle">
-        <thead>
-          <tr>
-            <th scope="col">Fecha</th>
-            <th scope="col">Descripción</th>
-            <th scope="col">Tipo</th>
-            <th scope="col">Monto</th>
-            <th scope="col" class="text-end">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of items(); track item.idGasto) {
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
             <tr>
-              <td>{{ item.fecha }}</td>
-              <td>{{ item.descripcion }}</td>
-              <td>{{ nombreTipoGasto(item.idTipoGasto) }}</td>
-              <td>Q{{ item.monto }}</td>
-              <td class="text-end">
-                <div class="btn-group btn-group-sm">
-                  <button type="button" class="btn btn-outline-secondary" (click)="editar(item)">
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                  <button type="button" class="btn btn-outline-danger" (click)="eliminar(item)">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </div>
-              </td>
+              <th scope="col">Fecha</th>
+              <th scope="col">Descripción</th>
+              <th scope="col">Categoría</th>
+              <th scope="col">Monto</th>
+              <th scope="col">Comprobante</th>
+              <th scope="col">Usuario</th>
+              <th scope="col" class="text-end">Acciones</th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (item of items(); track item.idGasto) {
+              <tr>
+                <td>{{ item.fecha }}</td>
+                <td>{{ item.descripcion }}</td>
+                <td>{{ nombreTipoGasto(item.idTipoGasto) }}</td>
+                <td>Q{{ item.monto }}</td>
+                <td>{{ item.comprobante || '—' }}</td>
+                <td>{{ nombreUsuario(item.idUsuario) }}</td>
+                <td class="text-end">
+                  <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline-secondary" (click)="editar(item)">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" (click)="eliminar(item)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     }
   </div>
 </div>

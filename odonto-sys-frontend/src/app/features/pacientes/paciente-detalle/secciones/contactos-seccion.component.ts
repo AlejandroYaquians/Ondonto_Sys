@@ -12,6 +12,7 @@ import { CatParentesco } from '../../../../core/models/catalogo.models';
 })
 export class ContactosSeccionComponent implements OnInit {
   @Input({ required: true }) idPaciente!: number;
+  @Input() soloLectura = false;
 
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(ContactoPacienteService);

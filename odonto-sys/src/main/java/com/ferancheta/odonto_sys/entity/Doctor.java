@@ -4,6 +4,8 @@ import com.ferancheta.odonto_sys.entity.base.AuditableEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "doctor")
@@ -37,11 +39,16 @@ public class Doctor extends AuditableEntity {
     @Column(name = "activo")
     private Boolean activo = true;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_especialidad")
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "doctor_especialidad",
+            joinColumns = @JoinColumn(name = "id_doctor"),
+            inverseJoinColumns = @JoinColumn(name = "id_especialidad")
+    )
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private CatEspecialidad especialidad;
+    @Builder.Default
+    private List<CatEspecialidad> especialidades = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario")

@@ -21,96 +21,162 @@
         }
       </div>
     </div>
-    <a [routerLink]="['/pacientes', p.idPaciente, 'editar']" class="btn btn-primary d-flex align-items-center gap-2">
-      <i class="bi bi-pencil"></i>
-      Modificar paciente
-    </a>
+    @if (!esDoctor()) {
+      <a [routerLink]="['/pacientes', p.idPaciente, 'editar']" class="btn btn-primary d-flex align-items-center gap-2">
+        <i class="bi bi-pencil"></i>
+        Modificar paciente
+      </a>
+    }
   </div>
 
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-body">
-      <h2 class="h6 text-secondary text-uppercase mb-3">Datos personales</h2>
-      <div class="row g-3 mb-4">
-        <div class="col-md-3">
-          <div class="text-secondary small text-uppercase">Fecha de nacimiento</div>
-          <div class="fw-medium">{{ p.fechaNacimiento || '—' }}</div>
-        </div>
-        <div class="col-md-3">
-          <div class="text-secondary small text-uppercase">Género</div>
-          <div class="fw-medium">{{ nombreGenero(p.idGenero) }}</div>
-        </div>
-        <div class="col-md-3">
-          <div class="text-secondary small text-uppercase">Profesión</div>
-          <div class="fw-medium">{{ nombreProfesion(p.idProfesion) }}</div>
-        </div>
-        <div class="col-md-3">
-          <div class="text-secondary small text-uppercase">Fecha de registro</div>
-          <div class="fw-medium">{{ formatoFecha(p.fechaRegistro) }}</div>
-        </div>
-      </div>
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <button type="button" class="nav-link" [class.active]="pestanaActiva() === 'datos'" (click)="cambiarPestana('datos')">
+        Datos personales
+      </button>
+    </li>
+    <li class="nav-item">
+      <button
+        type="button"
+        class="nav-link"
+        [class.active]="pestanaActiva() === 'antecedentes'"
+        (click)="cambiarPestana('antecedentes')"
+      >
+        Antecedentes médicos
+      </button>
+    </li>
+    <li class="nav-item">
+      <button type="button" class="nav-link" [class.active]="pestanaActiva() === 'citas'" (click)="cambiarPestana('citas')">
+        Historial de citas
+      </button>
+    </li>
+    <li class="nav-item">
+      <button
+        type="button"
+        class="nav-link"
+        [class.active]="pestanaActiva() === 'historialClinico'"
+        (click)="cambiarPestana('historialClinico')"
+      >
+        Historial clínico
+      </button>
+    </li>
+    <li class="nav-item">
+      <button type="button" class="nav-link" [class.active]="pestanaActiva() === 'recetas'" (click)="cambiarPestana('recetas')">
+        Recetas emitidas
+      </button>
+    </li>
+    <li class="nav-item">
+      <button type="button" class="nav-link" [class.active]="pestanaActiva() === 'cobros'" (click)="cambiarPestana('cobros')">
+        Historial de cobros
+      </button>
+    </li>
+  </ul>
 
-      <h2 class="h6 text-secondary text-uppercase mb-3">Contacto</h2>
-      <div class="row g-3 mb-4">
-        <div class="col-md-3">
-          <div class="text-secondary small text-uppercase">Teléfono</div>
-          <div class="fw-medium">{{ p.telefono || '—' }}</div>
+  @if (pestanaActiva() === 'datos') {
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <h2 class="h6 text-secondary text-uppercase mb-3">Datos personales</h2>
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="text-secondary small text-uppercase">Fecha de nacimiento</div>
+            <div class="fw-medium">{{ p.fechaNacimiento || '—' }}</div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-secondary small text-uppercase">Edad</div>
+            <div class="fw-medium">{{ edad() !== null ? edad() : '—' }}</div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-secondary small text-uppercase">Género</div>
+            <div class="fw-medium">{{ nombreGenero(p.idGenero) }}</div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-secondary small text-uppercase">Profesión</div>
+            <div class="fw-medium">{{ nombreProfesion(p.idProfesion) }}</div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-secondary small text-uppercase">Fecha de registro</div>
+            <div class="fw-medium">{{ formatoFecha(p.fechaRegistro) }}</div>
+          </div>
         </div>
-        <div class="col-md-3">
-          <div class="text-secondary small text-uppercase">Celular</div>
-          <div class="fw-medium">{{ p.celular || '—' }}</div>
-        </div>
-        <div class="col-md-3">
-          <div class="text-secondary small text-uppercase">Correo</div>
-          <div class="fw-medium">{{ p.email || '—' }}</div>
-        </div>
-        <div class="col-md-3">
-          <div class="text-secondary small text-uppercase">Municipio</div>
-          <div class="fw-medium">{{ nombreMunicipio(p.idMunicipio) }}</div>
-        </div>
-        <div class="col-12">
-          <div class="text-secondary small text-uppercase">Dirección</div>
-          <div class="fw-medium">{{ p.direccion || '—' }}</div>
-        </div>
-      </div>
 
-      <h2 class="h6 text-secondary text-uppercase mb-3">Datos adicionales</h2>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <div class="text-secondary small text-uppercase">Referido por</div>
-          <div class="fw-medium">{{ p.referidoPor || '—' }}</div>
+        <h2 class="h6 text-secondary text-uppercase mb-3">Contacto</h2>
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="text-secondary small text-uppercase">Teléfono</div>
+            <div class="fw-medium">{{ p.telefono || '—' }}</div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-secondary small text-uppercase">Correo</div>
+            <div class="fw-medium">{{ p.email || '—' }}</div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-secondary small text-uppercase">Municipio</div>
+            <div class="fw-medium">{{ nombreMunicipio(p.idMunicipio) }}</div>
+          </div>
+          <div class="col-12">
+            <div class="text-secondary small text-uppercase">Dirección</div>
+            <div class="fw-medium">{{ p.direccion || '—' }}</div>
+          </div>
         </div>
-        <div class="col-md-6">
-          <div class="text-secondary small text-uppercase">Médico de familia</div>
-          <div class="fw-medium">{{ p.medicoFamilia || '—' }}</div>
+
+        <h2 class="h6 text-secondary text-uppercase mb-3">Datos adicionales</h2>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="text-secondary small text-uppercase">Referido por</div>
+            <div class="fw-medium">{{ p.referidoPor || '—' }}</div>
+          </div>
+          <div class="col-md-6">
+            <div class="text-secondary small text-uppercase">Médico de familia</div>
+            <div class="fw-medium">{{ p.medicoFamilia || '—' }}</div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-body">
-      <h2 class="h6 text-secondary text-uppercase mb-3">Afecciones</h2>
-      @if (historial().length === 0) {
-        <p class="text-secondary small mb-0">No tiene afecciones registradas.</p>
-      } @else {
-        <div class="d-flex flex-wrap gap-2">
-          @for (item of historial(); track item.idHistorial) {
-            <span class="badge text-bg-warning-subtle text-warning-emphasis border border-warning-subtle">
-              {{ nombreAfeccion(item.idAfeccion) }}
-            </span>
-          }
-        </div>
-      }
-      <p class="text-secondary small mt-3 mb-0">
-        Para agregar o quitar afecciones, use la opción
-        <a [routerLink]="['/pacientes', p.idPaciente, 'editar']">Modificar paciente</a>.
-      </p>
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <app-contactos-seccion [idPaciente]="p.idPaciente" [soloLectura]="esDoctor()" />
+      </div>
     </div>
-  </div>
+  }
 
-  <div class="card shadow-sm border-0">
-    <div class="card-body">
-      <app-contactos-seccion [idPaciente]="p.idPaciente" />
+  @if (pestanaActiva() === 'antecedentes') {
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <app-antecedentes-seccion [idPaciente]="p.idPaciente" />
+      </div>
     </div>
-  </div>
+  }
+
+  @if (pestanaActiva() === 'citas') {
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <app-citas-seccion [idPaciente]="p.idPaciente" />
+      </div>
+    </div>
+  }
+
+  @if (pestanaActiva() === 'historialClinico') {
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <app-historial-clinico-seccion [idPaciente]="p.idPaciente" />
+      </div>
+    </div>
+  }
+
+  @if (pestanaActiva() === 'recetas') {
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <app-recetas-seccion [idPaciente]="p.idPaciente" />
+      </div>
+    </div>
+  }
+
+  @if (pestanaActiva() === 'cobros') {
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <app-cobros-seccion [idPaciente]="p.idPaciente" />
+      </div>
+    </div>
+  }
 }

@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 public interface CatProfesionMapper {
 
     @Mapping(target = "idProfesion", ignore = true)
+    @Mapping(target = "activo", ignore = true)
     CatProfesion toEntity(CatProfesionRequest request);
 
     CatProfesionResponse toResponse(CatProfesion entity);

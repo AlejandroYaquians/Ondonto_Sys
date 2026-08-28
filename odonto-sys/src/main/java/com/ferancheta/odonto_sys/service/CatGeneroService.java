@@ -26,6 +26,11 @@ public class CatGeneroService {
     }
 
     @Transactional(readOnly = true)
+    public List<CatGeneroResponse> listarActivos() {
+        return repository.findByActivoTrue().stream().map(mapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
     public CatGeneroResponse buscarPorId(Integer id) {
         return mapper.toResponse(obtenerEntidad(id));
     }
@@ -34,6 +39,7 @@ public class CatGeneroService {
     @PreAuthorize("hasRole('ADMIN')")
     public CatGeneroResponse crear(CatGeneroRequest request) {
         CatGenero entidad = mapper.toEntity(request);
+        entidad.setActivo(true);
         return mapper.toResponse(repository.save(entidad));
     }
 
@@ -43,13 +49,16 @@ public class CatGeneroService {
         CatGenero existente = obtenerEntidad(id);
         CatGenero actualizada = mapper.toEntity(request);
         actualizada.setIdGenero(existente.getIdGenero());
+        actualizada.setActivo(existente.getActivo());
         return mapper.toResponse(repository.save(actualizada));
     }
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
-        repository.delete(obtenerEntidad(id));
+        CatGenero entidad = obtenerEntidad(id);
+        entidad.setActivo(false);
+        repository.save(entidad);
     }
 
     private CatGenero obtenerEntidad(Integer id) {

@@ -7,5 +7,7 @@ import java.util.List;
 
 public interface RecetaRepository extends JpaRepository<Receta, Integer> {
 
-    List<Receta> findByConsulta_IdConsulta(Integer idConsulta);
+    List<Receta> findByHistorialClinico_IdHistorialClinico(Integer idHistorialClinico);
+
+    List<Receta> findByHistorialClinico_Paciente_IdPaciente(Integer idPaciente);
 }

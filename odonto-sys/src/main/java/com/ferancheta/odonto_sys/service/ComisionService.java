@@ -4,15 +4,16 @@ import com.ferancheta.odonto_sys.dto.request.ComisionRequest;
 import com.ferancheta.odonto_sys.dto.response.ComisionResponse;
 import com.ferancheta.odonto_sys.entity.Comision;
 import com.ferancheta.odonto_sys.mapper.ComisionMapper;
+import com.ferancheta.odonto_sys.repository.CobroRepository;
 import com.ferancheta.odonto_sys.repository.ComisionRepository;
 import com.ferancheta.odonto_sys.repository.DoctorRepository;
-import com.ferancheta.odonto_sys.repository.PagoRepository;
 import com.ferancheta.odonto_sys.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -22,7 +23,7 @@ public class ComisionService {
 
     private final ComisionRepository repository;
     private final DoctorRepository doctorRepository;
-    private final PagoRepository pagoRepository;
+    private final CobroRepository cobroRepository;
     private final UsuarioRepository usuarioRepository;
     private final ComisionMapper mapper;
 
@@ -32,8 +33,16 @@ public class ComisionService {
     }
 
     @Transactional(readOnly = true)
-    public List<ComisionResponse> listarPorPago(Integer idPago) {
-        return repository.findByPago_IdPago(idPago).stream().map(mapper::toResponse).toList();
+    public List<ComisionResponse> listarPorCobro(Integer idCobro) {
+        return repository.findByCobro_IdCobro(idCobro).stream().map(mapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ComisionResponse> listarPorRangoFecha(LocalDate desde, LocalDate hasta, Integer idDoctor) {
+        return repository.findByFechaBetween(desde, hasta).stream()
+                .filter(c -> idDoctor == null || c.getDoctor().getIdDoctor().equals(idDoctor))
+                .map(mapper::toResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -74,8 +83,8 @@ public class ComisionService {
     private void aplicarRelaciones(Comision entidad, ComisionRequest request) {
         entidad.setDoctor(doctorRepository.findById(request.idDoctor())
                 .orElseThrow(() -> new EntityNotFoundException("Doctor no encontrado: " + request.idDoctor())));
-        entidad.setPago(pagoRepository.findById(request.idPago())
-                .orElseThrow(() -> new EntityNotFoundException("Pago no encontrado: " + request.idPago())));
+        entidad.setCobro(cobroRepository.findById(request.idCobro())
+                .orElseThrow(() -> new EntityNotFoundException("Cobro no encontrado: " + request.idCobro())));
 
         if (request.idUsuarioCreacion() != null) {
             entidad.setUsuarioCreacion(usuarioRepository.findById(request.idUsuarioCreacion())

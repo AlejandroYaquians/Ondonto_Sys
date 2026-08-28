@@ -5,9 +5,11 @@ import com.ferancheta.odonto_sys.dto.response.ComisionResponse;
 import com.ferancheta.odonto_sys.service.ComisionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,12 +22,17 @@ public class ComisionController {
 
     @GetMapping
     public List<ComisionResponse> listar(
-            @RequestParam(required = false) Integer idPago,
+            @RequestParam(required = false) Integer idCobro,
             @RequestParam(required = false) Integer idDoctor,
-            @RequestParam(required = false) String estado) {
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
 
-        if (idPago != null) {
-            return service.listarPorPago(idPago);
+        if (idCobro != null) {
+            return service.listarPorCobro(idCobro);
+        }
+        if (desde != null && hasta != null) {
+            return service.listarPorRangoFecha(desde, hasta, idDoctor);
         }
         if (idDoctor != null && estado != null) {
             return service.listarPorDoctorYEstado(idDoctor, estado);

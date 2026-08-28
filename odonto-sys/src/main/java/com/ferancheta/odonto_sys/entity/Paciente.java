@@ -33,9 +33,6 @@ public class Paciente extends AuditableEntity {
     @Column(name = "telefono", length = 15)
     private String telefono;
 
-    @Column(name = "celular", length = 15)
-    private String celular;
-
     @Column(name = "email", length = 100)
     private String email;
 
@@ -80,7 +77,7 @@ public class Paciente extends AuditableEntity {
     @OneToMany(mappedBy = "paciente", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private List<HistorialMedico> historialMedico;
+    private List<AntecedenteMedico> antecedentesMedicos;
 
     @PrePersist
     public void prePersist() {

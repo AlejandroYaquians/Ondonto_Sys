@@ -13,6 +13,7 @@ export interface InsumoRequest {
   descripcion: string | null;
   unidadMedida: string | null;
   stockActual: number | null;
+  stockMinimo: number | null;
 }
 
 export interface InsumoMovimiento {
@@ -22,7 +23,6 @@ export interface InsumoMovimiento {
   motivo: string | null;
   idInsumo: number;
   idTipoMovimiento: number;
-  idGasto: number | null;
   idUsuario: number;
 }
 
@@ -31,19 +31,4 @@ export interface InsumoMovimientoRequest {
   motivo: string | null;
   idInsumo: number;
   idTipoMovimiento: number;
-  idGasto: number | null;
-  idUsuario: number;
-}
-
-export interface InsumoServicio {
-  idInsumoServicio: number;
-  cantidadEstimada: number | null;
-  idInsumo: number;
-  idServicio: number;
-}
-
-export interface InsumoServicioRequest {
-  cantidadEstimada: number | null;
-  idInsumo: number;
-  idServicio: number;
 }

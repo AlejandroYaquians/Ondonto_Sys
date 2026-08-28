@@ -1,14 +1,16 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CitaService } from '../../../core/services/cita.service';
+import { HistorialClinicoService } from '../../../core/services/historial-clinico.service';
 import { PacienteService } from '../../../core/services/paciente.service';
 import { DoctorService } from '../../../core/services/doctor.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Cita } from '../../../core/models/cita.models';
+import { HistorialClinico } from '../../../core/models/historial-clinico.models';
 import { Paciente } from '../../../core/models/paciente.models';
 import { Doctor } from '../../../core/models/doctor.models';
-import { CatEstadoCita } from '../../../core/models/catalogo.models';
+import { CatEstadoCita, CatMotivoCita } from '../../../core/models/catalogo.models';
 
 function hoyIso(): string {
   const hoy = new Date();
@@ -17,13 +19,28 @@ function hoyIso(): string {
   return `${hoy.getFullYear()}-${mes}-${dia}`;
 }
 
+function sumarDias(fechaIso: string, dias: number): string {
+  const fecha = new Date(`${fechaIso}T00:00:00`);
+  fecha.setDate(fecha.getDate() + dias);
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+  const dia = String(fecha.getDate()).padStart(2, '0');
+  return `${fecha.getFullYear()}-${mes}-${dia}`;
+}
+
+const TRANSICIONES: Record<string, string[]> = {
+  Confirmada: ['Cancelada', 'No asistió'],
+  Pendiente: ['Confirmada', 'Cancelada', 'No asistió']
+};
+
 @Component({
   selector: 'app-cita-list',
   imports: [RouterLink],
-  templateUrl: './cita-list.component.html'
+  templateUrl: './cita-list.component.html',
+  styleUrl: './cita-list.component.scss'
 })
 export class CitaListComponent {
   private readonly citaService = inject(CitaService);
+  private readonly historialClinicoService = inject(HistorialClinicoService);
   private readonly pacienteService = inject(PacienteService);
   private readonly doctorService = inject(DoctorService);
   private readonly catalogosService = inject(CatalogosService);
@@ -32,9 +49,11 @@ export class CitaListComponent {
   protected readonly esDoctor = computed(() => this.authService.rol() === 'DOCTOR');
 
   protected readonly citas = signal<Cita[]>([]);
+  protected readonly historiales = signal<HistorialClinico[]>([]);
   protected readonly pacientes = signal<Paciente[]>([]);
   protected readonly doctores = signal<Doctor[]>([]);
   protected readonly estados = signal<CatEstadoCita[]>([]);
+  protected readonly motivos = signal<CatMotivoCita[]>([]);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
 
@@ -55,6 +74,8 @@ export class CitaListComponent {
     this.doctorService.listarActivos().subscribe((datos) => this.doctores.set(datos));
     this.pacienteService.listar().subscribe((datos) => this.pacientes.set(datos));
     this.catalogosService.estadosCita().subscribe((datos) => this.estados.set(datos));
+    this.catalogosService.motivosCita().subscribe((datos) => this.motivos.set(datos));
+    this.historialClinicoService.listar().subscribe((datos) => this.historiales.set(datos));
   }
 
   private cargar(): void {
@@ -73,6 +94,14 @@ export class CitaListComponent {
 
   cambiarFecha(valor: string): void {
     this.fecha.set(valor);
+  }
+
+  diaAnterior(): void {
+    this.fecha.set(sumarDias(this.fecha(), -1));
+  }
+
+  diaSiguiente(): void {
+    this.fecha.set(sumarDias(this.fecha(), 1));
   }
 
   cambiarDoctor(valor: string): void {
@@ -97,14 +126,34 @@ export class CitaListComponent {
     return this.estados().find((e) => e.idEstadoCita === idEstadoCita)?.nombre ?? '—';
   }
 
-  eliminar(cita: Cita): void {
-    const confirmado = window.confirm('¿Desea cancelar esta cita?');
-    if (!confirmado) {
+  nombreMotivo(idMotivoCita: number): string {
+    return this.motivos().find((m) => m.idMotivoCita === idMotivoCita)?.nombre ?? '—';
+  }
+
+  transicionesDisponibles(cita: Cita): string[] {
+    return TRANSICIONES[this.nombreEstado(cita.idEstadoCita)] ?? [];
+  }
+
+  esConfirmadaOPendiente(cita: Cita): boolean {
+    const estado = this.nombreEstado(cita.idEstadoCita);
+    return estado === 'Confirmada' || estado === 'Pendiente';
+  }
+
+  esAtendida(cita: Cita): boolean {
+    return this.nombreEstado(cita.idEstadoCita) === 'Atendida';
+  }
+
+  idHistorialDe(idCita: number): number | null {
+    return this.historiales().find((h) => h.idCita === idCita)?.idHistorialClinico ?? null;
+  }
+
+  cambiarEstado(cita: Cita, nuevoEstado: string): void {
+    if (!nuevoEstado) {
       return;
     }
-    this.citaService.eliminar(cita.idCita).subscribe({
+    this.citaService.cambiarEstado(cita.idCita, nuevoEstado).subscribe({
       next: () => this.cargar(),
-      error: () => this.error.set('Error al eliminar.')
+      error: () => this.error.set('Error al cambiar el estado.')
     });
   }
 }

@@ -18,8 +18,8 @@ public class CatGeneroController {
     private final CatGeneroService service;
 
     @GetMapping
-    public List<CatGeneroResponse> listar() {
-        return service.listar();
+    public List<CatGeneroResponse> listar(@RequestParam(required = false) Boolean activos) {
+        return Boolean.TRUE.equals(activos) ? service.listarActivos() : service.listar();
     }
 
     @GetMapping("/{id}")

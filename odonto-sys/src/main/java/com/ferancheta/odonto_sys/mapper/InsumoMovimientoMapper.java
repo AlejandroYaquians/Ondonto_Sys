@@ -13,13 +13,11 @@ public interface InsumoMovimientoMapper {
     @Mapping(target = "fecha", ignore = true)
     @Mapping(target = "insumo", ignore = true)
     @Mapping(target = "tipoMovimiento", ignore = true)
-    @Mapping(target = "gasto", ignore = true)
     @Mapping(target = "usuario", ignore = true)
     InsumoMovimiento toEntity(InsumoMovimientoRequest request);
 
     @Mapping(target = "idInsumo", source = "insumo.idInsumo")
     @Mapping(target = "idTipoMovimiento", source = "tipoMovimiento.idTipoMovimiento")
-    @Mapping(target = "idGasto", source = "gasto.idGasto")
     @Mapping(target = "idUsuario", source = "usuario.idUsuario")
     InsumoMovimientoResponse toResponse(InsumoMovimiento entity);
 }

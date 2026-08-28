@@ -44,25 +44,27 @@ public class InsumoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public InsumoResponse crear(InsumoRequest request) {
         Insumo entidad = mapper.toEntity(request);
         entidad.setActivo(true);
-        entidad.setStockMinimo(0);
+        entidad.setStockActual(request.stockActual());
+        entidad.setStockMinimo(request.stockMinimo());
         entidad.setIdUsuarioCreacion(contexto.usuarioActual().getIdUsuario());
-        aplicarValoresPorDefecto(entidad);
         return mapper.toResponse(repository.save(entidad));
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public InsumoResponse actualizar(Integer id, InsumoRequest request) {
         Insumo existente = obtenerEntidad(id);
         Insumo actualizado = mapper.toEntity(request);
         actualizado.setIdInsumo(existente.getIdInsumo());
         actualizado.setActivo(existente.getActivo());
-        actualizado.setStockMinimo(existente.getStockMinimo());
+        actualizado.setStockActual(existente.getStockActual());
+        actualizado.setStockMinimo(request.stockMinimo());
         actualizado.setIdUsuarioCreacion(existente.getIdUsuarioCreacion());
         actualizado.setIdUsuarioModificacion(contexto.usuarioActual().getIdUsuario());
-        aplicarValoresPorDefecto(actualizado);
         return mapper.toResponse(repository.save(actualizado));
     }
 
@@ -83,12 +85,6 @@ public class InsumoService {
         repository.save(insumo);
     }
 
-
-    private void aplicarValoresPorDefecto(Insumo insumo) {
-        if (insumo.getStockActual() == null) {
-            insumo.setStockActual(0);
-        }
-    }
 
     private Insumo obtenerEntidad(Integer id) {
         return repository.findById(id)

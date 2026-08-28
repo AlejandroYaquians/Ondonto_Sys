@@ -12,6 +12,10 @@ export class InsumoService {
     return this.http.get<Insumo[]>(`${API_BASE_URL}/insumos`);
   }
 
+  listarActivos(): Observable<Insumo[]> {
+    return this.http.get<Insumo[]>(`${API_BASE_URL}/insumos`, { params: { activos: true } });
+  }
+
   buscarPorId(id: number): Observable<Insumo> {
     return this.http.get<Insumo>(`${API_BASE_URL}/insumos/${id}`);
   }

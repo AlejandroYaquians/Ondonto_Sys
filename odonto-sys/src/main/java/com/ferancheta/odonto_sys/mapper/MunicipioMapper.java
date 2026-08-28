@@ -11,6 +11,7 @@ public interface MunicipioMapper {
 
     @Mapping(target = "idMunicipio", ignore = true)
     @Mapping(target = "departamento", ignore = true)
+    @Mapping(target = "activo", ignore = true)
     Municipio toEntity(MunicipioRequest request);
 
     @Mapping(target = "idDepartamento", source = "departamento.idDepartamento")

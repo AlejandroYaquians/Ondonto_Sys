@@ -1,0 +1,135 @@
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+} @else if (historial(); as h) {
+  <div class="d-flex align-items-center gap-2 mb-4">
+    <a [routerLink]="['/pacientes', h.idPaciente]" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <h1 class="h3 mb-0">Historial clínico</h1>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="text-secondary small text-uppercase">Fecha</div>
+          <div class="fw-medium">{{ formatoFecha(h.fecha) }}</div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-secondary small text-uppercase">Paciente</div>
+          <div class="fw-medium">{{ paciente() ? paciente()!.nombre + ' ' + paciente()!.apellido : '—' }}</div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-secondary small text-uppercase">Doctor</div>
+          <div class="fw-medium">{{ doctor() ? 'Dr(a). ' + doctor()!.nombre + ' ' + doctor()!.apellido : '—' }}</div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="h6 text-secondary text-uppercase mb-0">¿Qué se realizó?</h2>
+        @if (!editandoDescripcion()) {
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="iniciarEdicionDescripcion()">
+            <i class="bi bi-pencil"></i>
+            Editar
+          </button>
+        }
+      </div>
+
+      @if (editandoDescripcion()) {
+        <form [formGroup]="formularioDescripcion" (ngSubmit)="guardarDescripcion()">
+          <textarea
+            class="form-control mb-2"
+            rows="5"
+            formControlName="descripcion"
+            [class.is-invalid]="formularioDescripcion.controls.descripcion.touched && formularioDescripcion.controls.descripcion.invalid"
+          ></textarea>
+          <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelarEdicionDescripcion()">Cancelar</button>
+            <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
+          </div>
+        </form>
+      } @else {
+        <p class="mb-0" style="white-space: pre-wrap;">{{ h.descripcion }}</p>
+      }
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <h2 class="h6 text-uppercase text-secondary mb-3">Receta</h2>
+
+      <form [formGroup]="formularioReceta" (ngSubmit)="guardarReceta()" class="border rounded-3 p-3 mb-3 bg-light-subtle">
+        <div class="row g-2 mb-2">
+          <div class="col-md-6">
+            <label class="form-label">Medicamento</label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              formControlName="medicamento"
+              [class.is-invalid]="formularioReceta.controls.medicamento.touched && formularioReceta.controls.medicamento.invalid"
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Dosis</label>
+            <input type="text" class="form-control form-control-sm" formControlName="dosis" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Frecuencia</label>
+            <input type="text" class="form-control form-control-sm" formControlName="frecuencia" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Duración</label>
+            <input type="text" class="form-control form-control-sm" formControlName="duracion" />
+          </div>
+          <div class="col-12">
+            <label class="form-label">Indicaciones</label>
+            <textarea class="form-control form-control-sm" rows="2" formControlName="indicaciones"></textarea>
+          </div>
+        </div>
+        <div class="d-flex justify-content-end gap-2">
+          @if (idRecetaEditando()) {
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelarReceta()">Cancelar</button>
+          }
+          <button type="submit" class="btn btn-sm btn-primary">{{ idRecetaEditando() ? 'Actualizar' : 'Agregar' }}</button>
+        </div>
+      </form>
+
+      @if (recetas().length === 0) {
+        <p class="text-secondary small mb-0">No hay recetas registradas.</p>
+      } @else {
+        <ul class="list-group list-group-flush">
+          @for (item of recetas(); track item.idReceta) {
+            <li class="list-group-item d-flex justify-content-between align-items-start px-0">
+              <div>
+                <div class="fw-medium">{{ item.medicamento }}</div>
+                <div class="text-secondary small">
+                  @if (item.dosis) { {{ item.dosis }} }
+                  @if (item.frecuencia) { · {{ item.frecuencia }} }
+                  @if (item.duracion) { · {{ item.duracion }} }
+                </div>
+                @if (item.indicaciones) {
+                  <div class="text-secondary small">{{ item.indicaciones }}</div>
+                }
+                <div class="text-secondary small">{{ item.fecha }}</div>
+              </div>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-outline-secondary" (click)="editarReceta(item)">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-outline-danger" (click)="eliminarReceta(item)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+}

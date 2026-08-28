@@ -10,3 +10,13 @@ export interface Bitacora {
   ipOrigen: string | null;
   idUsuario: number | null;
 }
+
+export interface PaginaBitacora {
+  content: Bitacora[];
+  page: {
+    size: number;
+    number: number;
+    totalElements: number;
+    totalPages: number;
+  };
+}

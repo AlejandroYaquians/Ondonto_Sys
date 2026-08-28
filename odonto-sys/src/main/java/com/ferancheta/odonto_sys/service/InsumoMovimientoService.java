@@ -7,12 +7,12 @@ import com.ferancheta.odonto_sys.entity.Insumo;
 import com.ferancheta.odonto_sys.entity.InsumoMovimiento;
 import com.ferancheta.odonto_sys.mapper.InsumoMovimientoMapper;
 import com.ferancheta.odonto_sys.repository.CatMovimientoRepository;
-import com.ferancheta.odonto_sys.repository.GastoRepository;
 import com.ferancheta.odonto_sys.repository.InsumoMovimientoRepository;
 import com.ferancheta.odonto_sys.repository.InsumoRepository;
-import com.ferancheta.odonto_sys.repository.UsuarioRepository;
+import com.ferancheta.odonto_sys.security.ContextoAutenticacion;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +22,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InsumoMovimientoService {
 
+    private static final String TIPO_USO_EN_CONSULTA = "Uso en consulta";
+
     private final InsumoMovimientoRepository repository;
     private final InsumoRepository insumoRepository;
     private final CatMovimientoRepository catMovimientoRepository;
-    private final GastoRepository gastoRepository;
-    private final UsuarioRepository usuarioRepository;
+    private final ContextoAutenticacion contexto;
     private final InsumoMovimientoMapper mapper;
 
     @Transactional(readOnly = true)
@@ -42,9 +43,17 @@ public class InsumoMovimientoService {
     @Transactional
     public InsumoMovimientoResponse crear(InsumoMovimientoRequest request) {
         InsumoMovimiento entidad = mapper.toEntity(request);
+        entidad.setUsuario(contexto.usuarioActual());
         aplicarRelaciones(entidad, request);
+        validarAccesoPorRol(entidad.getTipoMovimiento());
         ajustarStock(entidad.getInsumo(), entidad.getTipoMovimiento(), entidad.getCantidad());
         return mapper.toResponse(repository.save(entidad));
+    }
+
+    private void validarAccesoPorRol(CatMovimiento tipoMovimiento) {
+        if (contexto.esDoctor() && !TIPO_USO_EN_CONSULTA.equals(tipoMovimiento.getNombreMovimiento())) {
+            throw new AccessDeniedException("Los doctores solo pueden registrar uso en consulta");
+        }
     }
 
     @Transactional
@@ -77,15 +86,6 @@ public class InsumoMovimientoService {
                 .orElseThrow(() -> new EntityNotFoundException("Insumo no encontrado: " + request.idInsumo())));
         entidad.setTipoMovimiento(catMovimientoRepository.findById(request.idTipoMovimiento())
                 .orElseThrow(() -> new EntityNotFoundException("Tipo de movimiento no encontrado: " + request.idTipoMovimiento())));
-        entidad.setUsuario(usuarioRepository.findById(request.idUsuario())
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + request.idUsuario())));
-
-        if (request.idGasto() != null) {
-            entidad.setGasto(gastoRepository.findById(request.idGasto())
-                    .orElseThrow(() -> new EntityNotFoundException("Gasto no encontrado: " + request.idGasto())));
-        } else {
-            entidad.setGasto(null);
-        }
     }
 
     private InsumoMovimiento obtenerEntidad(Integer id) {

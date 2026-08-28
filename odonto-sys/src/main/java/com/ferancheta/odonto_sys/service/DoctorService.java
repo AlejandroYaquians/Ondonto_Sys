@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,6 +26,7 @@ public class DoctorService {
     private final CatEspecialidadRepository catEspecialidadRepository;
     private final UsuarioRepository usuarioRepository;
     private final ContextoAutenticacion contexto;
+    private final BitacoraService bitacoraService;
     private final DoctorMapper mapper;
 
     @Transactional(readOnly = true)
@@ -48,35 +50,44 @@ public class DoctorService {
         doctor.setActivo(true);
         doctor.setIdUsuarioCreacion(contexto.usuarioActual().getIdUsuario());
         aplicarRelaciones(doctor, request);
-        return mapper.toResponse(doctorRepository.save(doctor));
+        DoctorResponse resultado = mapper.toResponse(doctorRepository.save(doctor));
+        bitacoraService.registrarCambio("doctor", resultado.idDoctor(), "INSERT", null, resultado);
+        return resultado;
     }
 
     @Transactional
     public DoctorResponse actualizar(Integer id, DoctorRequest request) {
         Doctor existente = obtenerEntidad(id);
+        DoctorResponse antes = mapper.toResponse(existente);
         Doctor actualizado = mapper.toEntity(request);
         actualizado.setIdDoctor(existente.getIdDoctor());
         actualizado.setActivo(existente.getActivo());
         actualizado.setIdUsuarioCreacion(existente.getIdUsuarioCreacion());
         actualizado.setIdUsuarioModificacion(contexto.usuarioActual().getIdUsuario());
         aplicarRelaciones(actualizado, request);
-        return mapper.toResponse(doctorRepository.save(actualizado));
+        DoctorResponse despues = mapper.toResponse(doctorRepository.save(actualizado));
+        bitacoraService.registrarCambio("doctor", id, "UPDATE", antes, despues);
+        return despues;
     }
 
     @Transactional
     public void eliminar(Integer id) {
         Doctor doctor = obtenerEntidad(id);
+        DoctorResponse antes = mapper.toResponse(doctor);
         doctor.setActivo(false);
-        doctorRepository.save(doctor);
+        DoctorResponse despues = mapper.toResponse(doctorRepository.save(doctor));
+        bitacoraService.registrarCambio("doctor", id, "DELETE", antes, despues);
     }
 
     private void aplicarRelaciones(Doctor doctor, DoctorRequest request) {
-        if (request.idEspecialidad() != null) {
-            CatEspecialidad especialidad = catEspecialidadRepository.findById(request.idEspecialidad())
-                    .orElseThrow(() -> new EntityNotFoundException("Especialidad no encontrada: " + request.idEspecialidad()));
-            doctor.setEspecialidad(especialidad);
+        if (request.idsEspecialidad() != null && !request.idsEspecialidad().isEmpty()) {
+            List<CatEspecialidad> especialidades = request.idsEspecialidad().stream()
+                    .map(id -> catEspecialidadRepository.findById(id)
+                            .orElseThrow(() -> new EntityNotFoundException("Especialidad no encontrada: " + id)))
+                    .toList();
+            doctor.setEspecialidades(new ArrayList<>(especialidades));
         } else {
-            doctor.setEspecialidad(null);
+            doctor.setEspecialidades(new ArrayList<>());
         }
 
         if (request.idUsuario() != null) {

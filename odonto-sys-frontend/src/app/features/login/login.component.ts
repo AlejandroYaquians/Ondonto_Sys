@@ -34,12 +34,20 @@ export class LoginComponent {
     this.authService.login(this.formulario.getRawValue()).subscribe({
       next: () => {
         this.cargando.set(false);
-        this.router.navigateByUrl('/menu');
+        this.router.navigateByUrl(this.rutaSegunRol());
       },
       error: () => {
         this.cargando.set(false);
         this.error.set('Usuario o contraseña incorrectos');
       }
     });
+  }
+
+  private rutaSegunRol(): string {
+    const rol = this.authService.rol();
+    if (rol === 'ADMIN') {
+      return '/dashboard';
+    }
+    return '/citas';
   }
 }

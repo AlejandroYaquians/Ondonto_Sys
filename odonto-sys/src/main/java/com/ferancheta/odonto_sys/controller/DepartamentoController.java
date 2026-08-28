@@ -18,8 +18,8 @@ public class DepartamentoController {
     private final DepartamentoService service;
 
     @GetMapping
-    public List<DepartamentoResponse> listar() {
-        return service.listar();
+    public List<DepartamentoResponse> listar(@RequestParam(required = false) Boolean activos) {
+        return Boolean.TRUE.equals(activos) ? service.listarActivos() : service.listar();
     }
 
     @GetMapping("/{id}")

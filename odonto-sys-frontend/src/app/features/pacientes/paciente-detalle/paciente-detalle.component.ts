@@ -1,32 +1,68 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PacienteService } from '../../../core/services/paciente.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
-import { HistorialMedicoService } from '../../../core/services/historial-medico.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Paciente } from '../../../core/models/paciente.models';
-import { CatAfeccion, CatGenero, CatProfesion, Municipio } from '../../../core/models/catalogo.models';
-import { HistorialMedico } from '../../../core/models/historial-medico.models';
+import { CatGenero, CatProfesion, Municipio } from '../../../core/models/catalogo.models';
 import { ContactosSeccionComponent } from './secciones/contactos-seccion.component';
+import { AntecedentesSeccionComponent } from './secciones/antecedentes-seccion.component';
+import { CitasSeccionComponent } from './secciones/citas-seccion.component';
+import { HistorialClinicoSeccionComponent } from './secciones/historial-clinico-seccion.component';
+import { RecetasSeccionComponent } from './secciones/recetas-seccion.component';
+import { CobrosSeccionComponent } from './secciones/cobros-seccion.component';
+
+function calcularEdad(fechaNacimiento: string): number | null {
+  if (!fechaNacimiento) {
+    return null;
+  }
+  const nacimiento = new Date(fechaNacimiento);
+  const hoy = new Date();
+  let edad = hoy.getFullYear() - nacimiento.getFullYear();
+  const aunNoCumple =
+    hoy.getMonth() < nacimiento.getMonth() ||
+    (hoy.getMonth() === nacimiento.getMonth() && hoy.getDate() < nacimiento.getDate());
+  if (aunNoCumple) {
+    edad--;
+  }
+  return edad;
+}
+
+type PestanaExpediente = 'datos' | 'antecedentes' | 'citas' | 'historialClinico' | 'recetas' | 'cobros';
 
 @Component({
   selector: 'app-paciente-detalle',
-  imports: [RouterLink, ContactosSeccionComponent],
+  imports: [
+    RouterLink,
+    ContactosSeccionComponent,
+    AntecedentesSeccionComponent,
+    CitasSeccionComponent,
+    HistorialClinicoSeccionComponent,
+    RecetasSeccionComponent,
+    CobrosSeccionComponent
+  ],
   templateUrl: './paciente-detalle.component.html'
 })
 export class PacienteDetalleComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly pacienteService = inject(PacienteService);
   private readonly catalogosService = inject(CatalogosService);
-  private readonly historialMedicoService = inject(HistorialMedicoService);
+  private readonly authService = inject(AuthService);
 
   protected readonly paciente = signal<Paciente | null>(null);
   protected readonly generos = signal<CatGenero[]>([]);
   protected readonly profesiones = signal<CatProfesion[]>([]);
   protected readonly municipios = signal<Municipio[]>([]);
-  protected readonly afeccionesCatalogo = signal<CatAfeccion[]>([]);
-  protected readonly historial = signal<HistorialMedico[]>([]);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
+
+  protected readonly esDoctor = computed(() => this.authService.rol() === 'DOCTOR');
+  protected readonly pestanaActiva = signal<PestanaExpediente>('datos');
+
+  protected readonly edad = computed(() => {
+    const p = this.paciente();
+    return p?.fechaNacimiento ? calcularEdad(p.fechaNacimiento) : null;
+  });
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -34,8 +70,6 @@ export class PacienteDetalleComponent implements OnInit {
     this.catalogosService.generos().subscribe((datos) => this.generos.set(datos));
     this.catalogosService.profesiones().subscribe((datos) => this.profesiones.set(datos));
     this.catalogosService.municipios().subscribe((datos) => this.municipios.set(datos));
-    this.catalogosService.afecciones().subscribe((datos) => this.afeccionesCatalogo.set(datos));
-    this.historialMedicoService.listarPorPaciente(id).subscribe((datos) => this.historial.set(datos));
 
     this.pacienteService.buscarPorId(id).subscribe({
       next: (paciente) => {
@@ -47,6 +81,10 @@ export class PacienteDetalleComponent implements OnInit {
         this.cargando.set(false);
       }
     });
+  }
+
+  cambiarPestana(pestana: PestanaExpediente): void {
+    this.pestanaActiva.set(pestana);
   }
 
   nombreGenero(id: number | null): string {
@@ -68,10 +106,6 @@ export class PacienteDetalleComponent implements OnInit {
       return '—';
     }
     return this.municipios().find((m) => m.idMunicipio === id)?.nombre ?? '—';
-  }
-
-  nombreAfeccion(idAfeccion: number): string {
-    return this.afeccionesCatalogo().find((a) => a.idAfeccion === idAfeccion)?.nombreAfeccion ?? `#${idAfeccion}`;
   }
 
   formatoFecha(fecha: string): string {

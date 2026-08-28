@@ -6,7 +6,7 @@ export interface Doctor {
   email: string | null;
   porcentajeComision: number;
   activo: boolean;
-  idEspecialidad: number | null;
+  idsEspecialidad: number[];
   idUsuario: number | null;
 }
 
@@ -16,6 +16,6 @@ export interface DoctorRequest {
   telefono: string | null;
   email: string | null;
   porcentajeComision: number;
-  idEspecialidad: number | null;
+  idsEspecialidad: number[];
   idUsuario: number | null;
 }

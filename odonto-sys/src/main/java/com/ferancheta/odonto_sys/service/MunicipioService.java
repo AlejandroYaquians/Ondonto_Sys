@@ -29,8 +29,14 @@ public class MunicipioService {
     }
 
     @Transactional(readOnly = true)
+    public List<MunicipioResponse> listarActivos() {
+        return repository.findByActivoTrue().stream().map(mapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<MunicipioResponse> listarPorDepartamento(Integer idDepartamento) {
-        return repository.findByDepartamento_IdDepartamento(idDepartamento).stream().map(mapper::toResponse).toList();
+        return repository.findByDepartamento_IdDepartamentoAndActivoTrue(idDepartamento)
+                .stream().map(mapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
@@ -42,6 +48,7 @@ public class MunicipioService {
     @PreAuthorize("hasRole('ADMIN')")
     public MunicipioResponse crear(MunicipioRequest request) {
         Municipio entidad = mapper.toEntity(request);
+        entidad.setActivo(true);
         entidad.setDepartamento(obtenerDepartamento(request.idDepartamento()));
         return mapper.toResponse(repository.save(entidad));
     }
@@ -52,6 +59,7 @@ public class MunicipioService {
         Municipio existente = obtenerEntidad(id);
         Municipio actualizado = mapper.toEntity(request);
         actualizado.setIdMunicipio(existente.getIdMunicipio());
+        actualizado.setActivo(existente.getActivo());
         actualizado.setDepartamento(obtenerDepartamento(request.idDepartamento()));
         return mapper.toResponse(repository.save(actualizado));
     }
@@ -59,7 +67,9 @@ public class MunicipioService {
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
-        repository.delete(obtenerEntidad(id));
+        Municipio entidad = obtenerEntidad(id);
+        entidad.setActivo(false);
+        repository.save(entidad);
     }
 
     private Departamento obtenerDepartamento(Integer idDepartamento) {

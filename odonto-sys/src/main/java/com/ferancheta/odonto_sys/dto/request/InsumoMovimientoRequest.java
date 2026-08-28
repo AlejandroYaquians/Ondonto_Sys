@@ -12,11 +12,6 @@ public record InsumoMovimientoRequest(
         Integer idInsumo,
 
         @NotNull(message = "El tipo de movimiento es obligatorio")
-        Integer idTipoMovimiento,
-
-        Integer idGasto,
-
-        @NotNull(message = "El usuario es obligatorio")
-        Integer idUsuario
+        Integer idTipoMovimiento
 ) {
 }

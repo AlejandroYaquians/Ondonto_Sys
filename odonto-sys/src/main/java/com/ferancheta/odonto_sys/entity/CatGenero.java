@@ -18,4 +18,7 @@ public class CatGenero {
 
     @Column(name = "nombre", nullable = false, length = 45)
     private String nombre;
+
+    @Column(name = "activo")
+    private Boolean activo = true;
 }

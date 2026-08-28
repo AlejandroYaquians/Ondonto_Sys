@@ -1,0 +1,56 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <h1 class="h3 mb-0">Menús</h1>
+  <a routerLink="/menus/nuevo" class="btn btn-primary d-flex align-items-center gap-2">
+    <i class="bi bi-plus-lg"></i>
+    Nueva vista
+  </a>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+} @else {
+  @for (grupo of grupos(); track grupo.modulo.idModulo) {
+    <div class="card shadow-sm border-0 mb-3">
+      <div class="card-body">
+        <h2 class="h6 text-secondary text-uppercase mb-3">{{ grupo.modulo.nombre }}</h2>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0" style="table-layout: fixed;">
+            <thead>
+              <tr>
+                <th scope="col" style="width: 30%">Nombre</th>
+                <th scope="col" style="width: 35%">Ruta</th>
+                <th scope="col" style="width: 10%">Orden</th>
+                <th scope="col" class="text-end" style="width: 25%">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (menu of grupo.menus; track menu.idMenu) {
+                <tr>
+                  <td>{{ menu.nombre }}</td>
+                  <td><code>{{ menu.ruta || '—' }}</code></td>
+                  <td>{{ menu.orden }}</td>
+                  <td class="text-end">
+                    <div class="btn-group btn-group-sm">
+                      <a [routerLink]="['/menus', menu.idMenu, 'editar']" class="btn btn-outline-secondary" title="Editar">
+                        <i class="bi bi-pencil"></i>
+                      </a>
+                      <button type="button" class="btn btn-outline-danger" title="Desactivar" (click)="desactivar(menu)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+}

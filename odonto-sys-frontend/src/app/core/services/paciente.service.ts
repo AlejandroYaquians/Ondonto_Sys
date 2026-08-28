@@ -12,6 +12,10 @@ export class PacienteService {
     return this.http.get<Paciente[]>(`${API_BASE_URL}/pacientes`);
   }
 
+  listarActivos(): Observable<Paciente[]> {
+    return this.http.get<Paciente[]>(`${API_BASE_URL}/pacientes`, { params: { activos: true } });
+  }
+
   buscarPorId(id: number): Observable<Paciente> {
     return this.http.get<Paciente>(`${API_BASE_URL}/pacientes/${id}`);
   }

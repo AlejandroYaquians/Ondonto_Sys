@@ -1,0 +1,75 @@
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+} @else if (cobro(); as datosCobro) {
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
+    <div class="d-flex align-items-center gap-2">
+      <a routerLink="/cobros" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <div>
+        <h1 class="h3 mb-1">{{ datosCobro.codigoCobro }}</h1>
+        <span class="badge text-bg-info">{{ datosCobro.estado }}</span>
+      </div>
+    </div>
+    @if (datosCobro.estado === 'pagado') {
+      <button type="button" class="btn btn-outline-danger" (click)="anular()">Anular cobro</button>
+    }
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Fecha</div>
+          <div class="fw-medium">{{ formatoFecha(datosCobro.fecha) }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Paciente</div>
+          <div class="fw-medium">{{ paciente() ? paciente()!.nombre + ' ' + paciente()!.apellido : '—' }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Doctor</div>
+          <div class="fw-medium">{{ doctor() ? 'Dr(a). ' + doctor()!.nombre + ' ' + doctor()!.apellido : '—' }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Servicio</div>
+          <div class="fw-medium">{{ nombreServicio(datosCobro.idServicio) }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Método de pago</div>
+          <div class="fw-medium">{{ nombreMetodoPago(datosCobro.idMetodoPago) }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Monto efectivo</div>
+          <div class="fw-medium">{{ datosCobro.montoEfectivo !== null ? 'Q' + datosCobro.montoEfectivo : '—' }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Monto tarjeta</div>
+          <div class="fw-medium">{{ datosCobro.montoTarjeta !== null ? 'Q' + datosCobro.montoTarjeta : '—' }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Comisión bancaria</div>
+          <div class="fw-medium">{{ datosCobro.comisionTarjeta !== null ? 'Q' + datosCobro.comisionTarjeta : '—' }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Costo de laboratorio</div>
+          <div class="fw-medium">{{ datosCobro.costoLaboratorio !== null ? 'Q' + datosCobro.costoLaboratorio : '—' }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Monto neto</div>
+          <div class="fw-medium">{{ datosCobro.montoNeto !== null ? 'Q' + datosCobro.montoNeto : '—' }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Comisión del doctor</div>
+          <div class="fw-medium">{{ datosCobro.comisionDoctor !== null ? 'Q' + datosCobro.comisionDoctor : '—' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

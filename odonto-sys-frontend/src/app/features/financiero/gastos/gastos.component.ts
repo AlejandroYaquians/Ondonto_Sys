@@ -2,15 +2,22 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { GastoService } from '../../../core/services/gasto.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
-import { AuthService } from '../../../core/services/auth.service';
+import { UsuarioService } from '../../../core/services/usuario.service';
 import { Gasto } from '../../../core/models/gasto.models';
 import { CatGasto } from '../../../core/models/catalogo.models';
+import { Usuario } from '../../../core/models/usuario.models';
 
 function hoyIso(): string {
   const hoy = new Date();
   const mes = String(hoy.getMonth() + 1).padStart(2, '0');
   const dia = String(hoy.getDate()).padStart(2, '0');
   return `${hoy.getFullYear()}-${mes}-${dia}`;
+}
+
+function primerDiaDelMesIso(): string {
+  const hoy = new Date();
+  const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+  return `${hoy.getFullYear()}-${mes}-01`;
 }
 
 @Component({
@@ -22,14 +29,21 @@ export class GastosComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly gastoService = inject(GastoService);
   private readonly catalogosService = inject(CatalogosService);
-  private readonly authService = inject(AuthService);
+  private readonly usuarioService = inject(UsuarioService);
 
   protected readonly items = signal<Gasto[]>([]);
   protected readonly tiposGasto = signal<CatGasto[]>([]);
+  protected readonly usuarios = signal<Usuario[]>([]);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly mostrarFormulario = signal(false);
   protected readonly idEditando = signal<number | null>(null);
+
+  protected readonly filtros = this.fb.group({
+    desde: [primerDiaDelMesIso()],
+    hasta: [hoyIso()],
+    idTipoGasto: [null as number | null]
+  });
 
   protected readonly formulario = this.fb.group({
     descripcion: ['', Validators.required],
@@ -41,12 +55,17 @@ export class GastosComponent implements OnInit {
 
   ngOnInit(): void {
     this.catalogosService.tiposGasto().subscribe((datos) => this.tiposGasto.set(datos));
+    this.usuarioService.listar().subscribe((datos) => this.usuarios.set(datos));
     this.cargar();
   }
 
   private cargar(): void {
     this.cargando.set(true);
-    this.gastoService.listar().subscribe({
+    const valoresFiltro = this.filtros.getRawValue();
+    const desde = valoresFiltro.desde ?? primerDiaDelMesIso();
+    const hasta = valoresFiltro.hasta ?? hoyIso();
+
+    this.gastoService.listarPorRango(desde, hasta, valoresFiltro.idTipoGasto).subscribe({
       next: (datos) => {
         this.items.set(datos.sort((a, b) => b.fecha.localeCompare(a.fecha)));
         this.cargando.set(false);
@@ -58,13 +77,27 @@ export class GastosComponent implements OnInit {
     });
   }
 
+  aplicarFiltros(): void {
+    this.cargar();
+  }
+
   nombreTipoGasto(id: number): string {
     return this.tiposGasto().find((t) => t.idTipoGasto === id)?.nombreCategoria ?? `#${id}`;
   }
 
+  nombreUsuario(idUsuario: number): string {
+    return this.usuarios().find((u) => u.idUsuario === idUsuario)?.nombre ?? `#${idUsuario}`;
+  }
+
   nuevo(): void {
     this.idEditando.set(null);
-    this.formulario.reset({ descripcion: '', monto: null, fecha: hoyIso(), comprobante: '', idTipoGasto: null });
+    this.formulario.reset({
+      descripcion: '',
+      monto: null,
+      fecha: hoyIso(),
+      comprobante: '',
+      idTipoGasto: null
+    });
     this.mostrarFormulario.set(true);
   }
 
@@ -91,20 +124,13 @@ export class GastosComponent implements OnInit {
       return;
     }
 
-    const idUsuario = this.authService.idUsuario();
-    if (!idUsuario) {
-      this.error.set('Error al guardar.');
-      return;
-    }
-
     const valores = this.formulario.getRawValue();
     const request = {
       descripcion: valores.descripcion ?? '',
       monto: valores.monto as number,
       fecha: valores.fecha ?? '',
       comprobante: valores.comprobante || null,
-      idTipoGasto: valores.idTipoGasto as number,
-      idUsuario
+      idTipoGasto: valores.idTipoGasto as number
     };
 
     const id = this.idEditando();

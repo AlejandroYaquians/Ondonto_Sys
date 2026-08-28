@@ -26,6 +26,11 @@ public class DepartamentoService {
     }
 
     @Transactional(readOnly = true)
+    public List<DepartamentoResponse> listarActivos() {
+        return repository.findByActivoTrue().stream().map(mapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
     public DepartamentoResponse buscarPorId(Integer id) {
         return mapper.toResponse(obtenerEntidad(id));
     }
@@ -34,6 +39,7 @@ public class DepartamentoService {
     @PreAuthorize("hasRole('ADMIN')")
     public DepartamentoResponse crear(DepartamentoRequest request) {
         Departamento entidad = mapper.toEntity(request);
+        entidad.setActivo(true);
         return mapper.toResponse(repository.save(entidad));
     }
 
@@ -43,13 +49,16 @@ public class DepartamentoService {
         Departamento existente = obtenerEntidad(id);
         Departamento actualizado = mapper.toEntity(request);
         actualizado.setIdDepartamento(existente.getIdDepartamento());
+        actualizado.setActivo(existente.getActivo());
         return mapper.toResponse(repository.save(actualizado));
     }
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
-        repository.delete(obtenerEntidad(id));
+        Departamento entidad = obtenerEntidad(id);
+        entidad.setActivo(false);
+        repository.save(entidad);
     }
 
     private Departamento obtenerEntidad(Integer id) {

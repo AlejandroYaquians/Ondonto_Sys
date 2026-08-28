@@ -39,12 +39,6 @@ public class InsumoMovimiento {
     private CatMovimiento tipoMovimiento;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_gasto")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private Gasto gasto;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

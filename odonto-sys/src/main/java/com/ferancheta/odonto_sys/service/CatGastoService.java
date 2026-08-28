@@ -26,6 +26,11 @@ public class CatGastoService {
     }
 
     @Transactional(readOnly = true)
+    public List<CatGastoResponse> listarActivos() {
+        return repository.findByActivoTrue().stream().map(mapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
     public CatGastoResponse buscarPorId(Integer id) {
         return mapper.toResponse(obtenerEntidad(id));
     }
@@ -34,6 +39,7 @@ public class CatGastoService {
     @PreAuthorize("hasRole('ADMIN')")
     public CatGastoResponse crear(CatGastoRequest request) {
         CatGasto entidad = mapper.toEntity(request);
+        entidad.setActivo(true);
         return mapper.toResponse(repository.save(entidad));
     }
 
@@ -43,13 +49,16 @@ public class CatGastoService {
         CatGasto existente = obtenerEntidad(id);
         CatGasto actualizada = mapper.toEntity(request);
         actualizada.setIdTipoGasto(existente.getIdTipoGasto());
+        actualizada.setActivo(existente.getActivo());
         return mapper.toResponse(repository.save(actualizada));
     }
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(Integer id) {
-        repository.delete(obtenerEntidad(id));
+        CatGasto entidad = obtenerEntidad(id);
+        entidad.setActivo(false);
+        repository.save(entidad);
     }
 
     private CatGasto obtenerEntidad(Integer id) {

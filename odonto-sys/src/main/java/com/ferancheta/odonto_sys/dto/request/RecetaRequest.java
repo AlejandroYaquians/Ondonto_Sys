@@ -17,7 +17,7 @@ public record RecetaRequest(
         @NotNull(message = "La fecha es obligatoria")
         LocalDate fecha,
 
-        @NotNull(message = "La consulta es obligatoria")
-        Integer idConsulta
+        @NotNull(message = "El historial clínico es obligatorio")
+        Integer idHistorialClinico
 ) {
 }

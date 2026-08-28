@@ -12,8 +12,10 @@ public record PacienteRequest(
         String apellido,
 
         LocalDate fechaNacimiento,
+
+        @NotBlank(message = "El teléfono es obligatorio")
         String telefono,
-        String celular,
+
         String email,
         String direccion,
         String referidoPor,

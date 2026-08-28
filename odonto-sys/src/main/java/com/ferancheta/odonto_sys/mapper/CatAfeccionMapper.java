@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 public interface CatAfeccionMapper {
 
     @Mapping(target = "idAfeccion", ignore = true)
+    @Mapping(target = "activo", ignore = true)
     CatAfeccion toEntity(CatAfeccionRequest request);
 
     CatAfeccionResponse toResponse(CatAfeccion entity);

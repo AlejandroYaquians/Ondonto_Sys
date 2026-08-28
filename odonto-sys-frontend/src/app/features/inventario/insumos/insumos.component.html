@@ -1,15 +1,25 @@
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
   <h1 class="h3 mb-0">Insumos</h1>
-  @if (!mostrarFormulario()) {
+  @if (esAdmin() && !mostrarFormulario()) {
     <button type="button" class="btn btn-primary d-flex align-items-center gap-2" (click)="nuevo()">
       <i class="bi bi-plus-lg"></i>
-      Nuevo
+      Nuevo insumo
     </button>
   }
 </div>
 
 @if (error()) {
   <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (insumosConStockBajo().length > 0) {
+  <div class="alert alert-warning d-flex align-items-center gap-2" role="alert">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span>
+      Hay {{ insumosConStockBajo().length }} insumo(s) con stock bajo:
+      {{ insumosConStockBajo().map(i => i.nombre).join(', ') }}
+    </span>
+  </div>
 }
 
 @if (mostrarFormulario()) {
@@ -31,8 +41,17 @@
             <input type="text" class="form-control" formControlName="unidadMedida" placeholder="cajas, unidades..." />
           </div>
           <div class="col-md-3">
-            <label class="form-label">Stock actual</label>
+            <label class="form-label">Stock actual inicial</label>
             <input type="number" class="form-control" formControlName="stockActual" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Stock mínimo</label>
+            <input
+              type="number"
+              class="form-control"
+              formControlName="stockMinimo"
+              [class.is-invalid]="formulario.controls.stockMinimo.touched && formulario.controls.stockMinimo.invalid"
+            />
           </div>
           <div class="col-12">
             <label class="form-label">Descripción</label>
@@ -71,12 +90,12 @@
           </thead>
           <tbody>
             @for (item of items(); track item.idInsumo) {
-              <tr [class.table-warning]="item.stockActual !== null && item.stockMinimo !== null && item.stockActual <= item.stockMinimo">
+              <tr [class.table-warning]="tieneStockBajo(item)">
                 <td>{{ item.nombre }}</td>
                 <td>{{ item.unidadMedida || '—' }}</td>
                 <td>{{ item.stockActual ?? '—' }}</td>
                 <td>
-                  @if (idEditandoStockMinimo() === item.idInsumo) {
+                  @if (esAdmin() && idEditandoStockMinimo() === item.idInsumo) {
                     <form [formGroup]="formularioStockMinimo" class="d-flex align-items-center gap-1" (ngSubmit)="guardarStockMinimo(item)">
                       <input type="number" class="form-control form-control-sm" style="width: 80px" formControlName="stockMinimo" />
                       <button type="submit" class="btn btn-sm btn-outline-primary"><i class="bi bi-check-lg"></i></button>
@@ -86,16 +105,18 @@
                     </form>
                   } @else {
                     <span class="me-2">{{ item.stockMinimo ?? '—' }}</span>
-                    <button type="button" class="btn btn-sm btn-link p-0" (click)="editarStockMinimo(item)">
-                      <i class="bi bi-pencil"></i>
-                    </button>
+                    @if (esAdmin()) {
+                      <button type="button" class="btn btn-sm btn-link p-0" (click)="editarStockMinimo(item)">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                    }
                   }
                 </td>
                 <td>
-                  @if (item.activo) {
-                    <span class="badge text-bg-success">Activo</span>
+                  @if (tieneStockBajo(item)) {
+                    <span class="badge text-bg-warning">⚠️ Bajo</span>
                   } @else {
-                    <span class="badge text-bg-secondary">Inactivo</span>
+                    <span class="badge text-bg-success">✅ OK</span>
                   }
                 </td>
                 <td class="text-end">
@@ -104,16 +125,26 @@
                       routerLink="/insumo-movimientos"
                       [queryParams]="{ idInsumo: item.idInsumo }"
                       class="btn btn-outline-primary"
-                      title="Movimientos"
+                      title="Ver movimientos"
                     >
                       <i class="bi bi-arrow-left-right"></i>
                     </a>
-                    <button type="button" class="btn btn-outline-secondary" title="Editar" (click)="editar(item)">
-                      <i class="bi bi-pencil"></i>
-                    </button>
-                    <button type="button" class="btn btn-outline-danger" title="Inactivar" (click)="eliminar(item)">
-                      <i class="bi bi-trash"></i>
-                    </button>
+                    <a
+                      routerLink="/insumo-movimientos"
+                      [queryParams]="{ idInsumo: item.idInsumo, entrada: 1 }"
+                      class="btn btn-outline-success"
+                      title="Registrar entrada"
+                    >
+                      <i class="bi bi-box-arrow-in-down"></i>
+                    </a>
+                    @if (esAdmin()) {
+                      <button type="button" class="btn btn-outline-secondary" title="Editar" (click)="editar(item)">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button type="button" class="btn btn-outline-danger" title="Inactivar" (click)="eliminar(item)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    }
                   </div>
                 </td>
               </tr>

@@ -6,28 +6,37 @@
 
 <div class="card shadow-sm border-0 mb-4">
   <div class="card-body">
-    <div class="row g-4">
-      <div class="col-md-6">
-        <h2 class="h6 text-secondary text-uppercase mb-3">Buscar por usuario</h2>
-        <form [formGroup]="formularioUsuario" (ngSubmit)="buscarPorUsuario()" class="d-flex gap-2">
-          <select class="form-select" formControlName="idUsuario">
-            <option [ngValue]="null">Seleccione un usuario...</option>
-            @for (usuario of usuarios(); track usuario.idUsuario) {
-              <option [ngValue]="usuario.idUsuario">{{ usuario.nombre }}</option>
-            }
-          </select>
-          <button type="submit" class="btn btn-primary text-nowrap">Buscar</button>
-        </form>
+    <form [formGroup]="filtros" (ngSubmit)="aplicarFiltros()" class="row g-3 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label">Usuario</label>
+        <select class="form-select" formControlName="idUsuario">
+          <option [ngValue]="null">Todos</option>
+          @for (usuario of usuarios(); track usuario.idUsuario) {
+            <option [ngValue]="usuario.idUsuario">{{ usuario.nombre }}</option>
+          }
+        </select>
       </div>
-      <div class="col-md-6">
-        <h2 class="h6 text-secondary text-uppercase mb-3">Buscar por tabla y registro</h2>
-        <form [formGroup]="formularioRegistro" (ngSubmit)="buscarPorRegistro()" class="d-flex gap-2">
-          <input type="text" class="form-control" placeholder="Tabla (ej. paciente)" formControlName="tablaAfectada" />
-          <input type="number" class="form-control" placeholder="ID" formControlName="idRegistro" />
-          <button type="submit" class="btn btn-primary text-nowrap">Buscar</button>
-        </form>
+      <div class="col-md-3">
+        <label class="form-label">Tabla</label>
+        <select class="form-select" formControlName="tablaAfectada">
+          <option value="">Todas</option>
+          @for (tabla of tablas; track tabla) {
+            <option [value]="tabla">{{ tabla }}</option>
+          }
+        </select>
       </div>
-    </div>
+      <div class="col-md-2">
+        <label class="form-label">Desde</label>
+        <input type="date" class="form-control" formControlName="desde" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Hasta</label>
+        <input type="date" class="form-control" formControlName="hasta" />
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-primary w-100">Filtrar</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -37,8 +46,6 @@
       <div class="text-center text-secondary py-5">
         <div class="spinner-border" role="status"></div>
       </div>
-    } @else if (!busquedaRealizada()) {
-      <p class="text-secondary text-center py-4 mb-0">Realice una búsqueda para ver los registros.</p>
     } @else if (registros().length === 0) {
       <p class="text-secondary text-center py-4 mb-0">No se encontraron registros.</p>
     } @else {
@@ -46,31 +53,58 @@
         <table class="table table-hover align-middle">
           <thead>
             <tr>
-              <th scope="col">Fecha</th>
-              <th scope="col">Tabla</th>
-              <th scope="col">Registro</th>
-              <th scope="col">Acción</th>
-              <th scope="col">Campo</th>
-              <th scope="col">Valor anterior</th>
-              <th scope="col">Valor nuevo</th>
+              <th scope="col">Fecha/hora</th>
               <th scope="col">Usuario</th>
+              <th scope="col">Tabla afectada</th>
+              <th scope="col">Acción</th>
+              <th scope="col">ID del registro</th>
+              <th scope="col" class="text-end">Acciones</th>
             </tr>
           </thead>
           <tbody>
             @for (item of registros(); track item.idBitacora) {
               <tr>
                 <td>{{ formatoFecha(item.fechaHora) }}</td>
-                <td>{{ item.tablaAfectada }}</td>
-                <td>{{ item.idRegistro }}</td>
-                <td>{{ item.accion }}</td>
-                <td>{{ item.campoModificado || '—' }}</td>
-                <td>{{ item.valorAnterior || '—' }}</td>
-                <td>{{ item.valorNuevo || '—' }}</td>
                 <td>{{ nombreUsuario(item.idUsuario) }}</td>
+                <td>{{ item.tablaAfectada }}</td>
+                <td>
+                  <span
+                    class="badge"
+                    [class.text-bg-success]="item.accion === 'INSERT'"
+                    [class.text-bg-info]="item.accion === 'UPDATE'"
+                    [class.text-bg-danger]="item.accion === 'DELETE'"
+                  >
+                    {{ item.accion }}
+                  </span>
+                </td>
+                <td>{{ item.idRegistro }}</td>
+                <td class="text-end">
+                  <a [routerLink]="['/bitacora', item.idBitacora]" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-eye"></i>
+                    Ver detalle
+                  </a>
+                </td>
               </tr>
             }
           </tbody>
         </table>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <button type="button" class="btn btn-outline-secondary btn-sm" [disabled]="pagina() === 0" (click)="paginaAnterior()">
+          <i class="bi bi-chevron-left"></i>
+          Anterior
+        </button>
+        <span class="text-secondary small">Página {{ pagina() + 1 }} de {{ totalPaginas() }}</span>
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          [disabled]="pagina() + 1 >= totalPaginas()"
+          (click)="paginaSiguiente()"
+        >
+          Siguiente
+          <i class="bi bi-chevron-right"></i>
+        </button>
       </div>
     }
   </div>

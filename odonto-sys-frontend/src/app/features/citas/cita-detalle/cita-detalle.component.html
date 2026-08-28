@@ -1,0 +1,117 @@
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+} @else if (cita(); as datosCita) {
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
+    <div class="d-flex align-items-center gap-2">
+      <a routerLink="/citas" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <div>
+        <h1 class="h3 mb-1">Cita {{ codigoCita() }}</h1>
+        <span class="badge text-bg-info">{{ nombreEstado(datosCita.idEstadoCita) }}</span>
+      </div>
+    </div>
+    @if (puedeEditar()) {
+      <a [routerLink]="['/citas', datosCita.idCita, 'editar']" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+        <i class="bi bi-pencil"></i>
+        Editar cita
+      </a>
+    }
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Fecha</div>
+          <div class="fw-medium">{{ datosCita.fecha }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Hora</div>
+          <div class="fw-medium">{{ horaCorta(datosCita.hora) }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Paciente</div>
+          <div class="fw-medium">{{ paciente() ? paciente()!.nombre + ' ' + paciente()!.apellido : '—' }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-secondary small text-uppercase">Doctor</div>
+          @if (cambiandoDoctor()) {
+            <div class="d-flex align-items-center gap-2">
+              <select class="form-select form-select-sm" [ngModel]="idDoctorSeleccionado()" (ngModelChange)="idDoctorSeleccionado.set($event)">
+                @for (d of doctores(); track d.idDoctor) {
+                  <option [ngValue]="d.idDoctor">Dr(a). {{ d.nombre }} {{ d.apellido }}</option>
+                }
+              </select>
+              <button type="button" class="btn btn-sm btn-primary" (click)="confirmarCambioDoctor()">
+                <i class="bi bi-check-lg"></i>
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelarCambioDoctor()">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          } @else {
+            <div class="d-flex align-items-center gap-2">
+              <div class="fw-medium">{{ doctor() ? 'Dr(a). ' + doctor()!.nombre + ' ' + doctor()!.apellido : '—' }}</div>
+              @if (!esDoctor()) {
+                <button type="button" class="btn btn-sm btn-link p-0" (click)="iniciarCambioDoctor()" title="Cambiar doctor">
+                  <i class="bi bi-pencil"></i>
+                </button>
+              }
+            </div>
+          }
+        </div>
+        <div class="col-md-6">
+          <div class="text-secondary small text-uppercase">Motivo</div>
+          <div class="fw-medium">{{ nombreMotivo(datosCita.idMotivoCita) }}</div>
+        </div>
+        <div class="col-12">
+          <div class="text-secondary small text-uppercase">Observaciones</div>
+          <div class="fw-medium">{{ datosCita.observaciones || '—' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h6 text-uppercase text-secondary mb-0">Cobros</h2>
+        <a
+          routerLink="/cobros/nuevo"
+          [queryParams]="{ idCita: datosCita.idCita, idPaciente: datosCita.idPaciente }"
+          class="btn btn-sm btn-outline-primary"
+        >
+          <i class="bi bi-cash-coin"></i>
+          Registrar cobro
+        </a>
+      </div>
+
+      @if (cobrosDeLaCita().length === 0) {
+        <p class="text-secondary small mb-0">No hay cobros registrados para esta cita.</p>
+      } @else {
+        <ul class="list-group list-group-flush">
+          @for (cobro of cobrosDeLaCita(); track cobro.idCobro) {
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+              <div>
+                <div class="fw-medium">{{ cobro.codigoCobro }}</div>
+                <div class="text-secondary small">
+                  {{ cobro.montoBruto !== null ? 'Q' + cobro.montoBruto : '—' }} · {{ cobro.estado }}
+                </div>
+              </div>
+              <a [routerLink]="['/cobros', cobro.idCobro]" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-eye"></i>
+              </a>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+}

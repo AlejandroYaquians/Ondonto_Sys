@@ -1,0 +1,128 @@
+<div class="d-flex align-items-center gap-2 mb-4">
+  <a routerLink="/cobros" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left"></i>
+  </a>
+  <h1 class="h3 mb-0">Nuevo cobro</h1>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+<div class="card shadow-sm border-0">
+  <div class="card-body p-4">
+    <form [formGroup]="formulario" (ngSubmit)="onSubmit()">
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label class="form-label">Paciente</label>
+          <app-buscador-select
+            placeholder="Buscar paciente..."
+            [opciones]="opcionesPacientes()"
+            [valorSeleccionado]="formulario.controls.idPaciente.value"
+            (seleccionCambio)="formulario.controls.idPaciente.setValue($event)"
+          />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Doctor</label>
+          <select
+            class="form-select"
+            formControlName="idDoctor"
+            [class.is-invalid]="formulario.controls.idDoctor.touched && formulario.controls.idDoctor.invalid"
+          >
+            <option [ngValue]="null">Seleccione...</option>
+            @for (doctor of doctores(); track doctor.idDoctor) {
+              <option [ngValue]="doctor.idDoctor">Dr(a). {{ doctor.nombre }} {{ doctor.apellido }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Servicio</label>
+          <select
+            class="form-select"
+            formControlName="idServicio"
+            [class.is-invalid]="formulario.controls.idServicio.touched && formulario.controls.idServicio.invalid"
+          >
+            <option [ngValue]="null">Seleccione...</option>
+            @for (servicio of servicios(); track servicio.idServicio) {
+              <option [ngValue]="servicio.idServicio">{{ servicio.nombre }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Precio</label>
+          <input type="number" step="0.01" class="form-control" formControlName="precioAplicado" />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Costo de laboratorio (opcional)</label>
+          <input type="number" step="0.01" class="form-control" formControlName="costoLaboratorio" />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Método de pago</label>
+          <select
+            class="form-select"
+            formControlName="metodoPago"
+            [class.is-invalid]="formulario.controls.metodoPago.touched && formulario.controls.metodoPago.invalid"
+          >
+            <option [ngValue]="null">Seleccione...</option>
+            @for (metodo of metodosPago(); track metodo.idMetodoPago) {
+              <option [ngValue]="metodo.idMetodoPago">{{ metodo.nombre }}</option>
+            }
+            <option [ngValue]="'mixto'">Mixto</option>
+          </select>
+        </div>
+        @if (!esMixto()) {
+          <div class="col-md-4">
+            <label class="form-label">Monto</label>
+            <input type="number" step="0.01" class="form-control" formControlName="montoUnico" />
+          </div>
+        }
+        @if (esMixto()) {
+          <div class="col-md-4">
+            <label class="form-label">Monto efectivo</label>
+            <input type="number" step="0.01" class="form-control" formControlName="montoEfectivo" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Monto tarjeta</label>
+            <input type="number" step="0.01" class="form-control" formControlName="montoTarjeta" />
+          </div>
+        }
+      </div>
+
+      <div class="card bg-light-subtle border-0 mb-4">
+        <div class="card-body">
+          <h2 class="h6 text-uppercase text-secondary mb-3">Resumen del cobro</h2>
+          <div class="row g-3">
+            <div class="col-md-3">
+              <div class="text-secondary small text-uppercase">Monto bruto</div>
+              <div class="fw-medium">Q{{ previaCobro().montoBruto }}</div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-secondary small text-uppercase">Comisión bancaria</div>
+              <div class="fw-medium">Q{{ previaCobro().comisionTarjeta }}</div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-secondary small text-uppercase">Monto neto</div>
+              <div class="fw-medium">Q{{ previaCobro().montoNeto }}</div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-secondary small text-uppercase">Comisión del doctor</div>
+              <div class="fw-medium">Q{{ previaCobro().comisionDoctor }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2">
+        <a routerLink="/cobros" class="btn btn-outline-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+          @if (guardando()) {
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          }
+          Confirmar cobro
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

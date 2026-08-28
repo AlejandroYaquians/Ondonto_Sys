@@ -18,8 +18,14 @@ public class MunicipioController {
     private final MunicipioService service;
 
     @GetMapping
-    public List<MunicipioResponse> listar(@RequestParam(required = false) Integer idDepartamento) {
-        return idDepartamento != null ? service.listarPorDepartamento(idDepartamento) : service.listar();
+    public List<MunicipioResponse> listar(
+            @RequestParam(required = false) Integer idDepartamento,
+            @RequestParam(required = false) Boolean activos) {
+
+        if (idDepartamento != null) {
+            return service.listarPorDepartamento(idDepartamento);
+        }
+        return Boolean.TRUE.equals(activos) ? service.listarActivos() : service.listar();
     }
 
     @GetMapping("/{id}")

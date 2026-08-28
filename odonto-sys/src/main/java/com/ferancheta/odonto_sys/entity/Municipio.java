@@ -22,4 +22,7 @@ public class Municipio {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_departamento", nullable = false)
     private Departamento departamento;
+
+    @Column(name = "activo")
+    private Boolean activo = true;
 }

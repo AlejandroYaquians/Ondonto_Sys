@@ -1,6 +1,7 @@
 package com.ferancheta.odonto_sys.dto.response;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public record DoctorResponse(
         Integer idDoctor,
@@ -10,7 +11,7 @@ public record DoctorResponse(
         String email,
         BigDecimal porcentajeComision,
         Boolean activo,
-        Integer idEspecialidad,
+        List<Integer> idsEspecialidad,
         Integer idUsuario
 ) {
 }

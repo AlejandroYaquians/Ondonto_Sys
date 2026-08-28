@@ -17,7 +17,7 @@ public interface PacienteMapper {
     @Mapping(target = "profesion", ignore = true)
     @Mapping(target = "municipio", ignore = true)
     @Mapping(target = "contactos", ignore = true)
-    @Mapping(target = "historialMedico", ignore = true)
+    @Mapping(target = "antecedentesMedicos", ignore = true)
     Paciente toEntity(PacienteRequest request);
 
     @Mapping(target = "idGenero", source = "genero.idGenero")
