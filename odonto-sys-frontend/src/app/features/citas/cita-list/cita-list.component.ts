@@ -6,6 +6,7 @@ import { PacienteService } from '../../../core/services/paciente.service';
 import { DoctorService } from '../../../core/services/doctor.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { Cita } from '../../../core/models/cita.models';
 import { HistorialClinico } from '../../../core/models/historial-clinico.models';
 import { Paciente } from '../../../core/models/paciente.models';
@@ -45,6 +46,7 @@ export class CitaListComponent {
   private readonly doctorService = inject(DoctorService);
   private readonly catalogosService = inject(CatalogosService);
   private readonly authService = inject(AuthService);
+  private readonly notificacionService = inject(NotificacionService);
 
   protected readonly esDoctor = computed(() => this.authService.rol() === 'DOCTOR');
 
@@ -123,11 +125,11 @@ export class CitaListComponent {
   }
 
   nombreEstado(idEstadoCita: number): string {
-    return this.estados().find((e) => e.idEstadoCita === idEstadoCita)?.nombre ?? '—';
+    return this.estados().find((e) => e.idEstadoCita === idEstadoCita)?.nombre ?? '-';
   }
 
   nombreMotivo(idMotivoCita: number): string {
-    return this.motivos().find((m) => m.idMotivoCita === idMotivoCita)?.nombre ?? '—';
+    return this.motivos().find((m) => m.idMotivoCita === idMotivoCita)?.nombre ?? '-';
   }
 
   transicionesDisponibles(cita: Cita): string[] {
@@ -143,6 +145,11 @@ export class CitaListComponent {
     return this.nombreEstado(cita.idEstadoCita) === 'Atendida';
   }
 
+  esEstadoFinal(cita: Cita): boolean {
+    const estado = this.nombreEstado(cita.idEstadoCita);
+    return estado === 'Atendida' || estado === 'Cancelada' || estado === 'No asistió';
+  }
+
   idHistorialDe(idCita: number): number | null {
     return this.historiales().find((h) => h.idCita === idCita)?.idHistorialClinico ?? null;
   }
@@ -152,8 +159,28 @@ export class CitaListComponent {
       return;
     }
     this.citaService.cambiarEstado(cita.idCita, nuevoEstado).subscribe({
-      next: () => this.cargar(),
+      next: () => {
+        this.notificacionService.exito('Estado de la cita actualizado.');
+        this.cargar();
+      },
       error: () => this.error.set('Error al cambiar el estado.')
+    });
+  }
+
+  eliminar(cita: Cita): void {
+    const confirmado = window.confirm(
+      `¿Desea eliminar la cita de ${this.nombrePaciente(cita.idPaciente)} del ${cita.fecha} a las ${this.horaCorta(cita.hora)}?`
+    );
+    if (!confirmado) {
+      return;
+    }
+
+    this.citaService.eliminar(cita.idCita).subscribe({
+      next: () => {
+        this.notificacionService.exito('Cita eliminada.');
+        this.cargar();
+      },
+      error: () => this.error.set('Error al eliminar la cita.')
     });
   }
 }

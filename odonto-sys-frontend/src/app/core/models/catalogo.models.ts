@@ -77,13 +77,11 @@ export interface ServicioRequest {
 export interface CatAfeccion {
   idAfeccion: number;
   nombreAfeccion: string;
-  tipo: string | null;
   activo: boolean;
 }
 
 export interface CatAfeccionRequest {
   nombreAfeccion: string;
-  tipo: string | null;
 }
 
 export interface CatParentesco {

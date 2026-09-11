@@ -107,10 +107,15 @@
                     <a [routerLink]="['/citas', cita.idCita]" class="btn btn-outline-primary" title="Ver detalle">
                       <i class="bi bi-eye"></i>
                     </a>
-                    @if (!esDoctor() && !esAtendida(cita)) {
+                    @if (!esDoctor() && !esEstadoFinal(cita)) {
                       <a [routerLink]="['/citas', cita.idCita, 'editar']" class="btn btn-outline-secondary" title="Editar">
                         <i class="bi bi-pencil"></i>
                       </a>
+                    }
+                    @if (!esDoctor()) {
+                      <button type="button" class="btn btn-outline-danger" title="Eliminar" (click)="eliminar(cita)">
+                        <i class="bi bi-trash"></i>
+                      </button>
                     }
                   </div>
                 </td>

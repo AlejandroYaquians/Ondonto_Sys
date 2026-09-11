@@ -51,9 +51,9 @@
             @for (paciente of pacientesFiltrados(); track paciente.idPaciente) {
               <tr>
                 <td>{{ paciente.nombre }} {{ paciente.apellido }}</td>
-                <td>{{ edad(paciente.fechaNacimiento) ?? '—' }}</td>
+                <td>{{ edad(paciente.fechaNacimiento) ?? 0 }}</td>
                 <td>{{ nombreProfesion(paciente.idProfesion) }}</td>
-                <td>{{ paciente.telefono || '—' }}</td>
+                <td>{{ paciente.telefono || '-' }}</td>
                 <td>{{ nombreMunicipio(paciente.idMunicipio) }}</td>
                 <td class="text-end">
                   <div class="btn-group btn-group-sm">
@@ -64,7 +64,7 @@
                       <a [routerLink]="['/pacientes', paciente.idPaciente, 'editar']" class="btn btn-outline-secondary" title="Editar">
                         <i class="bi bi-pencil"></i>
                       </a>
-                      <button type="button" class="btn btn-outline-danger" title="Inactivar" (click)="eliminar(paciente)">
+                      <button type="button" class="btn btn-outline-danger" title="Eliminar" (click)="eliminar(paciente)">
                         <i class="bi bi-trash"></i>
                       </button>
                     }

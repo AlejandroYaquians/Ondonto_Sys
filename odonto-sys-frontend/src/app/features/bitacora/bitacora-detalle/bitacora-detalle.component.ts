@@ -71,14 +71,14 @@ export class BitacoraDetalleComponent implements OnInit {
 
   private formatoValor(valor: unknown): string {
     if (valor === undefined || valor === null) {
-      return '—';
+      return '-';
     }
     return String(valor);
   }
 
   nombreUsuario(id: number | null): string {
     if (!id) {
-      return '—';
+      return '-';
     }
     return this.usuarios().find((u) => u.idUsuario === id)?.nombre ?? `#${id}`;
   }

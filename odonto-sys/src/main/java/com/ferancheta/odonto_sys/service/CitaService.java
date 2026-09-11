@@ -4,15 +4,10 @@ import com.ferancheta.odonto_sys.dto.request.CitaRequest;
 import com.ferancheta.odonto_sys.dto.response.CitaResponse;
 import com.ferancheta.odonto_sys.entity.CatEstadoCita;
 import com.ferancheta.odonto_sys.entity.Cita;
-import com.ferancheta.odonto_sys.entity.Cobro;
-import com.ferancheta.odonto_sys.entity.Comision;
-import com.ferancheta.odonto_sys.entity.Doctor;
 import com.ferancheta.odonto_sys.mapper.CitaMapper;
 import com.ferancheta.odonto_sys.repository.CatEstadoCitaRepository;
 import com.ferancheta.odonto_sys.repository.CatMotivoCitaRepository;
 import com.ferancheta.odonto_sys.repository.CitaRepository;
-import com.ferancheta.odonto_sys.repository.CobroRepository;
-import com.ferancheta.odonto_sys.repository.ComisionRepository;
 import com.ferancheta.odonto_sys.repository.DoctorRepository;
 import com.ferancheta.odonto_sys.repository.PacienteRepository;
 import com.ferancheta.odonto_sys.repository.UsuarioRepository;
@@ -51,8 +46,6 @@ public class CitaService {
     private final CatEstadoCitaRepository catEstadoCitaRepository;
     private final CatMotivoCitaRepository catMotivoCitaRepository;
     private final UsuarioRepository usuarioRepository;
-    private final CobroRepository cobroRepository;
-    private final ComisionRepository comisionRepository;
     private final ContextoAutenticacion contexto;
     private final CitaMapper mapper;
 
@@ -60,16 +53,16 @@ public class CitaService {
     public List<CitaResponse> listar() {
         if (contexto.esDoctor()) {
             return citaRepository.findByDoctor_IdDoctor(contexto.doctorActual().getIdDoctor())
-                    .stream().filter(this::noEsCancelada).map(mapper::toResponse).toList();
+                    .stream().map(mapper::toResponse).toList();
         }
-        return citaRepository.findAll().stream().filter(this::noEsCancelada).map(mapper::toResponse).toList();
+        return citaRepository.findAll().stream().map(mapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
     public List<CitaResponse> listarPorDoctorYFecha(Integer idDoctor, LocalDate fecha) {
         validarAccesoADoctor(idDoctor);
         return citaRepository.findByDoctor_IdDoctorAndFecha(idDoctor, fecha)
-                .stream().filter(this::noEsCancelada).map(mapper::toResponse).toList();
+                .stream().map(mapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
@@ -112,8 +105,10 @@ public class CitaService {
         Cita existente = obtenerEntidad(id);
         validarPropietario(existente);
         validarAccesoADoctor(request.idDoctor());
-        if (ESTADO_ATENDIDA.equals(existente.getEstadoCita().getNombre())) {
-            throw new IllegalStateException("No se puede editar una cita que ya fue atendida");
+        String estadoExistente = existente.getEstadoCita().getNombre();
+        if (ESTADO_ATENDIDA.equals(estadoExistente) || ESTADO_CANCELADA.equals(estadoExistente)
+                || ESTADO_NO_ASISTIO.equals(estadoExistente)) {
+            throw new IllegalStateException("No se puede editar una cita en estado \"" + estadoExistente + "\"");
         }
         validarFechaNoPasada(request.fecha());
         validarProximidad(request, id);
@@ -147,26 +142,6 @@ public class CitaService {
 
         cita.setEstadoCita(buscarEstadoPorNombre(nuevoEstado));
         return mapper.toResponse(citaRepository.save(cita));
-    }
-
-    @Transactional
-    public CitaResponse cambiarDoctor(Integer id, Integer idDoctor) {
-        validarNoEsDoctor("cambiar el doctor de");
-        Cita cita = obtenerEntidad(id);
-        Doctor doctor = doctorRepository.findById(idDoctor)
-                .orElseThrow(() -> new EntityNotFoundException("Doctor no encontrado: " + idDoctor));
-
-        cita.setDoctor(doctor);
-        Cita citaActualizada = citaRepository.save(cita);
-
-        for (Cobro cobro : cobroRepository.findByCita_IdCita(id)) {
-            for (Comision comision : comisionRepository.findByCobro_IdCobro(cobro.getIdCobro())) {
-                comision.setDoctor(doctor);
-                comisionRepository.save(comision);
-            }
-        }
-
-        return mapper.toResponse(citaActualizada);
     }
 
     @Transactional

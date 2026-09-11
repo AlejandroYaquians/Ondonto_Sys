@@ -17,5 +17,4 @@ export interface DoctorRequest {
   email: string | null;
   porcentajeComision: number;
   idsEspecialidad: number[];
-  idUsuario: number | null;
 }

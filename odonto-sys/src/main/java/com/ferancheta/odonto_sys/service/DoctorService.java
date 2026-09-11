@@ -4,11 +4,9 @@ import com.ferancheta.odonto_sys.dto.request.DoctorRequest;
 import com.ferancheta.odonto_sys.dto.response.DoctorResponse;
 import com.ferancheta.odonto_sys.entity.CatEspecialidad;
 import com.ferancheta.odonto_sys.entity.Doctor;
-import com.ferancheta.odonto_sys.entity.Usuario;
 import com.ferancheta.odonto_sys.mapper.DoctorMapper;
 import com.ferancheta.odonto_sys.repository.CatEspecialidadRepository;
 import com.ferancheta.odonto_sys.repository.DoctorRepository;
-import com.ferancheta.odonto_sys.repository.UsuarioRepository;
 import com.ferancheta.odonto_sys.security.ContextoAutenticacion;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +22,6 @@ public class DoctorService {
 
     private final DoctorRepository doctorRepository;
     private final CatEspecialidadRepository catEspecialidadRepository;
-    private final UsuarioRepository usuarioRepository;
     private final ContextoAutenticacion contexto;
     private final BitacoraService bitacoraService;
     private final DoctorMapper mapper;
@@ -62,6 +59,7 @@ public class DoctorService {
         Doctor actualizado = mapper.toEntity(request);
         actualizado.setIdDoctor(existente.getIdDoctor());
         actualizado.setActivo(existente.getActivo());
+        actualizado.setUsuario(existente.getUsuario());
         actualizado.setIdUsuarioCreacion(existente.getIdUsuarioCreacion());
         actualizado.setIdUsuarioModificacion(contexto.usuarioActual().getIdUsuario());
         aplicarRelaciones(actualizado, request);
@@ -88,14 +86,6 @@ public class DoctorService {
             doctor.setEspecialidades(new ArrayList<>(especialidades));
         } else {
             doctor.setEspecialidades(new ArrayList<>());
-        }
-
-        if (request.idUsuario() != null) {
-            Usuario usuario = usuarioRepository.findById(request.idUsuario())
-                    .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + request.idUsuario()));
-            doctor.setUsuario(usuario);
-        } else {
-            doctor.setUsuario(null);
         }
     }
 

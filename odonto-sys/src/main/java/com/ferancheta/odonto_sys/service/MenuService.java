@@ -26,6 +26,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MenuService {
 
+    private static final List<String> ORDEN_MODULOS = List.of(
+            "Dashboard", "Agenda", "Clínico", "Finanzas", "Inventario", "Catálogos", "Auditoría", "Administración");
+
     private final MenuRepository repository;
     private final ModuloRepository moduloRepository;
     private final PermisoRepository permisoRepository;
@@ -56,7 +59,7 @@ public class MenuService {
                                 .sorted(Comparator.comparing(Menu::getOrden))
                                 .map(mapper::toResponse)
                                 .toList()))
-                .sorted(Comparator.comparing(ModuloConMenusResponse::nombre))
+                .sorted(Comparator.comparing(m -> ORDEN_MODULOS.indexOf(m.nombre())))
                 .toList();
     }
 

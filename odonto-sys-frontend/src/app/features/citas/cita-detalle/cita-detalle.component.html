@@ -30,7 +30,7 @@
       <div class="row g-3">
         <div class="col-md-3">
           <div class="text-secondary small text-uppercase">Fecha</div>
-          <div class="fw-medium">{{ datosCita.fecha }}</div>
+          <div class="fw-medium">{{ fechaDiaMesAnio(datosCita.fecha) }}</div>
         </div>
         <div class="col-md-3">
           <div class="text-secondary small text-uppercase">Hora</div>
@@ -38,34 +38,11 @@
         </div>
         <div class="col-md-3">
           <div class="text-secondary small text-uppercase">Paciente</div>
-          <div class="fw-medium">{{ paciente() ? paciente()!.nombre + ' ' + paciente()!.apellido : '—' }}</div>
+          <div class="fw-medium">{{ paciente() ? paciente()!.nombre + ' ' + paciente()!.apellido : '-' }}</div>
         </div>
         <div class="col-md-3">
           <div class="text-secondary small text-uppercase">Doctor</div>
-          @if (cambiandoDoctor()) {
-            <div class="d-flex align-items-center gap-2">
-              <select class="form-select form-select-sm" [ngModel]="idDoctorSeleccionado()" (ngModelChange)="idDoctorSeleccionado.set($event)">
-                @for (d of doctores(); track d.idDoctor) {
-                  <option [ngValue]="d.idDoctor">Dr(a). {{ d.nombre }} {{ d.apellido }}</option>
-                }
-              </select>
-              <button type="button" class="btn btn-sm btn-primary" (click)="confirmarCambioDoctor()">
-                <i class="bi bi-check-lg"></i>
-              </button>
-              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelarCambioDoctor()">
-                <i class="bi bi-x-lg"></i>
-              </button>
-            </div>
-          } @else {
-            <div class="d-flex align-items-center gap-2">
-              <div class="fw-medium">{{ doctor() ? 'Dr(a). ' + doctor()!.nombre + ' ' + doctor()!.apellido : '—' }}</div>
-              @if (!esDoctor()) {
-                <button type="button" class="btn btn-sm btn-link p-0" (click)="iniciarCambioDoctor()" title="Cambiar doctor">
-                  <i class="bi bi-pencil"></i>
-                </button>
-              }
-            </div>
-          }
+          <div class="fw-medium">{{ doctor() ? 'Dr(a). ' + doctor()!.nombre + ' ' + doctor()!.apellido : '-' }}</div>
         </div>
         <div class="col-md-6">
           <div class="text-secondary small text-uppercase">Motivo</div>
@@ -73,7 +50,7 @@
         </div>
         <div class="col-12">
           <div class="text-secondary small text-uppercase">Observaciones</div>
-          <div class="fw-medium">{{ datosCita.observaciones || '—' }}</div>
+          <div class="fw-medium">{{ datosCita.observaciones || '-' }}</div>
         </div>
       </div>
     </div>
@@ -102,7 +79,7 @@
               <div>
                 <div class="fw-medium">{{ cobro.codigoCobro }}</div>
                 <div class="text-secondary small">
-                  {{ cobro.montoBruto !== null ? 'Q' + cobro.montoBruto : '—' }} · {{ cobro.estado }}
+                  {{ cobro.montoBruto !== null ? 'Q' + (cobro.montoBruto | number: '1.2-2') : '-' }} · {{ cobro.estado }}
                 </div>
               </div>
               <a [routerLink]="['/cobros', cobro.idCobro]" class="btn btn-sm btn-outline-secondary">

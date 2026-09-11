@@ -9,6 +9,6 @@ export class NavegacionService {
   private readonly http = inject(HttpClient);
 
   obtenerNavegacion(): Observable<ModuloConMenus[]> {
-    return this.http.get<ModuloConMenus[]>(`${API_BASE_URL}/menus/navegacion`);
+    return this.http.get<ModuloConMenus[]>(`${API_BASE_URL}/navegacion`);
   }
 }

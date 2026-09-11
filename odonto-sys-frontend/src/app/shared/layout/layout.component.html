@@ -1,3 +1,5 @@
+<app-toast-container />
+
 <div class="layout d-flex vh-100">
   <aside
     class="sidebar bg-dark text-white d-flex flex-column"
@@ -5,7 +7,7 @@
     [class.sidebar-colapsada]="sidebarColapsada()"
   >
 
-    <div class="marca d-flex align-items-center px-3 py-3 border-bottom border-secondary-subtle">
+    <div class="marca d-flex align-items-center justify-content-center px-3 py-3 border-bottom border-secondary-subtle">
       <a routerLink="/dashboard" class="d-flex align-items-center text-decoration-none marca-texto overflow-hidden">
         <img src="/logo.png" alt="Clínica Dental Fernando Ancheta" class="logo" />
       </a>
@@ -13,19 +15,20 @@
 
     <div class="accordion accordion-flush flex-fill overflow-auto py-2">
       @for (modulo of modulos(); track modulo.idModulo) {
-        <div class="accordion-item bg-transparent border-0">
+        <div class="accordion-item bg-transparent">
           <h2 class="accordion-header">
             <button
-              class="accordion-button bg-transparent text-white shadow-none px-3 py-2 my-1 rounded-2"
+              class="accordion-button bg-transparent shadow-none px-3 py-2 my-1 rounded-2"
               [class.collapsed]="!moduloEstaExpandido(modulo.idModulo)"
               type="button"
               (click)="toggleModulo(modulo.idModulo)"
             >
+              <i class="bi {{ iconoDeModulo(modulo.nombre) }} me-2"></i>
               <span class="flex-fill text-start fw-medium modulo-nombre">{{ modulo.nombre }}</span>
             </button>
           </h2>
 
-          <div class="accordion-collapse collapse" [class.show]="moduloEstaExpandido(modulo.idModulo)">
+          <div class="accordion-collapse" [class.show]="moduloEstaExpandido(modulo.idModulo)">
             <div class="accordion-body p-0 ps-3">
               <ul class="nav flex-column gap-1 py-1">
                 @for (item of modulo.menus; track item.idMenu) {
@@ -54,11 +57,21 @@
 
   <div class="contenido-wrapper flex-fill d-flex flex-column overflow-hidden">
     <nav class="navbar navbar-expand bg-dark text-white border-bottom border-secondary-subtle px-3 py-2 shadow-sm">
-      <button type="button" class="btn btn-light btn-toggle d-none d-lg-inline-flex" (click)="toggleSidebarColapsar()">
+      <button
+        type="button"
+        class="btn btn-toggle d-none d-lg-inline-flex"
+        [class.girado]="sidebarColapsada()"
+        (click)="toggleSidebarColapsar()"
+      >
         <i class="bi bi-list"></i>
       </button>
 
-      <button type="button" class="btn btn-light btn-toggle d-lg-none" (click)="toggleSidebar()">
+      <button
+        type="button"
+        class="btn btn-toggle d-lg-none"
+        [class.girado]="sidebarAbierta()"
+        (click)="toggleSidebar()"
+      >
         <i class="bi bi-list"></i>
       </button>
 
@@ -69,15 +82,21 @@
           (click)="toggleMenuUsuario()"
         >
           <div class="avatar-circle bg-accent text-white fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
-            {{ (authService.username() ?? '?').charAt(0).toUpperCase() }}
+            {{ (authService.nombre() ?? '?').charAt(0).toUpperCase() }}
           </div>
           <div class="d-none d-sm-flex flex-column text-start lh-sm">
-            <span class="fw-semibold text-white fs-6">{{ authService.username() }}</span>
-            <span class="badge badge-rol align-self-start mt-1">{{ authService.rol() }}</span>
+            <span class="fw-semibold text-white fs-6">{{ authService.nombre() }} {{ authService.apellido() }}</span>
+            <span class="badge-rol align-self-start mt-1">{{ authService.rol() }}</span>
           </div>
         </button>
 
         <ul class="dropdown-menu dropdown-menu-end mt-2" [class.show]="menuUsuarioAbierto()">
+          <li>
+            <a routerLink="/perfil" class="dropdown-item d-flex align-items-center gap-2" (click)="cerrarMenuUsuario()">
+              <i class="bi bi-person-circle"></i>
+              Mi perfil
+            </a>
+          </li>
           <li>
             <button type="button" class="dropdown-item d-flex align-items-center gap-2" (click)="cerrarSesion()">
               <i class="bi bi-box-arrow-right"></i>

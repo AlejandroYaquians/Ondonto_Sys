@@ -81,7 +81,7 @@
                 <td>{{ nombrePaciente(cobro.idPaciente) }}</td>
                 <td>{{ nombreDoctor(cobro.idDoctor) }}</td>
                 <td>{{ nombreServicio(cobro.idServicio) }}</td>
-                <td>{{ cobro.montoBruto !== null ? 'Q' + cobro.montoBruto : '—' }}</td>
+                <td>{{ cobro.montoBruto !== null ? 'Q' + (cobro.montoBruto | number: '1.2-2') : '-' }}</td>
                 <td>{{ nombreMetodoPago(cobro.idMetodoPago) }}</td>
                 <td class="text-end">
                   <a [routerLink]="['/cobros', cobro.idCobro]" class="btn btn-sm btn-outline-primary" title="Ver detalle">

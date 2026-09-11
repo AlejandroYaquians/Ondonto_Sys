@@ -86,15 +86,6 @@
               }
             </div>
           </div>
-          <div class="col-md-4">
-            <label class="form-label" for="idUsuario">Usuario del sistema</label>
-            <select id="idUsuario" class="form-select" formControlName="idUsuario">
-              <option [ngValue]="null">Sin vincular</option>
-              @for (usuario of usuarios(); track usuario.idUsuario) {
-                <option [ngValue]="usuario.idUsuario">{{ usuario.nombre }} ({{ usuario.username }})</option>
-              }
-            </select>
-          </div>
         </div>
 
         <div class="d-flex justify-content-end gap-2">

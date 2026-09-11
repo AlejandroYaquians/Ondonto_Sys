@@ -2,7 +2,6 @@ package com.ferancheta.odonto_sys.controller;
 
 import com.ferancheta.odonto_sys.dto.request.MenuRequest;
 import com.ferancheta.odonto_sys.dto.response.MenuResponse;
-import com.ferancheta.odonto_sys.dto.response.ModuloConMenusResponse;
 import com.ferancheta.odonto_sys.service.MenuService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +20,6 @@ public class MenuController {
     @GetMapping
     public List<MenuResponse> listar(@RequestParam(required = false) Integer idModulo) {
         return idModulo != null ? service.listarPorModulo(idModulo) : service.listarActivos();
-    }
-
-    @GetMapping("/navegacion")
-    public List<ModuloConMenusResponse> navegacion() {
-        return service.listarNavegacion();
     }
 
     @GetMapping("/{id}")

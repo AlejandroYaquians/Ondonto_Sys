@@ -23,9 +23,6 @@ public class Menu {
     @Column(name = "ruta", length = 255)
     private String ruta;
 
-    @Column(name = "icono", length = 100)
-    private String icono;
-
     @Column(name = "orden")
     private Integer orden = 0;
 

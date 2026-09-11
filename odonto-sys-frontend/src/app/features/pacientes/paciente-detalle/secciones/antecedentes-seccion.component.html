@@ -6,45 +6,17 @@
   <div class="text-center text-secondary py-3">
     <div class="spinner-border spinner-border-sm" role="status"></div>
   </div>
+} @else if (antecedentes().length === 0) {
+  <p class="text-secondary small mb-0">No tiene antecedentes médicos registrados.</p>
 } @else {
-  <div class="row g-3">
-    @for (afeccion of afecciones(); track afeccion.idAfeccion) {
-      <div class="col-md-6">
-        <div class="form-check">
-          <input
-            type="checkbox"
-            class="form-check-input"
-            [id]="'afeccion-' + afeccion.idAfeccion"
-            [checked]="estaMarcada(afeccion.idAfeccion)"
-            [disabled]="esDoctor()"
-            (change)="toggleAfeccion(afeccion.idAfeccion)"
-          />
-          <label class="form-check-label" [for]="'afeccion-' + afeccion.idAfeccion">
-            {{ afeccion.nombreAfeccion }}
-          </label>
-        </div>
-        @if (estaMarcada(afeccion.idAfeccion)) {
-          <input
-            type="text"
-            class="form-control form-control-sm mt-1"
-            placeholder="Detalle de la afección..."
-            [value]="detalleDe(afeccion.idAfeccion)"
-            [disabled]="esDoctor()"
-            (input)="cambiarDetalle(afeccion.idAfeccion, $any($event.target).value)"
-          />
+  <ul class="list-group list-group-flush">
+    @for (item of antecedentes(); track item.idAntecedente) {
+      <li class="list-group-item px-0">
+        <div class="fw-medium">{{ nombreAfeccion(item.idAfeccion) }}</div>
+        @if (item.observacionDetalle) {
+          <div class="text-secondary small">{{ item.observacionDetalle }}</div>
         }
-      </div>
+      </li>
     }
-  </div>
-
-  @if (!esDoctor()) {
-    <div class="d-flex justify-content-end mt-3">
-      <button type="button" class="btn btn-sm btn-primary" [disabled]="guardando()" (click)="guardar()">
-        @if (guardando()) {
-          <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-        }
-        Guardar antecedentes
-      </button>
-    </div>
-  }
+  </ul>
 }

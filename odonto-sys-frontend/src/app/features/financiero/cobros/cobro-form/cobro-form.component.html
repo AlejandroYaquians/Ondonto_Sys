@@ -96,19 +96,19 @@
           <div class="row g-3">
             <div class="col-md-3">
               <div class="text-secondary small text-uppercase">Monto bruto</div>
-              <div class="fw-medium">Q{{ previaCobro().montoBruto }}</div>
+              <div class="fw-medium">Q{{ previaCobro().montoBruto | number: '1.2-2' }}</div>
             </div>
             <div class="col-md-3">
               <div class="text-secondary small text-uppercase">Comisión bancaria</div>
-              <div class="fw-medium">Q{{ previaCobro().comisionTarjeta }}</div>
+              <div class="fw-medium">Q{{ previaCobro().comisionTarjeta | number: '1.2-2' }}</div>
             </div>
             <div class="col-md-3">
               <div class="text-secondary small text-uppercase">Monto neto</div>
-              <div class="fw-medium">Q{{ previaCobro().montoNeto }}</div>
+              <div class="fw-medium">Q{{ previaCobro().montoNeto | number: '1.2-2' }}</div>
             </div>
             <div class="col-md-3">
               <div class="text-secondary small text-uppercase">Comisión del doctor</div>
-              <div class="fw-medium">Q{{ previaCobro().comisionDoctor }}</div>
+              <div class="fw-medium">Q{{ previaCobro().comisionDoctor | number: '1.2-2' }}</div>
             </div>
           </div>
         </div>

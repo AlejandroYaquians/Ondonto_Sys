@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -6,6 +7,7 @@ import { CobroService } from '../../../../core/services/cobro.service';
 import { PacienteService } from '../../../../core/services/paciente.service';
 import { DoctorService } from '../../../../core/services/doctor.service';
 import { CatalogosService } from '../../../../core/services/catalogos.service';
+import { NotificacionService } from '../../../../core/services/notificacion.service';
 import { CobroRequest } from '../../../../core/models/cobro.models';
 import { Paciente } from '../../../../core/models/paciente.models';
 import { Doctor } from '../../../../core/models/doctor.models';
@@ -17,7 +19,7 @@ type MetodoPagoForma = number | typeof MIXTO;
 
 @Component({
   selector: 'app-cobro-form',
-  imports: [ReactiveFormsModule, RouterLink, BuscadorSelectComponent],
+  imports: [ReactiveFormsModule, RouterLink, BuscadorSelectComponent, DecimalPipe],
   templateUrl: './cobro-form.component.html'
 })
 export class CobroFormComponent implements OnInit {
@@ -26,6 +28,7 @@ export class CobroFormComponent implements OnInit {
   private readonly pacienteService = inject(PacienteService);
   private readonly doctorService = inject(DoctorService);
   private readonly catalogosService = inject(CatalogosService);
+  private readonly notificacionService = inject(NotificacionService);
   private readonly router = inject(Router);
 
   protected readonly pacientes = signal<Paciente[]>([]);
@@ -179,7 +182,10 @@ export class CobroFormComponent implements OnInit {
     };
 
     this.cobroService.crear(request).subscribe({
-      next: (cobro) => this.router.navigateByUrl(`/cobros/${cobro.idCobro}`),
+      next: (cobro) => {
+        this.notificacionService.exito('Cobro registrado.');
+        this.router.navigateByUrl(`/cobros/${cobro.idCobro}`);
+      },
       error: (err) => {
         this.guardando.set(false);
         this.error.set(err?.error?.mensaje ?? 'Error al guardar.');

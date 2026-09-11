@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { DoctorService } from '../../../core/services/doctor.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { Doctor } from '../../../core/models/doctor.models';
 import { CatEspecialidad } from '../../../core/models/catalogo.models';
 
@@ -15,6 +16,7 @@ export class DoctorListComponent {
   private readonly doctorService = inject(DoctorService);
   private readonly catalogosService = inject(CatalogosService);
   private readonly authService = inject(AuthService);
+  private readonly notificacionService = inject(NotificacionService);
 
   protected readonly doctores = signal<Doctor[]>([]);
   protected readonly especialidades = signal<CatEspecialidad[]>([]);
@@ -59,7 +61,7 @@ export class DoctorListComponent {
 
   nombresEspecialidades(idsEspecialidad: number[]): string {
     if (!idsEspecialidad.length) {
-      return '—';
+      return '-';
     }
     return idsEspecialidad
       .map((id) => this.especialidades().find((e) => e.idEspecialidad === id)?.nombre)
@@ -68,13 +70,16 @@ export class DoctorListComponent {
   }
 
   eliminar(doctor: Doctor): void {
-    const confirmado = window.confirm(`¿Desea inactivar al Dr(a). ${doctor.nombre} ${doctor.apellido}?`);
+    const confirmado = window.confirm(`¿Desea eliminar al Dr(a). ${doctor.nombre} ${doctor.apellido}?`);
     if (!confirmado) {
       return;
     }
 
     this.doctorService.eliminar(doctor.idDoctor).subscribe({
-      next: () => this.cargar(),
+      next: () => {
+        this.notificacionService.exito('Doctor eliminado.');
+        this.cargar();
+      },
       error: () => this.error.set('Error al eliminar.')
     });
   }

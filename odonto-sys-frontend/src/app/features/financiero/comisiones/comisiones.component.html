@@ -58,11 +58,11 @@
           <tbody>
             @for (item of items(); track item.idComision) {
               <tr>
-                <td>{{ item.fecha }}</td>
+                <td>{{ fechaDiaMesAnio(item.fecha) }}</td>
                 <td>{{ nombreDoctor(item.idDoctor) }}</td>
-                <td>Q{{ item.montoBase }}</td>
-                <td>{{ item.porcentajeAplicado }}%</td>
-                <td>Q{{ item.montoComision }}</td>
+                <td>Q{{ item.montoBase | number: '1.2-2' }}</td>
+                <td>{{ item.porcentajeAplicado | number: '1.2-2' }}%</td>
+                <td>Q{{ item.montoComision | number: '1.2-2' }}</td>
                 <td>
                   @if (item.estado === 'pagada') {
                     <span class="badge text-bg-success">Pagada</span>

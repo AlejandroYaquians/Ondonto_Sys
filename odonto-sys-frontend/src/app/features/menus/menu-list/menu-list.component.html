@@ -33,14 +33,14 @@
               @for (menu of grupo.menus; track menu.idMenu) {
                 <tr>
                   <td>{{ menu.nombre }}</td>
-                  <td><code>{{ menu.ruta || '—' }}</code></td>
+                  <td><code>{{ menu.ruta || '-' }}</code></td>
                   <td>{{ menu.orden }}</td>
                   <td class="text-end">
                     <div class="btn-group btn-group-sm">
                       <a [routerLink]="['/menus', menu.idMenu, 'editar']" class="btn btn-outline-secondary" title="Editar">
                         <i class="bi bi-pencil"></i>
                       </a>
-                      <button type="button" class="btn btn-outline-danger" title="Desactivar" (click)="desactivar(menu)">
+                      <button type="button" class="btn btn-outline-danger" title="Eliminar" (click)="desactivar(menu)">
                         <i class="bi bi-trash"></i>
                       </button>
                     </div>

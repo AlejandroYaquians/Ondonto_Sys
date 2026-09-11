@@ -5,7 +5,7 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "servicio")
+@Table(name = "cat_servicio")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

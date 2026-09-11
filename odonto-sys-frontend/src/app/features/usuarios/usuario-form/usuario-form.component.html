@@ -29,6 +29,16 @@
             />
           </div>
           <div class="col-md-4">
+            <label class="form-label" for="apellido">Apellido</label>
+            <input
+              id="apellido"
+              type="text"
+              class="form-control"
+              formControlName="apellido"
+              [class.is-invalid]="formulario.controls.apellido.touched && formulario.controls.apellido.invalid"
+            />
+          </div>
+          <div class="col-md-4">
             <label class="form-label" for="username">Usuario</label>
             <input
               id="username"
@@ -40,15 +50,21 @@
           </div>
           <div class="col-md-4">
             <label class="form-label" for="password">{{ esNuevo() ? 'Contraseña' : 'Nueva contraseña' }}</label>
-            <input
-              id="password"
-              type="password"
-              class="form-control"
-              formControlName="password"
-              [class.is-invalid]="formulario.controls.password.touched && formulario.controls.password.invalid"
-            />
+            <div class="input-group">
+              <input
+                id="password"
+                [type]="mostrarPassword() ? 'text' : 'password'"
+                class="form-control"
+                formControlName="password"
+                [class.is-invalid]="formulario.controls.password.touched && formulario.controls.password.invalid"
+              />
+              <button type="button" class="btn btn-outline-secondary" (click)="toggleMostrarPassword()">
+                <i class="bi" [class.bi-eye]="!mostrarPassword()" [class.bi-eye-slash]="mostrarPassword()"></i>
+              </button>
+            </div>
+            <div class="form-text">Mínimo 8 caracteres, una mayúscula y un número.</div>
             @if (!esNuevo()) {
-              <div class="form-text">Al guardar se reemplaza la contraseña actual.</div>
+              <div class="form-text">Déjelo en blanco para mantener la contraseña actual.</div>
             }
           </div>
           <div class="col-md-4">
@@ -67,22 +83,11 @@
           </div>
         </div>
 
-        @if (esRolDoctor() && !esNuevo()) {
-          <div class="alert alert-info">
-            El perfil clínico de este doctor (apellido, comisión, especialidades) se administra desde
-            <a routerLink="/doctores">Doctores</a>.
-          </div>
-        }
-
         @if (mostrarCamposDoctor()) {
           <div class="border rounded-3 p-3 mb-4">
             <h2 class="h6 text-secondary text-uppercase mb-3">Datos del doctor</h2>
             <div class="row g-3">
-              <div class="col-md-4">
-                <label class="form-label" for="apellido">Apellido</label>
-                <input id="apellido" type="text" class="form-control" formControlName="apellido" />
-              </div>
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <label class="form-label" for="porcentajeComision">Porcentaje de comisión (%)</label>
                 <input
                   id="porcentajeComision"
@@ -94,13 +99,26 @@
                   formControlName="porcentajeComision"
                 />
               </div>
-              <div class="col-md-4">
-                <label class="form-label" for="idsEspecialidad">Especialidades</label>
-                <select id="idsEspecialidad" class="form-select" multiple [size]="3" (change)="seleccionarEspecialidades($event)">
+              <div class="col-12">
+                <label class="form-label">Especialidades</label>
+                <div class="row g-2 border rounded-2 p-2">
                   @for (especialidad of especialidades(); track especialidad.idEspecialidad) {
-                    <option [value]="especialidad.idEspecialidad">{{ especialidad.nombre }}</option>
+                    <div class="col-md-4 col-sm-6">
+                      <div class="form-check">
+                        <input
+                          type="checkbox"
+                          class="form-check-input"
+                          [id]="'especialidad-' + especialidad.idEspecialidad"
+                          [checked]="especialidadSeleccionada(especialidad.idEspecialidad)"
+                          (change)="toggleEspecialidad(especialidad.idEspecialidad)"
+                        />
+                        <label class="form-check-label" [for]="'especialidad-' + especialidad.idEspecialidad">
+                          {{ especialidad.nombre }}
+                        </label>
+                      </div>
+                    </div>
                   }
-                </select>
+                </div>
               </div>
             </div>
           </div>

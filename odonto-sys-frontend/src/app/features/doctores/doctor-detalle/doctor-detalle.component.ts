@@ -44,7 +44,7 @@ export class DoctorDetalleComponent implements OnInit {
 
   nombresEspecialidades(idsEspecialidad: number[]): string {
     if (!idsEspecialidad.length) {
-      return '—';
+      return '-';
     }
     return idsEspecialidad
       .map((id) => this.especialidades().find((e) => e.idEspecialidad === id)?.nombre)
@@ -57,6 +57,6 @@ export class DoctorDetalleComponent implements OnInit {
       return 'Sin vincular';
     }
     const usuario = this.usuarios().find((u) => u.idUsuario === idUsuario);
-    return usuario ? `${usuario.nombre} (${usuario.username})` : '—';
+    return usuario ? `${usuario.nombre} (${usuario.username})` : '-';
   }
 }

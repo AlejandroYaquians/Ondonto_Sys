@@ -52,7 +52,7 @@
               <tr>
                 <td>Dr(a). {{ doctor.nombre }} {{ doctor.apellido }}</td>
                 <td>{{ nombresEspecialidades(doctor.idsEspecialidad) }}</td>
-                <td>{{ doctor.telefono || doctor.email || '—' }}</td>
+                <td>{{ doctor.telefono || doctor.email || '-' }}</td>
                 <td>{{ doctor.porcentajeComision }}%</td>
                 <td>
                   @if (doctor.activo) {
@@ -70,7 +70,7 @@
                       <a [routerLink]="['/doctores', doctor.idDoctor, 'editar']" class="btn btn-outline-secondary" title="Editar">
                         <i class="bi bi-pencil"></i>
                       </a>
-                      <button type="button" class="btn btn-outline-danger" title="Inactivar" (click)="eliminar(doctor)">
+                      <button type="button" class="btn btn-outline-danger" title="Eliminar" (click)="eliminar(doctor)">
                         <i class="bi bi-trash"></i>
                       </button>
                     }

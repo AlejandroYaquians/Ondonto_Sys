@@ -27,6 +27,9 @@ public class Usuario implements UserDetails {
     @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
 
+    @Column(name = "apellido", length = 100)
+    private String apellido;
+
     @Column(name = "username", nullable = false, unique = true, length = 45)
     private String username;
 
@@ -36,16 +39,22 @@ public class Usuario implements UserDetails {
     @Column(name = "estado")
     private Boolean estado = true;
 
+    @Column(name = "intentos_fallidos")
+    private Integer intentosFallidos = 0;
+
+    @Column(name = "bloqueado_hasta")
+    private LocalDateTime bloqueadoHasta;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_rol", nullable = false)
     private Rol rol;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column(name = "fecha_modificacion")
     private LocalDateTime updatedAt;
 
     @Override
@@ -70,7 +79,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return bloqueadoHasta == null || bloqueadoHasta.isBefore(LocalDateTime.now());
     }
 
     @Override

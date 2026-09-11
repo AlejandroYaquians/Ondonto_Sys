@@ -1,8 +1,10 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ComisionService } from '../../../core/services/comision.service';
 import { DoctorService } from '../../../core/services/doctor.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { Comision } from '../../../core/models/cobro.models';
 import { Doctor } from '../../../core/models/doctor.models';
 
@@ -21,7 +23,7 @@ function primerDiaDelMesIso(): string {
 
 @Component({
   selector: 'app-comisiones',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, DecimalPipe],
   templateUrl: './comisiones.component.html'
 })
 export class ComisionesComponent implements OnInit {
@@ -29,6 +31,7 @@ export class ComisionesComponent implements OnInit {
   private readonly comisionService = inject(ComisionService);
   private readonly doctorService = inject(DoctorService);
   private readonly authService = inject(AuthService);
+  private readonly notificacionService = inject(NotificacionService);
 
   protected readonly esAdmin = computed(() => this.authService.rol() === 'ADMIN');
 
@@ -70,6 +73,11 @@ export class ComisionesComponent implements OnInit {
     this.cargar();
   }
 
+  fechaDiaMesAnio(fechaIso: string): string {
+    const [anio, mes, dia] = fechaIso.split('-');
+    return `${dia}-${mes}-${anio}`;
+  }
+
   nombreDoctor(id: number): string {
     const doctor = this.doctores().find((d) => d.idDoctor === id);
     return doctor ? `${doctor.nombre} ${doctor.apellido}` : `#${id}`;
@@ -77,7 +85,10 @@ export class ComisionesComponent implements OnInit {
 
   marcarPagada(item: Comision): void {
     this.comisionService.cambiarEstado(item.idComision, 'pagada').subscribe({
-      next: () => this.cargar(),
+      next: () => {
+        this.notificacionService.exito('Comisión marcada como pagada.');
+        this.cargar();
+      },
       error: () => this.error.set('Error al guardar.')
     });
   }

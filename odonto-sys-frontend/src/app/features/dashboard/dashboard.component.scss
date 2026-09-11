@@ -1,3 +1,11 @@
+.dashboard-hero {
+  margin: -1.5rem -1.5rem 1rem;
+  padding: 2.5rem 1.5rem;
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.35) 0%, #f8f9fa 92%), url('/clinica_1.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
 .calendario-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -23,7 +31,7 @@
   align-items: center;
   justify-content: center;
 
-  &:hover {
+  &:hover:not(.calendario-dia-seleccionado) {
     background: var(--bs-tertiary-bg);
   }
 }

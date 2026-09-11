@@ -1,0 +1,19 @@
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+  @for (n of notificacionService.notificaciones(); track n.id) {
+    <div class="toast show" role="alert">
+      <div
+        class="toast-body d-flex align-items-center justify-content-between text-white"
+        [class.toast-exito]="n.tipo === 'exito'"
+        [class.text-bg-danger]="n.tipo === 'error'"
+      >
+        <span>{{ n.mensaje }}</span>
+        <button
+          type="button"
+          class="btn-close btn-close-white ms-3"
+          aria-label="Cerrar"
+          (click)="notificacionService.cerrar(n.id)"
+        ></button>
+      </div>
+    </div>
+  }
+</div>

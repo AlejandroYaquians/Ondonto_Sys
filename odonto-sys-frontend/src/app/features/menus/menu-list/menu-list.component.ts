@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MenuService } from '../../../core/services/menu.service';
 import { ModuloService } from '../../../core/services/modulo.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { MenuItem } from '../../../core/models/menu.models';
 import { Modulo } from '../../../core/models/modulo.models';
 
@@ -18,6 +19,7 @@ interface GrupoModulo {
 export class MenuListComponent {
   private readonly menuService = inject(MenuService);
   private readonly moduloService = inject(ModuloService);
+  private readonly notificacionService = inject(NotificacionService);
 
   protected readonly menus = signal<MenuItem[]>([]);
   protected readonly modulos = signal<Modulo[]>([]);
@@ -55,12 +57,15 @@ export class MenuListComponent {
   }
 
   desactivar(menu: MenuItem): void {
-    if (!window.confirm(`¿Desea desactivar la vista "${menu.nombre}"? Dejará de aparecer en el menú de navegación.`)) {
+    if (!window.confirm(`¿Desea eliminar la vista "${menu.nombre}"?`)) {
       return;
     }
     this.menuService.desactivar(menu.idMenu).subscribe({
-      next: () => this.cargar(),
-      error: () => this.error.set('Error al desactivar.')
+      next: () => {
+        this.notificacionService.exito('Vista eliminada.');
+        this.cargar();
+      },
+      error: () => this.error.set('Error al eliminar.')
     });
   }
 }

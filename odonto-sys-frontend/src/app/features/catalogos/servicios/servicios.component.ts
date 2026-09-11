@@ -1,16 +1,19 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CatalogosService } from '../../../core/services/catalogos.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { Servicio } from '../../../core/models/catalogo.models';
 
 @Component({
   selector: 'app-servicios',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, DecimalPipe],
   templateUrl: './servicios.component.html'
 })
 export class ServiciosComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly catalogosService = inject(CatalogosService);
+  private readonly notificacionService = inject(NotificacionService);
 
   protected readonly items = signal<Servicio[]>([]);
   protected readonly cargando = signal(true);
@@ -82,6 +85,7 @@ export class ServiciosComponent implements OnInit {
 
     operacion.subscribe({
       next: () => {
+        this.notificacionService.exito(id ? 'Servicio actualizado.' : 'Servicio creado.');
         this.cancelar();
         this.cargar();
       },
@@ -90,11 +94,14 @@ export class ServiciosComponent implements OnInit {
   }
 
   eliminar(item: Servicio): void {
-    if (!window.confirm(`¿Desea inactivar el servicio "${item.nombre}"?`)) {
+    if (!window.confirm(`¿Desea eliminar el servicio "${item.nombre}"?`)) {
       return;
     }
     this.catalogosService.eliminarServicio(item.idServicio).subscribe({
-      next: () => this.cargar(),
+      next: () => {
+        this.notificacionService.exito('Servicio eliminado.');
+        this.cargar();
+      },
       error: () => this.error.set('Error al eliminar.')
     });
   }

@@ -1,5 +1,8 @@
 @if (resultado(); as comprobante) {
   <div class="d-flex align-items-center gap-2 mb-4">
+    <a routerLink="/citas" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left"></i>
+    </a>
     <h1 class="h3 mb-0">Comprobante de cobro</h1>
   </div>
 
@@ -13,15 +16,15 @@
       <div class="row g-3 mb-4">
         <div class="col-md-4">
           <div class="text-secondary small text-uppercase">Monto bruto</div>
-          <div class="fw-medium">Q{{ comprobante.montoBruto }}</div>
+          <div class="fw-medium">Q{{ comprobante.montoBruto | number: '1.2-2' }}</div>
         </div>
         <div class="col-md-4">
           <div class="text-secondary small text-uppercase">Comisión bancaria</div>
-          <div class="fw-medium">Q{{ comprobante.comisionTarjeta }}</div>
+          <div class="fw-medium">Q{{ comprobante.comisionTarjeta | number: '1.2-2' }}</div>
         </div>
         <div class="col-md-4">
           <div class="text-secondary small text-uppercase">Monto neto</div>
-          <div class="fw-medium">Q{{ comprobante.montoNeto }}</div>
+          <div class="fw-medium">Q{{ comprobante.montoNeto | number: '1.2-2' }}</div>
         </div>
       </div>
 
@@ -92,14 +95,8 @@
 
     <div class="card shadow-sm border-0 mb-4">
       <div class="card-body">
-        <label class="form-label" for="descripcion">¿Qué se realizó?</label>
-        <textarea
-          id="descripcion"
-          class="form-control"
-          rows="5"
-          formControlName="descripcion"
-          [class.is-invalid]="formulario.controls.descripcion.touched && formulario.controls.descripcion.invalid"
-        ></textarea>
+        <label class="form-label" for="descripcion">Notas de la Consulta</label>
+        <textarea id="descripcion" class="form-control" rows="5" formControlName="descripcion"></textarea>
       </div>
     </div>
 
@@ -160,7 +157,7 @@
           <div class="col-md-2">
             <label class="form-label">Precio asociado al servicio</label>
             <div class="form-control-plaintext fw-medium">
-              {{ servicioSeleccionado() ? 'Q' + servicioSeleccionado()!.costoBase : '—' }}
+              {{ servicioSeleccionado() ? 'Q' + (servicioSeleccionado()!.costoBase | number: '1.2-2') : '-' }}
             </div>
           </div>
           <div class="col-md-3">
@@ -209,15 +206,15 @@
         <div class="row g-3">
           <div class="col-md-4">
             <div class="text-secondary small text-uppercase">Comisión bancaria</div>
-            <div class="fw-medium">Q{{ previaCobro().comisionTarjeta }}</div>
+            <div class="fw-medium">Q{{ previaCobro().comisionTarjeta | number: '1.2-2' }}</div>
           </div>
           <div class="col-md-4">
             <div class="text-secondary small text-uppercase">Monto neto</div>
-            <div class="fw-medium">Q{{ previaCobro().montoNeto }}</div>
+            <div class="fw-medium">Q{{ previaCobro().montoNeto | number: '1.2-2' }}</div>
           </div>
           <div class="col-md-4">
             <div class="text-secondary small text-uppercase">Comisión del doctor</div>
-            <div class="fw-medium">Q{{ previaCobro().comisionDoctor }}</div>
+            <div class="fw-medium">Q{{ previaCobro().comisionDoctor | number: '1.2-2' }}</div>
           </div>
         </div>
       </div>

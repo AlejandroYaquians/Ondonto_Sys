@@ -17,9 +17,15 @@
         <span class="badge text-bg-info">{{ datosCobro.estado }}</span>
       </div>
     </div>
-    @if (datosCobro.estado === 'pagado') {
-      <button type="button" class="btn btn-outline-danger" (click)="anular()">Anular cobro</button>
-    }
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-outline-secondary" (click)="imprimir()">
+        <i class="bi bi-printer"></i>
+        Imprimir comprobante
+      </button>
+      @if (datosCobro.estado === 'pagado') {
+        <button type="button" class="btn btn-outline-danger" (click)="anular()">Anular cobro</button>
+      }
+    </div>
   </div>
 
   <div class="card shadow-sm border-0">
@@ -31,11 +37,11 @@
         </div>
         <div class="col-md-3">
           <div class="text-secondary small text-uppercase">Paciente</div>
-          <div class="fw-medium">{{ paciente() ? paciente()!.nombre + ' ' + paciente()!.apellido : '—' }}</div>
+          <div class="fw-medium">{{ paciente() ? paciente()!.nombre + ' ' + paciente()!.apellido : '-' }}</div>
         </div>
         <div class="col-md-3">
           <div class="text-secondary small text-uppercase">Doctor</div>
-          <div class="fw-medium">{{ doctor() ? 'Dr(a). ' + doctor()!.nombre + ' ' + doctor()!.apellido : '—' }}</div>
+          <div class="fw-medium">{{ doctor() ? 'Dr(a). ' + doctor()!.nombre + ' ' + doctor()!.apellido : '-' }}</div>
         </div>
         <div class="col-md-3">
           <div class="text-secondary small text-uppercase">Servicio</div>
@@ -47,27 +53,27 @@
         </div>
         <div class="col-md-3">
           <div class="text-secondary small text-uppercase">Monto efectivo</div>
-          <div class="fw-medium">{{ datosCobro.montoEfectivo !== null ? 'Q' + datosCobro.montoEfectivo : '—' }}</div>
+          <div class="fw-medium">{{ datosCobro.montoEfectivo !== null ? 'Q' + (datosCobro.montoEfectivo | number: '1.2-2') : '-' }}</div>
         </div>
         <div class="col-md-3">
           <div class="text-secondary small text-uppercase">Monto tarjeta</div>
-          <div class="fw-medium">{{ datosCobro.montoTarjeta !== null ? 'Q' + datosCobro.montoTarjeta : '—' }}</div>
+          <div class="fw-medium">{{ datosCobro.montoTarjeta !== null ? 'Q' + (datosCobro.montoTarjeta | number: '1.2-2') : '-' }}</div>
         </div>
         <div class="col-md-3">
           <div class="text-secondary small text-uppercase">Comisión bancaria</div>
-          <div class="fw-medium">{{ datosCobro.comisionTarjeta !== null ? 'Q' + datosCobro.comisionTarjeta : '—' }}</div>
+          <div class="fw-medium">{{ datosCobro.comisionTarjeta !== null ? 'Q' + (datosCobro.comisionTarjeta | number: '1.2-2') : '-' }}</div>
         </div>
         <div class="col-md-3">
           <div class="text-secondary small text-uppercase">Costo de laboratorio</div>
-          <div class="fw-medium">{{ datosCobro.costoLaboratorio !== null ? 'Q' + datosCobro.costoLaboratorio : '—' }}</div>
+          <div class="fw-medium">{{ datosCobro.costoLaboratorio !== null ? 'Q' + (datosCobro.costoLaboratorio | number: '1.2-2') : '-' }}</div>
         </div>
         <div class="col-md-3">
           <div class="text-secondary small text-uppercase">Monto neto</div>
-          <div class="fw-medium">{{ datosCobro.montoNeto !== null ? 'Q' + datosCobro.montoNeto : '—' }}</div>
+          <div class="fw-medium">{{ datosCobro.montoNeto !== null ? 'Q' + (datosCobro.montoNeto | number: '1.2-2') : '-' }}</div>
         </div>
         <div class="col-md-3">
           <div class="text-secondary small text-uppercase">Comisión del doctor</div>
-          <div class="fw-medium">{{ datosCobro.comisionDoctor !== null ? 'Q' + datosCobro.comisionDoctor : '—' }}</div>
+          <div class="fw-medium">{{ datosCobro.comisionDoctor !== null ? 'Q' + (datosCobro.comisionDoctor | number: '1.2-2') : '-' }}</div>
         </div>
       </div>
     </div>

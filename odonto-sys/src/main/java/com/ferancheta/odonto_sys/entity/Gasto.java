@@ -46,10 +46,10 @@ public class Gasto {
     private Usuario usuario;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column(name = "fecha_modificacion")
     private LocalDateTime updatedAt;
 }

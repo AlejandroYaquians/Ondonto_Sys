@@ -22,28 +22,35 @@
 @if (!mostrarFormulario()) {
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-body">
-      <form [formGroup]="filtros" (ngSubmit)="aplicarFiltros()" class="row g-3 align-items-end">
-        <div class="col-md-3">
-          <label class="form-label">Desde</label>
-          <input type="date" class="form-control" formControlName="desde" />
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Hasta</label>
-          <input type="date" class="form-control" formControlName="hasta" />
+      <div class="row g-3 align-items-end">
+        <div class="col-md-5">
+          <label class="form-label" for="mes">Mes</label>
+          <div class="d-flex gap-1">
+            <button type="button" class="btn btn-outline-secondary" (click)="mesAnterior()" title="Mes anterior">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <input
+              id="mes"
+              type="month"
+              class="form-control"
+              [value]="mes()"
+              (change)="cambiarMes($any($event.target).value)"
+            />
+            <button type="button" class="btn btn-outline-secondary" (click)="mesSiguiente()" title="Mes siguiente">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
         </div>
         <div class="col-md-4">
-          <label class="form-label">Categoría</label>
-          <select class="form-select" formControlName="idTipoGasto">
-            <option [ngValue]="null">Todas</option>
+          <label class="form-label" for="idTipoGasto">Categoría</label>
+          <select id="idTipoGasto" class="form-select" (change)="cambiarTipoGasto($any($event.target).value)">
+            <option value="">Todas</option>
             @for (tipo of tiposGasto(); track tipo.idTipoGasto) {
-              <option [ngValue]="tipo.idTipoGasto">{{ tipo.nombreCategoria }}</option>
+              <option [value]="tipo.idTipoGasto">{{ tipo.nombreCategoria }}</option>
             }
           </select>
         </div>
-        <div class="col-md-2">
-          <button type="submit" class="btn btn-outline-primary w-100">Filtrar</button>
-        </div>
-      </form>
+      </div>
     </div>
   </div>
 }
@@ -128,11 +135,11 @@
           <tbody>
             @for (item of items(); track item.idGasto) {
               <tr>
-                <td>{{ item.fecha }}</td>
+                <td>{{ fechaDiaMesAnio(item.fecha) }}</td>
                 <td>{{ item.descripcion }}</td>
                 <td>{{ nombreTipoGasto(item.idTipoGasto) }}</td>
-                <td>Q{{ item.monto }}</td>
-                <td>{{ item.comprobante || '—' }}</td>
+                <td>Q{{ item.monto | number: '1.2-2' }}</td>
+                <td>{{ item.comprobante || '-' }}</td>
                 <td>{{ nombreUsuario(item.idUsuario) }}</td>
                 <td class="text-end">
                   <div class="btn-group btn-group-sm">

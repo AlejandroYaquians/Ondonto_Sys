@@ -23,16 +23,16 @@
         </div>
         <div class="col-md-4">
           <div class="text-secondary small text-uppercase">Paciente</div>
-          <div class="fw-medium">{{ paciente() ? paciente()!.nombre + ' ' + paciente()!.apellido : '—' }}</div>
+          <div class="fw-medium">{{ paciente() ? paciente()!.nombre + ' ' + paciente()!.apellido : '-' }}</div>
         </div>
         <div class="col-md-4">
           <div class="text-secondary small text-uppercase">Doctor</div>
-          <div class="fw-medium">{{ doctor() ? 'Dr(a). ' + doctor()!.nombre + ' ' + doctor()!.apellido : '—' }}</div>
+          <div class="fw-medium">{{ doctor() ? 'Dr(a). ' + doctor()!.nombre + ' ' + doctor()!.apellido : '-' }}</div>
         </div>
       </div>
 
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <h2 class="h6 text-secondary text-uppercase mb-0">¿Qué se realizó?</h2>
+        <h2 class="h6 text-secondary text-uppercase mb-0">Notas de la Consulta</h2>
         @if (!editandoDescripcion()) {
           <button type="button" class="btn btn-sm btn-outline-secondary" (click)="iniciarEdicionDescripcion()">
             <i class="bi bi-pencil"></i>
@@ -62,43 +62,53 @@
 
   <div class="card shadow-sm border-0">
     <div class="card-body">
-      <h2 class="h6 text-uppercase text-secondary mb-3">Receta</h2>
+      <div class="d-flex justify-content-between align-items-center" [class.mb-3]="mostrarFormularioReceta()">
+        <h2 class="h6 text-uppercase text-secondary mb-0">Receta</h2>
+        @if (!idRecetaEditando()) {
+          <button type="button" class="btn btn-sm btn-outline-primary" (click)="toggleFormularioReceta()">
+            <i class="bi" [class.bi-plus-lg]="!mostrarFormularioReceta()" [class.bi-dash-lg]="mostrarFormularioReceta()"></i>
+            {{ mostrarFormularioReceta() ? 'Cancelar' : 'Agregar receta' }}
+          </button>
+        }
+      </div>
 
-      <form [formGroup]="formularioReceta" (ngSubmit)="guardarReceta()" class="border rounded-3 p-3 mb-3 bg-light-subtle">
-        <div class="row g-2 mb-2">
-          <div class="col-md-6">
-            <label class="form-label">Medicamento</label>
-            <input
-              type="text"
-              class="form-control form-control-sm"
-              formControlName="medicamento"
-              [class.is-invalid]="formularioReceta.controls.medicamento.touched && formularioReceta.controls.medicamento.invalid"
-            />
+      @if (mostrarFormularioReceta()) {
+        <form [formGroup]="formularioReceta" (ngSubmit)="guardarReceta()" class="border rounded-3 p-3 mb-3 bg-light-subtle">
+          <div class="row g-2 mb-2">
+            <div class="col-md-6">
+              <label class="form-label">Medicamento</label>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                formControlName="medicamento"
+                [class.is-invalid]="formularioReceta.controls.medicamento.touched && formularioReceta.controls.medicamento.invalid"
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Dosis</label>
+              <input type="text" class="form-control form-control-sm" formControlName="dosis" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Frecuencia</label>
+              <input type="text" class="form-control form-control-sm" formControlName="frecuencia" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Duración</label>
+              <input type="text" class="form-control form-control-sm" formControlName="duracion" />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Indicaciones</label>
+              <textarea class="form-control form-control-sm" rows="2" formControlName="indicaciones"></textarea>
+            </div>
           </div>
-          <div class="col-md-6">
-            <label class="form-label">Dosis</label>
-            <input type="text" class="form-control form-control-sm" formControlName="dosis" />
+          <div class="d-flex justify-content-end gap-2">
+            @if (idRecetaEditando()) {
+              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelarReceta()">Cancelar</button>
+            }
+            <button type="submit" class="btn btn-sm btn-primary">{{ idRecetaEditando() ? 'Actualizar' : 'Agregar' }}</button>
           </div>
-          <div class="col-md-4">
-            <label class="form-label">Frecuencia</label>
-            <input type="text" class="form-control form-control-sm" formControlName="frecuencia" />
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Duración</label>
-            <input type="text" class="form-control form-control-sm" formControlName="duracion" />
-          </div>
-          <div class="col-12">
-            <label class="form-label">Indicaciones</label>
-            <textarea class="form-control form-control-sm" rows="2" formControlName="indicaciones"></textarea>
-          </div>
-        </div>
-        <div class="d-flex justify-content-end gap-2">
-          @if (idRecetaEditando()) {
-            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelarReceta()">Cancelar</button>
-          }
-          <button type="submit" class="btn btn-sm btn-primary">{{ idRecetaEditando() ? 'Actualizar' : 'Agregar' }}</button>
-        </div>
-      </form>
+        </form>
+      }
 
       @if (recetas().length === 0) {
         <p class="text-secondary small mb-0">No hay recetas registradas.</p>
@@ -109,14 +119,14 @@
               <div>
                 <div class="fw-medium">{{ item.medicamento }}</div>
                 <div class="text-secondary small">
-                  @if (item.dosis) { {{ item.dosis }} }
-                  @if (item.frecuencia) { · {{ item.frecuencia }} }
-                  @if (item.duracion) { · {{ item.duracion }} }
+                  @if (item.dosis) { <div>Dosis: {{ item.dosis }}</div> }
+                  @if (item.frecuencia) { <div>Frecuencia: {{ item.frecuencia }}</div> }
+                  @if (item.duracion) { <div>Duración: {{ item.duracion }}</div> }
                 </div>
                 @if (item.indicaciones) {
                   <div class="text-secondary small">{{ item.indicaciones }}</div>
                 }
-                <div class="text-secondary small">{{ item.fecha }}</div>
+                <div class="text-secondary small">{{ fechaDiaMesAnio(item.fecha) }}</div>
               </div>
               <div class="btn-group btn-group-sm">
                 <button type="button" class="btn btn-outline-secondary" (click)="editarReceta(item)">

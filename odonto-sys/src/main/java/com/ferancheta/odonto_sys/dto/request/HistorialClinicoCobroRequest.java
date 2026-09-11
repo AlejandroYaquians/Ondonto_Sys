@@ -1,6 +1,5 @@
 package com.ferancheta.odonto_sys.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
@@ -14,7 +13,6 @@ public record HistorialClinicoCobroRequest(
         @NotNull(message = "El doctor es obligatorio")
         Integer idDoctor,
 
-        @NotBlank(message = "La descripción es obligatoria")
         String descripcion,
 
         String medicamento,

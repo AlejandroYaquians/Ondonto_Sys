@@ -32,10 +32,6 @@ export class CitaService {
     return this.http.patch<Cita>(`${API_BASE_URL}/citas/${id}/estado`, null, { params: { estado } });
   }
 
-  cambiarDoctor(id: number, idDoctor: number): Observable<Cita> {
-    return this.http.patch<Cita>(`${API_BASE_URL}/citas/${id}/doctor`, null, { params: { idDoctor } });
-  }
-
   eliminar(id: number): Observable<void> {
     return this.http.delete<void>(`${API_BASE_URL}/citas/${id}`);
   }

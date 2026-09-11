@@ -64,27 +64,32 @@ public class ReporteFinancieroService {
         ReporteFinancieroResponse reporte = generar(desde, hasta);
 
         StringBuilder csv = new StringBuilder("﻿");
-        csv.append("Cierre de caja,").append(desde).append(" a ").append(hasta).append("\n\n");
-        csv.append("Concepto,Monto\n");
-        csv.append("Ingresos brutos,").append(reporte.ingresosBrutos()).append("\n");
-        csv.append("Cobro efectivo,").append(reporte.cobroEfectivo()).append("\n");
-        csv.append("Cobro tarjeta,").append(reporte.cobroTarjeta()).append("\n");
-        csv.append("Comisión bancaria,").append(reporte.comisionBancaria()).append("\n");
-        csv.append("Costo laboratorio,").append(reporte.costoLaboratorio()).append("\n");
-        csv.append("Monto neto,").append(reporte.montoNeto()).append("\n");
-        csv.append("Gastos fijos,").append(reporte.gastosFijos()).append("\n");
-        csv.append("Gastos variables,").append(reporte.gastosVariables()).append("\n");
-        csv.append("Ganancia neta,").append(reporte.gananciaNeta()).append("\n\n");
+        csv.append("Clínica Dental Fernando Ancheta\n");
+        csv.append("Reporte financiero;").append(desde).append(" a ").append(hasta).append("\n\n");
+        csv.append("Concepto;Monto\n");
+        csv.append("Ingresos brutos;").append(formatearMonto(reporte.ingresosBrutos())).append("\n");
+        csv.append("Cobro efectivo;").append(formatearMonto(reporte.cobroEfectivo())).append("\n");
+        csv.append("Cobro tarjeta;").append(formatearMonto(reporte.cobroTarjeta())).append("\n");
+        csv.append("Comisión bancaria;").append(formatearMonto(reporte.comisionBancaria())).append("\n");
+        csv.append("Costo laboratorio;").append(formatearMonto(reporte.costoLaboratorio())).append("\n");
+        csv.append("Monto neto;").append(formatearMonto(reporte.montoNeto())).append("\n");
+        csv.append("Gastos fijos;").append(formatearMonto(reporte.gastosFijos())).append("\n");
+        csv.append("Gastos variables;").append(formatearMonto(reporte.gastosVariables())).append("\n");
+        csv.append("Ganancia neta;").append(formatearMonto(reporte.gananciaNeta())).append("\n\n");
 
         csv.append("Comisiones por doctor\n");
-        csv.append("Doctor,Porcentaje,Monto comisión\n");
+        csv.append("Doctor;Porcentaje;Monto comisión\n");
         for (ReporteFinancieroResponse.ComisionDoctorItem item : reporte.comisionesPorDoctor()) {
-            csv.append(item.nombreDoctor()).append(",")
-                    .append(item.porcentaje()).append("%,")
-                    .append(item.montoComision()).append("\n");
+            csv.append(item.nombreDoctor()).append(";")
+                    .append(formatearMonto(item.porcentaje())).append("%;")
+                    .append(formatearMonto(item.montoComision())).append("\n");
         }
 
         return csv.toString().getBytes(StandardCharsets.UTF_8);
+    }
+
+    private String formatearMonto(BigDecimal valor) {
+        return valor.setScale(2, java.math.RoundingMode.HALF_UP).toPlainString();
     }
 
     private List<Cobro> obtenerCobrosVigentes(LocalDate desde, LocalDate hasta) {

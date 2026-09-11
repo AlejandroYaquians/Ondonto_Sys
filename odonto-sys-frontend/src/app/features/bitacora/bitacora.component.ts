@@ -79,7 +79,7 @@ export class BitacoraComponent implements OnInit {
 
   nombreUsuario(id: number | null): string {
     if (!id) {
-      return '—';
+      return '-';
     }
     return this.usuarios().find((u) => u.idUsuario === id)?.nombre ?? `#${id}`;
   }

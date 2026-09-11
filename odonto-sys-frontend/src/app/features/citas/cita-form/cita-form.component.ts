@@ -6,6 +6,7 @@ import { PacienteService } from '../../../core/services/paciente.service';
 import { DoctorService } from '../../../core/services/doctor.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { CitaRequest } from '../../../core/models/cita.models';
 import { Paciente } from '../../../core/models/paciente.models';
 import { Doctor } from '../../../core/models/doctor.models';
@@ -33,6 +34,7 @@ export class CitaFormComponent implements OnInit {
   private readonly doctorService = inject(DoctorService);
   private readonly catalogosService = inject(CatalogosService);
   private readonly authService = inject(AuthService);
+  private readonly notificacionService = inject(NotificacionService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -163,7 +165,10 @@ export class CitaFormComponent implements OnInit {
     const operacion = id ? this.citaService.actualizar(id, request) : this.citaService.crear(request);
 
     operacion.subscribe({
-      next: () => this.router.navigateByUrl('/citas'),
+      next: () => {
+        this.notificacionService.exito(id ? 'Cita actualizada.' : 'Cita agendada.');
+        this.router.navigateByUrl('/citas');
+      },
       error: (err) => {
         this.guardando.set(false);
         const mensaje = err?.error?.mensaje ?? 'Error al guardar.';

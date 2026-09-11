@@ -1,15 +1,24 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { RolService } from '../../../core/services/rol.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { UsuarioRequest } from '../../../core/models/usuario.models';
 import { Rol } from '../../../core/models/rol.models';
 import { CatEspecialidad } from '../../../core/models/catalogo.models';
 
 const ROL_DOCTOR = 'DOCTOR';
+
+function passwordValidator(control: AbstractControl): ValidationErrors | null {
+  const valor = control.value;
+  if (!valor) {
+    return null;
+  }
+  return /^(?=.*[A-Z])(?=.*\d).{8,}$/.test(valor) ? null : { pattern: true };
+}
 
 @Component({
   selector: 'app-usuario-form',
@@ -21,6 +30,7 @@ export class UsuarioFormComponent implements OnInit {
   private readonly usuarioService = inject(UsuarioService);
   private readonly rolService = inject(RolService);
   private readonly catalogosService = inject(CatalogosService);
+  private readonly notificacionService = inject(NotificacionService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -31,13 +41,14 @@ export class UsuarioFormComponent implements OnInit {
 
   protected readonly roles = signal<Rol[]>([]);
   protected readonly especialidades = signal<CatEspecialidad[]>([]);
+  protected readonly mostrarPassword = signal(false);
 
   protected readonly formulario = this.fb.group({
     nombre: ['', Validators.required],
+    apellido: ['', Validators.required],
     username: ['', Validators.required],
-    password: ['', Validators.required],
+    password: ['', passwordValidator],
     idRol: [null as number | null, Validators.required],
-    apellido: [''],
     porcentajeComision: [0],
     idsEspecialidad: [[] as number[]]
   });
@@ -73,6 +84,7 @@ export class UsuarioFormComponent implements OnInit {
       next: (usuario) => {
         this.formulario.patchValue({
           nombre: usuario.nombre,
+          apellido: usuario.apellido ?? '',
           username: usuario.username,
           idRol: usuario.idRol
         });
@@ -85,13 +97,29 @@ export class UsuarioFormComponent implements OnInit {
     });
   }
 
-  seleccionarEspecialidades(event: Event): void {
-    const seleccionadas = Array.from((event.target as HTMLSelectElement).selectedOptions)
-      .map((opcion) => Number(opcion.value));
-    this.formulario.patchValue({ idsEspecialidad: seleccionadas });
+  toggleMostrarPassword(): void {
+    this.mostrarPassword.update((actual) => !actual);
+  }
+
+  especialidadSeleccionada(idEspecialidad: number): boolean {
+    return (this.formulario.controls.idsEspecialidad.value ?? []).includes(idEspecialidad);
+  }
+
+  toggleEspecialidad(idEspecialidad: number): void {
+    const actuales = this.formulario.controls.idsEspecialidad.value ?? [];
+    const nuevas = actuales.includes(idEspecialidad)
+      ? actuales.filter((id) => id !== idEspecialidad)
+      : [...actuales, idEspecialidad];
+    this.formulario.patchValue({ idsEspecialidad: nuevas });
   }
 
   onSubmit(): void {
+    const valores = this.formulario.getRawValue();
+
+    if (this.esNuevo() && !valores.password) {
+      this.formulario.controls.password.setErrors({ required: true });
+    }
+
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
       return;
@@ -100,13 +128,12 @@ export class UsuarioFormComponent implements OnInit {
     this.guardando.set(true);
     this.error.set(null);
 
-    const valores = this.formulario.getRawValue();
     const request: UsuarioRequest = {
       nombre: valores.nombre ?? '',
+      apellido: valores.apellido ?? '',
       username: valores.username ?? '',
-      password: valores.password ?? '',
+      password: valores.password || null,
       idRol: valores.idRol as number,
-      apellido: this.mostrarCamposDoctor() ? valores.apellido || null : null,
       porcentajeComision: this.mostrarCamposDoctor() ? valores.porcentajeComision : null,
       idsEspecialidad: this.mostrarCamposDoctor() ? valores.idsEspecialidad : null
     };
@@ -115,7 +142,10 @@ export class UsuarioFormComponent implements OnInit {
     const operacion = id ? this.usuarioService.actualizar(id, request) : this.usuarioService.crear(request);
 
     operacion.subscribe({
-      next: () => this.router.navigateByUrl('/usuarios'),
+      next: () => {
+        this.notificacionService.exito(id ? 'Usuario actualizado.' : 'Usuario creado.');
+        this.router.navigateByUrl('/usuarios');
+      },
       error: (err) => {
         this.guardando.set(false);
         this.error.set(err?.error?.mensaje ?? 'Error al guardar.');

@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { DecimalPipe } from '@angular/common';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CobroService } from '../../../../core/services/cobro.service';
 import { PacienteService } from '../../../../core/services/paciente.service';
 import { DoctorService } from '../../../../core/services/doctor.service';
@@ -26,7 +27,7 @@ function sumarDias(fechaIso: string, dias: number): string {
 
 @Component({
   selector: 'app-cobro-list',
-  imports: [RouterLink],
+  imports: [RouterLink, DecimalPipe],
   templateUrl: './cobro-list.component.html'
 })
 export class CobroListComponent {
@@ -34,6 +35,7 @@ export class CobroListComponent {
   private readonly pacienteService = inject(PacienteService);
   private readonly doctorService = inject(DoctorService);
   private readonly catalogosService = inject(CatalogosService);
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly cobros = signal<Cobro[]>([]);
   protected readonly pacientes = signal<Paciente[]>([]);
@@ -43,7 +45,7 @@ export class CobroListComponent {
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
 
-  protected readonly fecha = signal(hoyIso());
+  protected readonly fecha = signal(this.route.snapshot.queryParamMap.get('fecha') ?? hoyIso());
   protected readonly idDoctorFiltro = signal<number | null>(null);
   protected readonly idMetodoPagoFiltro = signal<number | null>(null);
 
@@ -107,7 +109,7 @@ export class CobroListComponent {
 
   nombreDoctor(idDoctor: number | null): string {
     if (!idDoctor) {
-      return '—';
+      return '-';
     }
     const doctor = this.doctores().find((d) => d.idDoctor === idDoctor);
     return doctor ? `Dr(a). ${doctor.nombre} ${doctor.apellido}` : `#${idDoctor}`;
@@ -115,14 +117,14 @@ export class CobroListComponent {
 
   nombreServicio(idServicio: number | null): string {
     if (!idServicio) {
-      return '—';
+      return '-';
     }
     const servicio = this.servicios().find((s) => s.idServicio === idServicio);
     return servicio ? servicio.nombre : `#${idServicio}`;
   }
 
   nombreMetodoPago(idMetodoPago: number): string {
-    return this.metodosPago().find((m) => m.idMetodoPago === idMetodoPago)?.nombre ?? '—';
+    return this.metodosPago().find((m) => m.idMetodoPago === idMetodoPago)?.nombre ?? '-';
   }
 
   horaCorta(fecha: string): string {

@@ -2,18 +2,28 @@ $color-mint: #AABF95;
 $color-cyan: #92B1C1;
 $color-blue: #54778C;
 
-$sidebar-width: 270px;
+$sidebar-width: 300px;
 $bg-dark-custom: #1a2433;
+$bg-dark-submenu: rgba(0, 0, 0, 0.12);
 $hover-bg: rgba(255, 255, 255, 0.08);
 
 .sidebar {
   width: $sidebar-width;
   flex-shrink: 0;
   background-color: $bg-dark-custom !important;
+  transition: width 0.3s ease, transform 0.3s ease;
 
   .logo {
     max-height: 100px;
     width: auto;
+  }
+
+  .accordion-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .accordion-item:last-child {
+    border-bottom: none;
   }
 
   .accordion-button::after {
@@ -21,21 +31,49 @@ $hover-bg: rgba(255, 255, 255, 0.08);
   }
 
   .accordion-button {
-    transition: background-color 0.15s ease;
-
-    &:hover {
-      background-color: $hover-bg;
-    }
+    position: relative;
+    background-color: transparent;
+    color: rgba(255, 255, 255, 0.75);
+    transition: color 0.15s ease;
   }
 
   .accordion-button:not(.collapsed) {
     color: #ffffff;
-    background-color: $hover-bg;
-    border-left: 3px solid $color-cyan;
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+
+  .accordion-button:not(.collapsed)::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: $color-cyan;
+  }
+
+  .accordion-button:hover {
+    color: $color-cyan !important;
   }
 
   .accordion-button:focus {
     box-shadow: none;
+  }
+
+  .accordion-collapse {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.25s ease;
+  }
+
+  .accordion-collapse.show {
+    grid-template-rows: 1fr;
+  }
+
+  .accordion-body {
+    overflow: hidden;
+    min-height: 0;
+    background-color: $bg-dark-submenu;
   }
 
   .nav-link {
@@ -86,6 +124,23 @@ $hover-bg: rgba(255, 255, 255, 0.08);
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    background-color: $color-blue;
+    color: #ffffff;
+    border: none;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: $color-cyan;
+      color: #ffffff;
+    }
+
+    i {
+      transition: transform 0.3s ease;
+    }
+
+    &.girado i {
+      transform: rotate(180deg);
+    }
   }
 
   .dropdown {
@@ -116,10 +171,9 @@ $hover-bg: rgba(255, 255, 255, 0.08);
 }
 
 .badge-rol {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  color: $color-mint;
   font-weight: 500;
-  border-radius: 0.25rem;
+  font-size: 0.75rem;
 }
 
 .sidebar-backdrop {

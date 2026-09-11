@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CatalogosService } from '../../../core/services/catalogos.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { Departamento, Municipio } from '../../../core/models/catalogo.models';
 
 @Component({
@@ -11,6 +12,7 @@ import { Departamento, Municipio } from '../../../core/models/catalogo.models';
 export class MunicipiosComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly catalogosService = inject(CatalogosService);
+  private readonly notificacionService = inject(NotificacionService);
 
   protected readonly items = signal<Municipio[]>([]);
   protected readonly departamentos = signal<Departamento[]>([]);
@@ -79,6 +81,7 @@ export class MunicipiosComponent implements OnInit {
 
     operacion.subscribe({
       next: () => {
+        this.notificacionService.exito(id ? 'Registro actualizado.' : 'Registro creado.');
         this.cancelar();
         this.cargar();
       },
@@ -91,7 +94,10 @@ export class MunicipiosComponent implements OnInit {
       return;
     }
     this.catalogosService.eliminarMunicipio(item.idMunicipio).subscribe({
-      next: () => this.cargar(),
+      next: () => {
+        this.notificacionService.exito('Registro eliminado.');
+        this.cargar();
+      },
       error: () => this.error.set('Error al eliminar.')
     });
   }

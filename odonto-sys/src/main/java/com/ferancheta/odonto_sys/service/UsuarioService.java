@@ -20,12 +20,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
 public class UsuarioService {
 
     private static final String ROL_DOCTOR = "DOCTOR";
+    private static final Pattern PATRON_PASSWORD = Pattern.compile("^(?=.*[A-Z])(?=.*\\d).{8,}$");
 
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
@@ -48,6 +50,11 @@ public class UsuarioService {
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public UsuarioResponse crear(UsuarioRequest request) {
+        if (request.password() == null || request.password().isBlank()) {
+            throw new IllegalArgumentException("La contraseña es obligatoria");
+        }
+        validarPassword(request.password());
+
         Rol rol = obtenerRol(request.idRol());
 
         Usuario usuario = mapper.toEntity(request);
@@ -73,8 +80,14 @@ public class UsuarioService {
         Usuario actualizado = mapper.toEntity(request);
         actualizado.setIdUsuario(existente.getIdUsuario());
         actualizado.setEstado(existente.getEstado());
-        actualizado.setPasswordHash(passwordEncoder.encode(request.password()));
         actualizado.setRol(obtenerRol(request.idRol()));
+
+        if (request.password() != null && !request.password().isBlank()) {
+            validarPassword(request.password());
+            actualizado.setPasswordHash(passwordEncoder.encode(request.password()));
+        } else {
+            actualizado.setPasswordHash(existente.getPasswordHash());
+        }
         UsuarioResponse despues = mapper.toResponse(usuarioRepository.save(actualizado));
         bitacoraService.registrarCambio("usuario", id, "UPDATE", antes, despues);
         return despues;
@@ -101,9 +114,6 @@ public class UsuarioService {
     }
 
     private void crearDoctorParaUsuario(Usuario usuario, UsuarioRequest request) {
-        if (request.apellido() == null || request.apellido().isBlank()) {
-            throw new IllegalArgumentException("El apellido es obligatorio para crear un usuario con rol DOCTOR");
-        }
         if (request.porcentajeComision() == null) {
             throw new IllegalArgumentException("El porcentaje de comisión es obligatorio para crear un usuario con rol DOCTOR");
         }
@@ -125,6 +135,13 @@ public class UsuarioService {
         }
 
         doctorRepository.save(doctor);
+    }
+
+    private void validarPassword(String password) {
+        if (!PATRON_PASSWORD.matcher(password).matches()) {
+            throw new IllegalArgumentException(
+                    "La contraseña debe tener al menos 8 caracteres, una letra mayúscula y un número");
+        }
     }
 
     private Usuario obtenerEntidad(Integer id) {

@@ -10,16 +10,17 @@ public record UsuarioRequest(
         @NotBlank(message = "El nombre es obligatorio")
         String nombre,
 
+        @NotBlank(message = "El apellido es obligatorio")
+        String apellido,
+
         @NotBlank(message = "El username es obligatorio")
         String username,
 
-        @NotBlank(message = "El password es obligatorio")
         String password,
 
         @NotNull(message = "El rol es obligatorio")
         Integer idRol,
 
-        String apellido,
         List<Integer> idsEspecialidad,
         BigDecimal porcentajeComision
 ) {

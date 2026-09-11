@@ -26,9 +26,9 @@
       <tbody>
         @for (cobro of cobros(); track cobro.idCobro) {
           <tr>
-            <td>{{ cobro.fecha.slice(0, 16).replace('T', ' ') }}</td>
+            <td>{{ formatoFecha(cobro.fecha) }}</td>
             <td>{{ nombreServicio(cobro.idServicio) }}</td>
-            <td>{{ cobro.montoNeto !== null ? 'Q' + cobro.montoNeto : '—' }}</td>
+            <td>{{ cobro.montoNeto !== null ? 'Q' + (cobro.montoNeto | number: '1.2-2') : '-' }}</td>
             <td>{{ nombreMetodoPago(cobro.idMetodoPago) }}</td>
             <td>{{ cobro.codigoCobro }}</td>
             <td class="text-end">

@@ -1,6 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { CitaService } from '../../../core/services/cita.service';
 import { PacienteService } from '../../../core/services/paciente.service';
 import { DoctorService } from '../../../core/services/doctor.service';
@@ -15,7 +15,7 @@ import { Cobro } from '../../../core/models/cobro.models';
 
 @Component({
   selector: 'app-cita-detalle',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, DecimalPipe],
   templateUrl: './cita-detalle.component.html'
 })
 export class CitaDetalleComponent implements OnInit {
@@ -33,9 +33,6 @@ export class CitaDetalleComponent implements OnInit {
   protected readonly estados = signal<CatEstadoCita[]>([]);
   protected readonly motivos = signal<CatMotivoCita[]>([]);
   protected readonly cobros = signal<Cobro[]>([]);
-  protected readonly doctores = signal<Doctor[]>([]);
-  protected readonly cambiandoDoctor = signal(false);
-  protected readonly idDoctorSeleccionado = signal<number | null>(null);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
 
@@ -64,12 +61,10 @@ export class CitaDetalleComponent implements OnInit {
 
     this.catalogosService.estadosCita().subscribe((datos) => this.estados.set(datos));
     this.catalogosService.motivosCita().subscribe((datos) => this.motivos.set(datos));
-    this.doctorService.listarActivos().subscribe((datos) => this.doctores.set(datos));
 
     this.citaService.buscarPorId(id).subscribe({
       next: (cita) => {
         this.cita.set(cita);
-        this.idDoctorSeleccionado.set(cita.idDoctor);
         this.pacienteService.buscarPorId(cita.idPaciente).subscribe((datos) => this.paciente.set(datos));
         this.doctorService.buscarPorId(cita.idDoctor).subscribe((datos) => this.doctor.set(datos));
         this.cobroService.listarPorCita(cita.idCita).subscribe((datos) => this.cobros.set(datos));
@@ -82,43 +77,20 @@ export class CitaDetalleComponent implements OnInit {
     });
   }
 
-  iniciarCambioDoctor(): void {
-    this.cambiandoDoctor.set(true);
-  }
-
-  cancelarCambioDoctor(): void {
-    const datosCita = this.cita();
-    if (datosCita) {
-      this.idDoctorSeleccionado.set(datosCita.idDoctor);
-    }
-    this.cambiandoDoctor.set(false);
-  }
-
-  confirmarCambioDoctor(): void {
-    const datosCita = this.cita();
-    const idDoctor = this.idDoctorSeleccionado();
-    if (!datosCita || !idDoctor) {
-      return;
-    }
-    this.citaService.cambiarDoctor(datosCita.idCita, idDoctor).subscribe({
-      next: (cita) => {
-        this.cita.set(cita);
-        this.doctorService.buscarPorId(cita.idDoctor).subscribe((datos) => this.doctor.set(datos));
-        this.cambiandoDoctor.set(false);
-      },
-      error: () => this.error.set('Error al guardar.')
-    });
-  }
-
   nombreEstado(idEstadoCita: number): string {
-    return this.estados().find((e) => e.idEstadoCita === idEstadoCita)?.nombre ?? '—';
+    return this.estados().find((e) => e.idEstadoCita === idEstadoCita)?.nombre ?? '-';
   }
 
   nombreMotivo(idMotivoCita: number): string {
-    return this.motivos().find((m) => m.idMotivoCita === idMotivoCita)?.nombre ?? '—';
+    return this.motivos().find((m) => m.idMotivoCita === idMotivoCita)?.nombre ?? '-';
   }
 
   horaCorta(hora: string): string {
     return hora?.slice(0, 5) ?? '';
+  }
+
+  fechaDiaMesAnio(fechaIso: string): string {
+    const [anio, mes, dia] = fechaIso.split('-');
+    return `${dia}-${mes}-${anio}`;
   }
 }

@@ -1,8 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { GastoService } from '../../../core/services/gasto.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { Gasto } from '../../../core/models/gasto.models';
 import { CatGasto } from '../../../core/models/catalogo.models';
 import { Usuario } from '../../../core/models/usuario.models';
@@ -14,15 +16,30 @@ function hoyIso(): string {
   return `${hoy.getFullYear()}-${mes}-${dia}`;
 }
 
-function primerDiaDelMesIso(): string {
+function mesActualIso(): string {
   const hoy = new Date();
-  const mes = String(hoy.getMonth() + 1).padStart(2, '0');
-  return `${hoy.getFullYear()}-${mes}-01`;
+  return `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function primerDiaMes(mesIso: string): string {
+  return `${mesIso}-01`;
+}
+
+function ultimoDiaMes(mesIso: string): string {
+  const [anio, mes] = mesIso.split('-').map(Number);
+  const ultimoDia = new Date(anio, mes, 0).getDate();
+  return `${mesIso}-${String(ultimoDia).padStart(2, '0')}`;
+}
+
+function sumarMeses(mesIso: string, delta: number): string {
+  const [anio, mes] = mesIso.split('-').map(Number);
+  const fecha = new Date(anio, mes - 1 + delta, 1);
+  return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
 }
 
 @Component({
   selector: 'app-gastos',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, DecimalPipe],
   templateUrl: './gastos.component.html'
 })
 export class GastosComponent implements OnInit {
@@ -30,6 +47,7 @@ export class GastosComponent implements OnInit {
   private readonly gastoService = inject(GastoService);
   private readonly catalogosService = inject(CatalogosService);
   private readonly usuarioService = inject(UsuarioService);
+  private readonly notificacionService = inject(NotificacionService);
 
   protected readonly items = signal<Gasto[]>([]);
   protected readonly tiposGasto = signal<CatGasto[]>([]);
@@ -39,11 +57,8 @@ export class GastosComponent implements OnInit {
   protected readonly mostrarFormulario = signal(false);
   protected readonly idEditando = signal<number | null>(null);
 
-  protected readonly filtros = this.fb.group({
-    desde: [primerDiaDelMesIso()],
-    hasta: [hoyIso()],
-    idTipoGasto: [null as number | null]
-  });
+  protected readonly mes = signal(mesActualIso());
+  protected readonly idTipoGastoFiltro = signal<number | null>(null);
 
   protected readonly formulario = this.fb.group({
     descripcion: ['', Validators.required],
@@ -61,11 +76,10 @@ export class GastosComponent implements OnInit {
 
   private cargar(): void {
     this.cargando.set(true);
-    const valoresFiltro = this.filtros.getRawValue();
-    const desde = valoresFiltro.desde ?? primerDiaDelMesIso();
-    const hasta = valoresFiltro.hasta ?? hoyIso();
+    const desde = primerDiaMes(this.mes());
+    const hasta = ultimoDiaMes(this.mes());
 
-    this.gastoService.listarPorRango(desde, hasta, valoresFiltro.idTipoGasto).subscribe({
+    this.gastoService.listarPorRango(desde, hasta, this.idTipoGastoFiltro()).subscribe({
       next: (datos) => {
         this.items.set(datos.sort((a, b) => b.fecha.localeCompare(a.fecha)));
         this.cargando.set(false);
@@ -77,8 +91,29 @@ export class GastosComponent implements OnInit {
     });
   }
 
-  aplicarFiltros(): void {
+  mesAnterior(): void {
+    this.mes.set(sumarMeses(this.mes(), -1));
     this.cargar();
+  }
+
+  mesSiguiente(): void {
+    this.mes.set(sumarMeses(this.mes(), 1));
+    this.cargar();
+  }
+
+  cambiarMes(valor: string): void {
+    this.mes.set(valor);
+    this.cargar();
+  }
+
+  cambiarTipoGasto(valor: string): void {
+    this.idTipoGastoFiltro.set(valor ? Number(valor) : null);
+    this.cargar();
+  }
+
+  fechaDiaMesAnio(fechaIso: string): string {
+    const [anio, mes, dia] = fechaIso.split('-');
+    return `${dia}-${mes}-${anio}`;
   }
 
   nombreTipoGasto(id: number): string {
@@ -138,6 +173,7 @@ export class GastosComponent implements OnInit {
 
     operacion.subscribe({
       next: () => {
+        this.notificacionService.exito(id ? 'Gasto actualizado.' : 'Gasto registrado.');
         this.cancelar();
         this.cargar();
       },
@@ -150,7 +186,10 @@ export class GastosComponent implements OnInit {
       return;
     }
     this.gastoService.eliminar(item.idGasto).subscribe({
-      next: () => this.cargar(),
+      next: () => {
+        this.notificacionService.exito('Gasto eliminado.');
+        this.cargar();
+      },
       error: () => this.error.set('Error al eliminar.')
     });
   }

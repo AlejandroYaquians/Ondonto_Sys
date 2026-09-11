@@ -1,4 +1,12 @@
-@use 'bootstrap/scss/bootstrap';
+@use 'bootstrap/scss/bootstrap' with (
+  $primary: #54778c,
+  $secondary: #6b7780,
+  $success: #aabf95,
+  $info: #92b1c1,
+  $dark: #1a2433,
+  $body-color: #26343d,
+  $border-color: #dce3e7
+);
 @use 'bootstrap-icons/font/bootstrap-icons.css';
 
 html,

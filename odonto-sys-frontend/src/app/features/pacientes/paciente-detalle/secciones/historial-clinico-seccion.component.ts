@@ -50,6 +50,8 @@ export class HistorialClinicoSeccionComponent implements OnInit {
   }
 
   formatoFecha(fecha: string): string {
-    return fecha.slice(0, 16).replace('T', ' ');
+    const [fechaParte, horaParte] = fecha.split('T');
+    const [anio, mes, dia] = fechaParte.split('-');
+    return `${dia}-${mes}-${anio} ${horaParte.slice(0, 5)}`;
   }
 }

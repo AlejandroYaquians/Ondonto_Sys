@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { PacienteService } from '../../../core/services/paciente.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { Paciente } from '../../../core/models/paciente.models';
 import { CatProfesion, Municipio } from '../../../core/models/catalogo.models';
 
@@ -31,6 +32,7 @@ export class PacienteListComponent {
   private readonly pacienteService = inject(PacienteService);
   private readonly catalogosService = inject(CatalogosService);
   private readonly authService = inject(AuthService);
+  private readonly notificacionService = inject(NotificacionService);
 
   protected readonly pacientes = signal<Paciente[]>([]);
   protected readonly municipios = signal<Municipio[]>([]);
@@ -63,9 +65,9 @@ export class PacienteListComponent {
 
   nombreProfesion(idProfesion: number | null): string {
     if (!idProfesion) {
-      return '—';
+      return '-';
     }
-    return this.profesiones().find((p) => p.idProfesion === idProfesion)?.nombre ?? '—';
+    return this.profesiones().find((p) => p.idProfesion === idProfesion)?.nombre ?? '-';
   }
 
   private cargar(): void {
@@ -84,9 +86,9 @@ export class PacienteListComponent {
 
   nombreMunicipio(idMunicipio: number | null): string {
     if (!idMunicipio) {
-      return '—';
+      return '-';
     }
-    return this.municipios().find((m) => m.idMunicipio === idMunicipio)?.nombre ?? '—';
+    return this.municipios().find((m) => m.idMunicipio === idMunicipio)?.nombre ?? '-';
   }
 
   buscar(valor: string): void {
@@ -94,13 +96,16 @@ export class PacienteListComponent {
   }
 
   eliminar(paciente: Paciente): void {
-    const confirmado = window.confirm(`¿Desea inactivar a ${paciente.nombre} ${paciente.apellido}?`);
+    const confirmado = window.confirm(`¿Desea eliminar a ${paciente.nombre} ${paciente.apellido}?`);
     if (!confirmado) {
       return;
     }
 
     this.pacienteService.eliminar(paciente.idPaciente).subscribe({
-      next: () => this.cargar(),
+      next: () => {
+        this.notificacionService.exito('Paciente eliminado.');
+        this.cargar();
+      },
       error: () => this.error.set('Error al eliminar.')
     });
   }

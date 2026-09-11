@@ -53,11 +53,16 @@ export class CitasSeccionComponent implements OnInit {
   }
 
   nombreEstado(idEstadoCita: number): string {
-    return this.estados().find((e) => e.idEstadoCita === idEstadoCita)?.nombre ?? '—';
+    return this.estados().find((e) => e.idEstadoCita === idEstadoCita)?.nombre ?? '-';
   }
 
   horaCorta(hora: string): string {
     return hora?.slice(0, 5) ?? '';
+  }
+
+  fechaDiaMesAnio(fechaIso: string): string {
+    const [anio, mes, dia] = fechaIso.split('-');
+    return `${dia}-${mes}-${anio}`;
   }
 
   idHistorialDe(idCita: number): number | null {

@@ -2,6 +2,7 @@ import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ContactoPacienteService } from '../../../../core/services/contacto-paciente.service';
 import { CatalogosService } from '../../../../core/services/catalogos.service';
+import { NotificacionService } from '../../../../core/services/notificacion.service';
 import { ContactoPaciente } from '../../../../core/models/contacto-paciente.models';
 import { CatParentesco } from '../../../../core/models/catalogo.models';
 
@@ -17,6 +18,7 @@ export class ContactosSeccionComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(ContactoPacienteService);
   private readonly catalogosService = inject(CatalogosService);
+  private readonly notificacionService = inject(NotificacionService);
 
   protected readonly items = signal<ContactoPaciente[]>([]);
   protected readonly parentescos = signal<CatParentesco[]>([]);
@@ -52,9 +54,9 @@ export class ContactosSeccionComponent implements OnInit {
 
   nombreParentesco(id: number | null): string {
     if (!id) {
-      return '—';
+      return '-';
     }
-    return this.parentescos().find((p) => p.idParentesco === id)?.nombre ?? '—';
+    return this.parentescos().find((p) => p.idParentesco === id)?.nombre ?? '-';
   }
 
   nuevo(): void {
@@ -97,6 +99,7 @@ export class ContactosSeccionComponent implements OnInit {
 
     operacion.subscribe({
       next: () => {
+        this.notificacionService.exito(id ? 'Contacto actualizado.' : 'Contacto agregado.');
         this.cancelar();
         this.cargar();
       },
@@ -109,7 +112,10 @@ export class ContactosSeccionComponent implements OnInit {
       return;
     }
     this.service.eliminar(item.idContacto).subscribe({
-      next: () => this.cargar(),
+      next: () => {
+        this.notificacionService.exito('Contacto eliminado.');
+        this.cargar();
+      },
       error: () => this.error.set('Error al eliminar.')
     });
   }

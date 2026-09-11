@@ -24,12 +24,12 @@
       <tbody>
         @for (receta of recetas(); track receta.idReceta) {
           <tr>
-            <td>{{ receta.fecha }}</td>
+            <td>{{ fechaDiaMesAnio(receta.fecha) }}</td>
             <td>{{ receta.medicamento }}</td>
-            <td>{{ receta.dosis || '—' }}</td>
-            <td>{{ receta.frecuencia || '—' }}</td>
-            <td>{{ receta.duracion || '—' }}</td>
-            <td>{{ receta.indicaciones || '—' }}</td>
+            <td>{{ receta.dosis || '-' }}</td>
+            <td>{{ receta.frecuencia || '-' }}</td>
+            <td>{{ receta.duracion || '-' }}</td>
+            <td>{{ receta.indicaciones || '-' }}</td>
           </tr>
         }
       </tbody>

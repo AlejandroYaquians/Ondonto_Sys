@@ -72,7 +72,7 @@
           @for (item of items(); track item.idTipoGasto) {
             <tr>
               <td>{{ item.nombreCategoria }}</td>
-              <td>{{ item.tipo || '—' }}</td>
+              <td>{{ item.tipo || '-' }}</td>
               <td class="text-end">
                 <div class="btn-group btn-group-sm">
                   <button type="button" class="btn btn-outline-secondary" (click)="editar(item)">

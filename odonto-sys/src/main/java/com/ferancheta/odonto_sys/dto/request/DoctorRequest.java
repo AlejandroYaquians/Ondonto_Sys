@@ -19,7 +19,6 @@ public record DoctorRequest(
         @NotNull(message = "El porcentaje de comisión es obligatorio")
         BigDecimal porcentajeComision,
 
-        List<Integer> idsEspecialidad,
-        Integer idUsuario
+        List<Integer> idsEspecialidad
 ) {
 }

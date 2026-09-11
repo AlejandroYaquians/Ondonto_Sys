@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CatalogosService } from '../../../core/services/catalogos.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { CatMetodoPago } from '../../../core/models/catalogo.models';
 
 @Component({
@@ -10,6 +11,7 @@ import { CatMetodoPago } from '../../../core/models/catalogo.models';
 })
 export class MetodosPagoComponent implements OnInit {
   private readonly catalogosService = inject(CatalogosService);
+  private readonly notificacionService = inject(NotificacionService);
 
   protected readonly items = signal<CatMetodoPago[]>([]);
   protected readonly cargando = signal(true);
@@ -49,6 +51,7 @@ export class MetodosPagoComponent implements OnInit {
     const request = { nombre: item.nombre, comisionPorcentaje: this.comisionEditando() };
     this.catalogosService.actualizarMetodoPago(item.idMetodoPago, request).subscribe({
       next: () => {
+        this.notificacionService.exito('Registro actualizado.');
         this.cancelar();
         this.cargar();
       },

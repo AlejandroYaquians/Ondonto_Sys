@@ -1,0 +1,65 @@
+<div class="d-flex align-items-center gap-2 mb-4">
+  <a routerLink="/instrumental" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left"></i>
+  </a>
+  <h1 class="h3 mb-0">{{ idInstrumental() ? 'Editar artículo' : 'Agregar artículo' }}</h1>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+} @else {
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      <form [formGroup]="formulario" (ngSubmit)="onSubmit()">
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label" for="nombre">Nombre</label>
+            <input
+              id="nombre"
+              type="text"
+              class="form-control"
+              formControlName="nombre"
+              [class.is-invalid]="formulario.controls.nombre.touched && formulario.controls.nombre.invalid"
+            />
+          </div>
+          @if (!idInstrumental()) {
+            <div class="col-md-6">
+              <label class="form-label" for="stockActual">Stock actual inicial</label>
+              <input id="stockActual" type="number" class="form-control" formControlName="stockActual" />
+            </div>
+          }
+          <div class="col-md-6">
+            <label class="form-label" for="stockMinimo">Stock mínimo</label>
+            <input
+              id="stockMinimo"
+              type="number"
+              class="form-control"
+              formControlName="stockMinimo"
+              [class.is-invalid]="formulario.controls.stockMinimo.touched && formulario.controls.stockMinimo.invalid"
+            />
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="descripcion">Descripción</label>
+            <textarea id="descripcion" class="form-control" rows="2" formControlName="descripcion"></textarea>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+          <a routerLink="/instrumental" class="btn btn-outline-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+            @if (guardando()) {
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            }
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

@@ -1,11 +1,15 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import autoTable from 'jspdf-autotable';
 import { HistorialClinicoCobroService } from '../../../core/services/historial-clinico-cobro.service';
 import { PacienteService } from '../../../core/services/paciente.service';
 import { DoctorService } from '../../../core/services/doctor.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
+import { PdfService } from '../../../core/services/pdf.service';
 import { HistorialClinicoCobroResponse } from '../../../core/models/historial-clinico-cobro.models';
 import { Paciente } from '../../../core/models/paciente.models';
 import { Doctor } from '../../../core/models/doctor.models';
@@ -16,7 +20,7 @@ type MetodoPagoForma = number | typeof MIXTO;
 
 @Component({
   selector: 'app-historial-clinico-form',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, DecimalPipe],
   templateUrl: './historial-clinico-form.component.html'
 })
 export class HistorialClinicoFormComponent implements OnInit {
@@ -25,6 +29,8 @@ export class HistorialClinicoFormComponent implements OnInit {
   private readonly pacienteService = inject(PacienteService);
   private readonly doctorService = inject(DoctorService);
   private readonly catalogosService = inject(CatalogosService);
+  private readonly notificacionService = inject(NotificacionService);
+  private readonly pdfService = inject(PdfService);
   private readonly route = inject(ActivatedRoute);
 
   protected readonly idCita = signal<number | null>(null);
@@ -43,7 +49,7 @@ export class HistorialClinicoFormComponent implements OnInit {
   protected readonly formulario = this.fb.group({
     idPaciente: [null as number | null, Validators.required],
     idDoctor: [null as number | null, Validators.required],
-    descripcion: ['', Validators.required],
+    descripcion: [''],
     medicamento: [''],
     dosis: [''],
     frecuencia: [''],
@@ -225,6 +231,7 @@ export class HistorialClinicoFormComponent implements OnInit {
         next: (respuesta) => {
           this.guardando.set(false);
           this.resultado.set(respuesta);
+          this.notificacionService.exito('Consulta registrada.');
         },
         error: (err) => {
           this.guardando.set(false);
@@ -233,7 +240,34 @@ export class HistorialClinicoFormComponent implements OnInit {
       });
   }
 
-  imprimir(): void {
-    window.print();
+  async imprimir(): Promise<void> {
+    const comprobante = this.resultado();
+    if (!comprobante) {
+      return;
+    }
+
+    const { doc, primeraLineaY } = await this.pdfService.crearDocumento('Comprobante de Cobro');
+
+    autoTable(doc, {
+      startY: primeraLineaY,
+      theme: 'plain',
+      styles: { fontSize: 10 },
+      columnStyles: { 0: { fontStyle: 'bold' } },
+      body: [['Código de cobro', comprobante.codigoCobro]]
+    });
+
+    const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+
+    autoTable(doc, {
+      startY: finalY + 8,
+      head: [['Concepto', 'Monto']],
+      body: [
+        ['Monto bruto', `Q${comprobante.montoBruto.toFixed(2)}`],
+        ['Comisión bancaria', `Q${comprobante.comisionTarjeta.toFixed(2)}`],
+        ['Monto neto', `Q${comprobante.montoNeto.toFixed(2)}`]
+      ]
+    });
+
+    this.pdfService.abrir(doc, `comprobante-cobro-${comprobante.codigoCobro}.pdf`);
   }
 }

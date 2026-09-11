@@ -29,4 +29,9 @@ export class RecetasSeccionComponent implements OnInit {
       }
     });
   }
+
+  fechaDiaMesAnio(fechaIso: string): string {
+    const [anio, mes, dia] = fechaIso.split('-');
+    return `${dia}-${mes}-${anio}`;
+  }
 }

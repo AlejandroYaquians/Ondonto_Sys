@@ -21,56 +21,52 @@
         }
       </div>
     </div>
-    @if (!esDoctor()) {
-      <a [routerLink]="['/pacientes', p.idPaciente, 'editar']" class="btn btn-primary d-flex align-items-center gap-2">
-        <i class="bi bi-pencil"></i>
-        Modificar paciente
-      </a>
-    }
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-2" (click)="exportarPdf()">
+        <i class="bi bi-file-earmark-pdf"></i>
+        Exportar PDF
+      </button>
+      @if (!esDoctor()) {
+        <a [routerLink]="['/pacientes', p.idPaciente, 'editar']" class="btn btn-primary d-flex align-items-center gap-2">
+          <i class="bi bi-pencil"></i>
+          Modificar paciente
+        </a>
+      }
+    </div>
   </div>
 
-  <ul class="nav nav-tabs mb-4">
-    <li class="nav-item">
-      <button type="button" class="nav-link" [class.active]="pestanaActiva() === 'datos'" (click)="cambiarPestana('datos')">
+  <div class="d-flex flex-wrap gap-2 mb-4">
+    <div class="btn-group flex-wrap">
+      <button type="button" class="btn btn-outline-primary" [class.active]="pestanaActiva() === 'datos'" (click)="cambiarPestana('datos')">
         Datos personales
       </button>
-    </li>
-    <li class="nav-item">
       <button
         type="button"
-        class="nav-link"
+        class="btn btn-outline-primary"
         [class.active]="pestanaActiva() === 'antecedentes'"
         (click)="cambiarPestana('antecedentes')"
       >
         Antecedentes médicos
       </button>
-    </li>
-    <li class="nav-item">
-      <button type="button" class="nav-link" [class.active]="pestanaActiva() === 'citas'" (click)="cambiarPestana('citas')">
+      <button type="button" class="btn btn-outline-primary" [class.active]="pestanaActiva() === 'citas'" (click)="cambiarPestana('citas')">
         Historial de citas
       </button>
-    </li>
-    <li class="nav-item">
       <button
         type="button"
-        class="nav-link"
+        class="btn btn-outline-primary"
         [class.active]="pestanaActiva() === 'historialClinico'"
         (click)="cambiarPestana('historialClinico')"
       >
         Historial clínico
       </button>
-    </li>
-    <li class="nav-item">
-      <button type="button" class="nav-link" [class.active]="pestanaActiva() === 'recetas'" (click)="cambiarPestana('recetas')">
+      <button type="button" class="btn btn-outline-primary" [class.active]="pestanaActiva() === 'recetas'" (click)="cambiarPestana('recetas')">
         Recetas emitidas
       </button>
-    </li>
-    <li class="nav-item">
-      <button type="button" class="nav-link" [class.active]="pestanaActiva() === 'cobros'" (click)="cambiarPestana('cobros')">
+      <button type="button" class="btn btn-outline-primary" [class.active]="pestanaActiva() === 'cobros'" (click)="cambiarPestana('cobros')">
         Historial de cobros
       </button>
-    </li>
-  </ul>
+    </div>
+  </div>
 
   @if (pestanaActiva() === 'datos') {
     <div class="card shadow-sm border-0 mb-4">
@@ -79,11 +75,11 @@
         <div class="row g-3 mb-4">
           <div class="col-md-3">
             <div class="text-secondary small text-uppercase">Fecha de nacimiento</div>
-            <div class="fw-medium">{{ p.fechaNacimiento || '—' }}</div>
+            <div class="fw-medium">{{ fechaDiaMesAnio(p.fechaNacimiento) }}</div>
           </div>
           <div class="col-md-3">
             <div class="text-secondary small text-uppercase">Edad</div>
-            <div class="fw-medium">{{ edad() !== null ? edad() : '—' }}</div>
+            <div class="fw-medium">{{ edad() !== null ? edad() : 0 }}</div>
           </div>
           <div class="col-md-3">
             <div class="text-secondary small text-uppercase">Género</div>
@@ -103,11 +99,11 @@
         <div class="row g-3 mb-4">
           <div class="col-md-3">
             <div class="text-secondary small text-uppercase">Teléfono</div>
-            <div class="fw-medium">{{ p.telefono || '—' }}</div>
+            <div class="fw-medium">{{ p.telefono || '-' }}</div>
           </div>
           <div class="col-md-3">
             <div class="text-secondary small text-uppercase">Correo</div>
-            <div class="fw-medium">{{ p.email || '—' }}</div>
+            <div class="fw-medium">{{ p.email || '-' }}</div>
           </div>
           <div class="col-md-3">
             <div class="text-secondary small text-uppercase">Municipio</div>
@@ -115,7 +111,7 @@
           </div>
           <div class="col-12">
             <div class="text-secondary small text-uppercase">Dirección</div>
-            <div class="fw-medium">{{ p.direccion || '—' }}</div>
+            <div class="fw-medium">{{ p.direccion || '-' }}</div>
           </div>
         </div>
 
@@ -123,11 +119,11 @@
         <div class="row g-3">
           <div class="col-md-6">
             <div class="text-secondary small text-uppercase">Referido por</div>
-            <div class="fw-medium">{{ p.referidoPor || '—' }}</div>
+            <div class="fw-medium">{{ p.referidoPor || '-' }}</div>
           </div>
           <div class="col-md-6">
             <div class="text-secondary small text-uppercase">Médico de familia</div>
-            <div class="fw-medium">{{ p.medicoFamilia || '—' }}</div>
+            <div class="fw-medium">{{ p.medicoFamilia || '-' }}</div>
           </div>
         </div>
       </div>
@@ -179,4 +175,5 @@
       </div>
     </div>
   }
+
 }

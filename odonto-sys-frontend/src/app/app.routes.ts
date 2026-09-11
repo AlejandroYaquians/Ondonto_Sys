@@ -18,6 +18,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent)
       },
       {
+        path: 'perfil',
+        loadComponent: () => import('./features/perfil/perfil.component').then((m) => m.PerfilComponent)
+      },
+      {
         path: 'usuarios',
         canActivate: [adminGuard],
         loadComponent: () =>
@@ -190,14 +194,47 @@ export const routes: Routes = [
           import('./features/catalogos/servicios/servicios.component').then((m) => m.ServiciosComponent)
       },
       {
-        path: 'insumos',
-        loadComponent: () => import('./features/inventario/insumos/insumos.component').then((m) => m.InsumosComponent)
+        path: 'instrumental',
+        loadComponent: () =>
+          import('./features/inventario/inventario-list/inventario-list.component').then(
+            (m) => m.InventarioListComponent
+          )
       },
       {
-        path: 'insumo-movimientos',
+        path: 'instrumental/nuevo',
         loadComponent: () =>
-          import('./features/inventario/insumo-movimientos/insumo-movimientos.component').then(
-            (m) => m.InsumoMovimientosComponent
+          import('./features/inventario/inventario-form/inventario-form.component').then(
+            (m) => m.InventarioFormComponent
+          )
+      },
+      {
+        path: 'instrumental/:id/editar',
+        loadComponent: () =>
+          import('./features/inventario/inventario-form/inventario-form.component').then(
+            (m) => m.InventarioFormComponent
+          )
+      },
+      {
+        path: 'instrumental/:id/entrada',
+        data: { esEntrada: true },
+        loadComponent: () =>
+          import('./features/inventario/inventario-movimiento/inventario-movimiento.component').then(
+            (m) => m.InventarioMovimientoComponent
+          )
+      },
+      {
+        path: 'instrumental/:id/salida',
+        data: { esEntrada: false },
+        loadComponent: () =>
+          import('./features/inventario/inventario-movimiento/inventario-movimiento.component').then(
+            (m) => m.InventarioMovimientoComponent
+          )
+      },
+      {
+        path: 'instrumental/:id/historial',
+        loadComponent: () =>
+          import('./features/inventario/inventario-historial/inventario-historial.component').then(
+            (m) => m.InventarioHistorialComponent
           )
       },
       {

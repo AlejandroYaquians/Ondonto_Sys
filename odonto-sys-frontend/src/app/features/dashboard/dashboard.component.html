@@ -1,7 +1,76 @@
-<section class="mb-4">
-  <h1 class="h3 mb-1">Bienvenido/a, {{ authService.username() }}</h1>
-  <p class="text-secondary mb-0">Agenda de citas del mes.</p>
-</section>
+<div class="dashboard-hero mb-4">
+  <section>
+    <h1 class="h3 mb-1">Bienvenido{{ esAdmin() ? '' : '/a' }}, {{ authService.nombre() }}</h1>
+    @if (esAdmin()) {
+      <p class="text-secondary mb-0">{{ fechaLarga() }}</p>
+    } @else {
+      <p class="text-secondary mb-0">Agenda de citas del mes.</p>
+    }
+  </section>
+</div>
+
+@if (esAdmin()) {
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-secondary small text-uppercase">Citas</div>
+          <div class="h3 mb-0">{{ citasHoyCount() }}</div>
+          <div class="text-secondary small">Hoy</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-secondary small text-uppercase">Pacientes</div>
+          <div class="h3 mb-0">{{ totalPacientes() }}</div>
+          <div class="text-secondary small">Registrados</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-secondary small text-uppercase">Doctores</div>
+          <div class="h3 mb-0">{{ doctoresActivosCount() }}</div>
+          <div class="text-secondary small">Activos</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="text-secondary small text-uppercase">Ingresos</div>
+          <div class="h3 mb-0">Q{{ ingresosMes() | number: '1.2-2' }}</div>
+          <div class="text-secondary small">Este mes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h2 class="h6 text-secondary text-uppercase mb-3">Agenda de hoy</h2>
+          @if (agendaHoy().length === 0) {
+            <p class="text-secondary small mb-0">No hay citas para hoy.</p>
+          } @else {
+            <ul class="list-group list-group-flush">
+              @for (cita of agendaHoy(); track cita.idCita) {
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                  <div class="fw-medium">{{ horaCorta(cita.hora) }} · {{ nombrePaciente(cita.idPaciente) }}</div>
+                  <span class="badge text-bg-info">{{ nombreEstado(cita.idEstadoCita) }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}
 
 <div class="row g-4">
   <div class="col-lg-8">
@@ -42,7 +111,7 @@
                 >
                   <span>{{ dia.numero }}</span>
                   @if (dia.citas.length > 0) {
-                    <span class="badge text-bg-primary rounded-pill calendario-badge">{{ dia.citas.length }}</span>
+                    <span class="badge text-bg-success rounded-pill calendario-badge">{{ dia.citas.length }}</span>
                   }
                 </button>
               } @else {
@@ -58,7 +127,7 @@
   <div class="col-lg-4">
     <div class="card shadow-sm border-0 h-100">
       <div class="card-body">
-        <h2 class="h6 text-secondary text-uppercase mb-3">Citas del {{ diaSeleccionado() }}</h2>
+        <h2 class="h6 text-secondary text-uppercase mb-3">Citas del {{ fechaDiaMesAnio(diaSeleccionado()) }}</h2>
         @if (citasDelDiaSeleccionado().length === 0) {
           <p class="text-secondary small mb-0">No hay citas para este día.</p>
         } @else {
@@ -73,7 +142,6 @@
             }
           </ul>
         }
-        <a routerLink="/citas" class="btn btn-outline-primary btn-sm w-100 mt-3">Ver agenda completa</a>
       </div>
     </div>
   </div>

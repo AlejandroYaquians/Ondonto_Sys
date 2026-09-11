@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CobroService } from '../../../../core/services/cobro.service';
 import { CatalogosService } from '../../../../core/services/catalogos.service';
@@ -7,7 +8,7 @@ import { CatMetodoPago, Servicio } from '../../../../core/models/catalogo.models
 
 @Component({
   selector: 'app-cobros-seccion',
-  imports: [RouterLink],
+  imports: [RouterLink, DecimalPipe],
   templateUrl: './cobros-seccion.component.html'
 })
 export class CobrosSeccionComponent implements OnInit {
@@ -44,12 +45,18 @@ export class CobrosSeccionComponent implements OnInit {
 
   nombreServicio(idServicio: number | null): string {
     if (!idServicio) {
-      return '—';
+      return '-';
     }
     return this.servicios().find((s) => s.idServicio === idServicio)?.nombre ?? `#${idServicio}`;
   }
 
   nombreMetodoPago(idMetodoPago: number): string {
     return this.metodosPago().find((m) => m.idMetodoPago === idMetodoPago)?.nombre ?? `#${idMetodoPago}`;
+  }
+
+  formatoFecha(fecha: string): string {
+    const [fechaParte, horaParte] = fecha.split('T');
+    const [anio, mes, dia] = fechaParte.split('-');
+    return `${dia}-${mes}-${anio} ${horaParte.slice(0, 5)}`;
   }
 }

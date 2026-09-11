@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ReporteFinancieroService } from '../../../core/services/reporte-financiero.service';
@@ -31,9 +32,20 @@ function primerDiaDelMesIso(): string {
   return `${hoy.getFullYear()}-${mes}-01`;
 }
 
+function inicioSemanaIso(fechaIso: string): string {
+  const fecha = new Date(`${fechaIso}T00:00:00`);
+  const diaSemana = fecha.getDay();
+  const offsetHastaLunes = diaSemana === 0 ? -6 : 1 - diaSemana;
+  return sumarDias(fechaIso, offsetHastaLunes);
+}
+
+function finSemanaIso(fechaIso: string): string {
+  return sumarDias(inicioSemanaIso(fechaIso), 6);
+}
+
 @Component({
   selector: 'app-dashboard-financiero',
-  imports: [RouterLink, ReactiveFormsModule],
+  imports: [RouterLink, ReactiveFormsModule, DecimalPipe],
   templateUrl: './dashboard-financiero.component.html'
 })
 export class DashboardFinancieroComponent implements OnInit {
@@ -65,7 +77,7 @@ export class DashboardFinancieroComponent implements OnInit {
       case 'hoy':
         return { desde: hoy, hasta: hoy };
       case 'semana':
-        return { desde: sumarDias(hoy, -6), hasta: hoy };
+        return { desde: inicioSemanaIso(hoy), hasta: finSemanaIso(hoy) };
       case 'mes':
         return { desde: primerDiaDelMesIso(), hasta: hoy };
       case 'personalizado': {
@@ -107,12 +119,19 @@ export class DashboardFinancieroComponent implements OnInit {
     });
   }
 
+  fechaParaVerTodos(): string {
+    const primerCobro = this.cobrosRecientes()[0];
+    return primerCobro ? primerCobro.fecha.slice(0, 10) : hoyIso();
+  }
+
   nombrePaciente(idPaciente: number): string {
     const paciente = this.pacientes().find((p) => p.idPaciente === idPaciente);
     return paciente ? `${paciente.nombre} ${paciente.apellido}` : `#${idPaciente}`;
   }
 
   formatoFecha(fecha: string): string {
-    return fecha.slice(0, 16).replace('T', ' ');
+    const [fechaParte, horaParte] = fecha.split('T');
+    const [anio, mes, dia] = fechaParte.split('-');
+    return `${dia}-${mes}-${anio} ${horaParte.slice(0, 5)}`;
   }
 }

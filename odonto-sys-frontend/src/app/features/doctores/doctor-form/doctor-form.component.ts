@@ -3,10 +3,9 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DoctorService } from '../../../core/services/doctor.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
-import { UsuarioService } from '../../../core/services/usuario.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { DoctorRequest } from '../../../core/models/doctor.models';
 import { CatEspecialidad } from '../../../core/models/catalogo.models';
-import { Usuario } from '../../../core/models/usuario.models';
 
 @Component({
   selector: 'app-doctor-form',
@@ -17,7 +16,7 @@ export class DoctorFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly doctorService = inject(DoctorService);
   private readonly catalogosService = inject(CatalogosService);
-  private readonly usuarioService = inject(UsuarioService);
+  private readonly notificacionService = inject(NotificacionService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -27,7 +26,6 @@ export class DoctorFormComponent implements OnInit {
   protected readonly error = signal<string | null>(null);
 
   protected readonly especialidades = signal<CatEspecialidad[]>([]);
-  protected readonly usuarios = signal<Usuario[]>([]);
 
   protected readonly formulario = this.fb.group({
     nombre: ['', Validators.required],
@@ -35,13 +33,11 @@ export class DoctorFormComponent implements OnInit {
     telefono: [''],
     email: ['', Validators.email],
     porcentajeComision: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
-    idsEspecialidad: [[] as number[]],
-    idUsuario: [null as number | null]
+    idsEspecialidad: [[] as number[]]
   });
 
   ngOnInit(): void {
     this.catalogosService.especialidades().subscribe((datos) => this.especialidades.set(datos));
-    this.usuarioService.listar().subscribe((datos) => this.usuarios.set(datos));
 
     const parametroId = this.route.snapshot.paramMap.get('id');
     if (parametroId) {
@@ -61,8 +57,7 @@ export class DoctorFormComponent implements OnInit {
           telefono: doctor.telefono ?? '',
           email: doctor.email ?? '',
           porcentajeComision: doctor.porcentajeComision,
-          idsEspecialidad: doctor.idsEspecialidad,
-          idUsuario: doctor.idUsuario
+          idsEspecialidad: doctor.idsEspecialidad
         });
         this.cargando.set(false);
       },
@@ -101,15 +96,17 @@ export class DoctorFormComponent implements OnInit {
       telefono: valores.telefono || null,
       email: valores.email || null,
       porcentajeComision: valores.porcentajeComision ?? 0,
-      idsEspecialidad: valores.idsEspecialidad ?? [],
-      idUsuario: valores.idUsuario
+      idsEspecialidad: valores.idsEspecialidad ?? []
     };
 
     const id = this.idDoctor();
     const operacion = id ? this.doctorService.actualizar(id, request) : this.doctorService.crear(request);
 
     operacion.subscribe({
-      next: () => this.router.navigateByUrl('/doctores'),
+      next: () => {
+        this.notificacionService.exito(id ? 'Doctor actualizado.' : 'Doctor registrado.');
+        this.router.navigateByUrl('/doctores');
+      },
       error: () => {
         this.guardando.set(false);
         this.error.set('Error al guardar.');

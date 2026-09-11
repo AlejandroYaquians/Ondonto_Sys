@@ -6,6 +6,7 @@ import { PacienteService } from '../../../core/services/paciente.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
 import { ContactoPacienteService } from '../../../core/services/contacto-paciente.service';
 import { AntecedenteMedicoService } from '../../../core/services/antecedente-medico.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { PacienteRequest } from '../../../core/models/paciente.models';
 import { CatGenero, CatProfesion, CatParentesco, CatAfeccion, Departamento, Municipio } from '../../../core/models/catalogo.models';
 import { ContactoPaciente } from '../../../core/models/contacto-paciente.models';
@@ -46,6 +47,7 @@ export class PacienteFormComponent implements OnInit {
   private readonly catalogosService = inject(CatalogosService);
   private readonly contactoPacienteService = inject(ContactoPacienteService);
   private readonly antecedenteMedicoService = inject(AntecedenteMedicoService);
+  private readonly notificacionService = inject(NotificacionService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -75,7 +77,7 @@ export class PacienteFormComponent implements OnInit {
     nombre: ['', Validators.required],
     apellido: ['', Validators.required],
     fechaNacimiento: [''],
-    telefono: ['', Validators.required],
+    telefono: [''],
     email: ['', Validators.email],
     direccion: [''],
     referidoPor: [''],
@@ -309,13 +311,18 @@ export class PacienteFormComponent implements OnInit {
       }
     }
 
+    const idPacienteAntes = this.idPaciente();
     if (operaciones.length === 0) {
+      this.notificacionService.exito(idPacienteAntes ? 'Paciente actualizado.' : 'Paciente registrado.');
       this.router.navigateByUrl('/pacientes');
       return;
     }
 
     forkJoin(operaciones).subscribe({
-      next: () => this.router.navigateByUrl('/pacientes'),
+      next: () => {
+        this.notificacionService.exito(idPacienteAntes ? 'Paciente actualizado.' : 'Paciente registrado.');
+        this.router.navigateByUrl('/pacientes');
+      },
       error: () => {
         this.guardando.set(false);
         this.error.set('Error al guardar.');

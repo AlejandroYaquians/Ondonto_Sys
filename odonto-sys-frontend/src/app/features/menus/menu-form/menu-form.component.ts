@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MenuService } from '../../../core/services/menu.service';
 import { ModuloService } from '../../../core/services/modulo.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { MenuRequest } from '../../../core/models/menu.models';
 import { Modulo } from '../../../core/models/modulo.models';
 
@@ -15,6 +16,7 @@ export class MenuFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly menuService = inject(MenuService);
   private readonly moduloService = inject(ModuloService);
+  private readonly notificacionService = inject(NotificacionService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -28,7 +30,6 @@ export class MenuFormComponent implements OnInit {
   protected readonly formulario = this.fb.group({
     nombre: ['', Validators.required],
     ruta: [''],
-    icono: [''],
     orden: [0],
     idModulo: [null as number | null, Validators.required]
   });
@@ -51,7 +52,6 @@ export class MenuFormComponent implements OnInit {
         this.formulario.patchValue({
           nombre: menu.nombre,
           ruta: menu.ruta ?? '',
-          icono: menu.icono ?? '',
           orden: menu.orden,
           idModulo: menu.idModulo
         });
@@ -77,7 +77,6 @@ export class MenuFormComponent implements OnInit {
     const request: MenuRequest = {
       nombre: valores.nombre ?? '',
       ruta: valores.ruta || null,
-      icono: valores.icono || null,
       orden: valores.orden,
       idModulo: valores.idModulo as number
     };
@@ -86,7 +85,10 @@ export class MenuFormComponent implements OnInit {
     const operacion = id ? this.menuService.actualizar(id, request) : this.menuService.crear(request);
 
     operacion.subscribe({
-      next: () => this.router.navigateByUrl('/menus'),
+      next: () => {
+        this.notificacionService.exito(id ? 'Menú actualizado.' : 'Menú creado.');
+        this.router.navigateByUrl('/menus');
+      },
       error: () => {
         this.guardando.set(false);
         this.error.set('Error al guardar.');

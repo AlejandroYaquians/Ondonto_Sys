@@ -8,7 +8,6 @@ public record MenuRequest(
         String nombre,
 
         String ruta,
-        String icono,
         Integer orden,
 
         @NotNull(message = "El módulo es obligatorio")

@@ -1,0 +1,121 @@
+<div class="d-flex align-items-center gap-2 mb-4">
+  <h1 class="h3 mb-0">Mi perfil</h1>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <div class="text-center text-secondary py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+} @else if (perfil(); as p) {
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="text-secondary small text-uppercase">Nombre completo</div>
+          <div class="fw-medium">{{ p.nombre }} {{ p.apellido }}</div>
+        </div>
+        <div class="col-md-6">
+          <div class="text-secondary small text-uppercase">Nombre de usuario</div>
+          <div class="fw-medium">{{ p.username }}</div>
+        </div>
+        <div class="col-md-6">
+          <div class="text-secondary small text-uppercase">Rol asignado</div>
+          <div class="fw-medium">{{ p.nombreRol }}</div>
+        </div>
+        <div class="col-md-6">
+          <div class="text-secondary small text-uppercase">Estado de la cuenta</div>
+          <div class="fw-medium">
+            @if (p.estado) {
+              <span class="badge text-bg-success">Activo</span>
+            } @else {
+              <span class="badge text-bg-secondary">Inactivo</span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center" [class.mb-3]="mostrarFormulario()">
+        <h2 class="h6 text-secondary text-uppercase mb-0">Contraseña</h2>
+        <button type="button" class="btn btn-sm btn-outline-primary" (click)="toggleFormulario()">
+          {{ mostrarFormulario() ? 'Cancelar' : 'Cambiar contraseña' }}
+        </button>
+      </div>
+
+      @if (exitoPassword()) {
+        <div class="alert alert-success py-2 mb-0" role="alert">Contraseña actualizada correctamente.</div>
+      }
+
+      @if (mostrarFormulario()) {
+        <form [formGroup]="formulario" (ngSubmit)="guardarPassword()">
+          @if (errorPassword()) {
+            <div class="alert alert-danger py-2" role="alert">{{ errorPassword() }}</div>
+          }
+          <div class="row g-3">
+            <div class="col-md-12">
+              <label class="form-label" for="passwordActual">Contraseña actual</label>
+              <div class="input-group">
+                <input
+                  id="passwordActual"
+                  [type]="mostrarPasswordActual() ? 'text' : 'password'"
+                  class="form-control"
+                  formControlName="passwordActual"
+                  [class.is-invalid]="formulario.controls.passwordActual.touched && formulario.controls.passwordActual.invalid"
+                />
+                <button type="button" class="btn btn-outline-secondary" (click)="toggleMostrarPasswordActual()">
+                  <i class="bi" [class.bi-eye]="!mostrarPasswordActual()" [class.bi-eye-slash]="mostrarPasswordActual()"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="passwordNueva">Nueva contraseña</label>
+              <div class="input-group">
+                <input
+                  id="passwordNueva"
+                  [type]="mostrarPasswordNueva() ? 'text' : 'password'"
+                  class="form-control"
+                  formControlName="passwordNueva"
+                  [class.is-invalid]="formulario.controls.passwordNueva.touched && formulario.controls.passwordNueva.invalid"
+                />
+                <button type="button" class="btn btn-outline-secondary" (click)="toggleMostrarPasswordNueva()">
+                  <i class="bi" [class.bi-eye]="!mostrarPasswordNueva()" [class.bi-eye-slash]="mostrarPasswordNueva()"></i>
+                </button>
+              </div>
+              <div class="form-text">Mínimo 8 caracteres, una mayúscula y un número.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="confirmarPassword">Confirmar nueva contraseña</label>
+              <div class="input-group">
+                <input
+                  id="confirmarPassword"
+                  [type]="mostrarConfirmarPassword() ? 'text' : 'password'"
+                  class="form-control"
+                  formControlName="confirmarPassword"
+                  [class.is-invalid]="formulario.controls.confirmarPassword.touched && formulario.controls.confirmarPassword.invalid"
+                />
+                <button type="button" class="btn btn-outline-secondary" (click)="toggleMostrarConfirmarPassword()">
+                  <i class="bi" [class.bi-eye]="!mostrarConfirmarPassword()" [class.bi-eye-slash]="mostrarConfirmarPassword()"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end mt-3">
+            <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+              @if (guardando()) {
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              }
+              Guardar contraseña
+            </button>
+          </div>
+        </form>
+      }
+    </div>
+  </div>
+}

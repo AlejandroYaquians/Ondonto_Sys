@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CatalogosService } from '../../../core/services/catalogos.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { CatAfeccion } from '../../../core/models/catalogo.models';
 
 @Component({
@@ -11,6 +12,7 @@ import { CatAfeccion } from '../../../core/models/catalogo.models';
 export class AfeccionesComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly catalogosService = inject(CatalogosService);
+  private readonly notificacionService = inject(NotificacionService);
 
   protected readonly items = signal<CatAfeccion[]>([]);
   protected readonly cargando = signal(true);
@@ -19,8 +21,7 @@ export class AfeccionesComponent implements OnInit {
   protected readonly idEditando = signal<number | null>(null);
 
   protected readonly formulario = this.fb.group({
-    nombreAfeccion: ['', Validators.required],
-    tipo: ['']
+    nombreAfeccion: ['', Validators.required]
   });
 
   ngOnInit(): void {
@@ -43,13 +44,13 @@ export class AfeccionesComponent implements OnInit {
 
   nuevo(): void {
     this.idEditando.set(null);
-    this.formulario.reset({ nombreAfeccion: '', tipo: '' });
+    this.formulario.reset({ nombreAfeccion: '' });
     this.mostrarFormulario.set(true);
   }
 
   editar(item: CatAfeccion): void {
     this.idEditando.set(item.idAfeccion);
-    this.formulario.setValue({ nombreAfeccion: item.nombreAfeccion, tipo: item.tipo ?? '' });
+    this.formulario.setValue({ nombreAfeccion: item.nombreAfeccion });
     this.mostrarFormulario.set(true);
   }
 
@@ -65,7 +66,7 @@ export class AfeccionesComponent implements OnInit {
     }
 
     const valores = this.formulario.getRawValue();
-    const request = { nombreAfeccion: valores.nombreAfeccion ?? '', tipo: valores.tipo || null };
+    const request = { nombreAfeccion: valores.nombreAfeccion ?? '' };
     const id = this.idEditando();
     const operacion = id
       ? this.catalogosService.actualizarAfeccion(id, request)
@@ -73,6 +74,7 @@ export class AfeccionesComponent implements OnInit {
 
     operacion.subscribe({
       next: () => {
+        this.notificacionService.exito(id ? 'Registro actualizado.' : 'Registro creado.');
         this.cancelar();
         this.cargar();
       },
@@ -85,7 +87,10 @@ export class AfeccionesComponent implements OnInit {
       return;
     }
     this.catalogosService.eliminarAfeccion(item.idAfeccion).subscribe({
-      next: () => this.cargar(),
+      next: () => {
+        this.notificacionService.exito('Registro eliminado.');
+        this.cargar();
+      },
       error: () => this.error.set('Error al eliminar.')
     });
   }

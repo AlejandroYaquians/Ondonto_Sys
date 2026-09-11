@@ -6,6 +6,7 @@ import { RecetaService } from '../../../core/services/receta.service';
 import { PacienteService } from '../../../core/services/paciente.service';
 import { DoctorService } from '../../../core/services/doctor.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { HistorialClinico } from '../../../core/models/historial-clinico.models';
 import { Receta } from '../../../core/models/receta.models';
 import { Paciente } from '../../../core/models/paciente.models';
@@ -31,6 +32,7 @@ export class HistorialClinicoDetalleComponent implements OnInit {
   private readonly pacienteService = inject(PacienteService);
   private readonly doctorService = inject(DoctorService);
   private readonly authService = inject(AuthService);
+  private readonly notificacionService = inject(NotificacionService);
 
   protected readonly historial = signal<HistorialClinico | null>(null);
   protected readonly paciente = signal<Paciente | null>(null);
@@ -41,12 +43,13 @@ export class HistorialClinicoDetalleComponent implements OnInit {
 
   protected readonly editandoDescripcion = signal(false);
   protected readonly idRecetaEditando = signal<number | null>(null);
+  protected readonly mostrarFormularioReceta = signal(false);
   protected readonly guardando = signal(false);
 
   protected readonly esDoctor = computed(() => this.authService.rol() === 'DOCTOR');
 
   protected readonly formularioDescripcion = this.fb.group({
-    descripcion: ['', Validators.required]
+    descripcion: ['']
   });
 
   protected readonly formularioReceta = this.fb.group({
@@ -80,7 +83,14 @@ export class HistorialClinicoDetalleComponent implements OnInit {
   }
 
   formatoFecha(fecha: string): string {
-    return fecha.slice(0, 16).replace('T', ' ');
+    const [fechaParte, horaParte] = fecha.split('T');
+    const [anio, mes, dia] = fechaParte.split('-');
+    return `${dia}-${mes}-${anio} ${horaParte.slice(0, 5)}`;
+  }
+
+  fechaDiaMesAnio(fechaIso: string): string {
+    const [anio, mes, dia] = fechaIso.split('-');
+    return `${dia}-${mes}-${anio}`;
   }
 
   iniciarEdicionDescripcion(): void {
@@ -114,13 +124,19 @@ export class HistorialClinicoDetalleComponent implements OnInit {
         next: (actualizado) => {
           this.historial.set(actualizado);
           this.editandoDescripcion.set(false);
+          this.notificacionService.exito('Notas actualizadas.');
         },
         error: () => this.error.set('Error al guardar.')
       });
   }
 
+  toggleFormularioReceta(): void {
+    this.mostrarFormularioReceta.update((actual) => !actual);
+  }
+
   editarReceta(receta: Receta): void {
     this.idRecetaEditando.set(receta.idReceta);
+    this.mostrarFormularioReceta.set(true);
     this.formularioReceta.setValue({
       medicamento: receta.medicamento,
       dosis: receta.dosis ?? '',
@@ -132,6 +148,7 @@ export class HistorialClinicoDetalleComponent implements OnInit {
 
   cancelarReceta(): void {
     this.idRecetaEditando.set(null);
+    this.mostrarFormularioReceta.set(false);
     this.formularioReceta.reset({ medicamento: '', dosis: '', frecuencia: '', duracion: '', indicaciones: '' });
   }
 
@@ -158,6 +175,7 @@ export class HistorialClinicoDetalleComponent implements OnInit {
 
     operacion.subscribe({
       next: () => {
+        this.notificacionService.exito(id ? 'Receta actualizada.' : 'Receta agregada.');
         this.cancelarReceta();
         this.recetaService.listarPorHistorialClinico(historial.idHistorialClinico).subscribe((datos) => this.recetas.set(datos));
       },
@@ -172,6 +190,7 @@ export class HistorialClinicoDetalleComponent implements OnInit {
     const historial = this.historial();
     this.recetaService.eliminar(receta.idReceta).subscribe({
       next: () => {
+        this.notificacionService.exito('Receta eliminada.');
         if (historial) {
           this.recetaService.listarPorHistorialClinico(historial.idHistorialClinico).subscribe((datos) => this.recetas.set(datos));
         }

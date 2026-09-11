@@ -23,7 +23,7 @@
       <tbody>
         @for (cita of citas(); track cita.idCita) {
           <tr>
-            <td>{{ cita.fecha }}</td>
+            <td>{{ fechaDiaMesAnio(cita.fecha) }}</td>
             <td>{{ horaCorta(cita.hora) }}</td>
             <td>{{ nombreDoctor(cita.idDoctor) }}</td>
             <td><span class="badge text-bg-info">{{ nombreEstado(cita.idEstadoCita) }}</span></td>
@@ -34,7 +34,7 @@
                   Ver consulta
                 </a>
               } @else {
-                <span class="text-secondary small">—</span>
+                <span class="text-secondary small">-</span>
               }
             </td>
           </tr>

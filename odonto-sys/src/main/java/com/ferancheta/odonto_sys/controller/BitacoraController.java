@@ -22,7 +22,7 @@ import java.time.LocalTime;
 @RequiredArgsConstructor
 public class BitacoraController {
 
-    private static final int TAMANO_PAGINA = 10;
+    private static final int TAMANO_PAGINA = 20;
 
     private final BitacoraService service;
 

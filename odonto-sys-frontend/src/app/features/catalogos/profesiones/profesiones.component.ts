@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CatalogosService } from '../../../core/services/catalogos.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { CatProfesion } from '../../../core/models/catalogo.models';
 
 @Component({
@@ -11,6 +12,7 @@ import { CatProfesion } from '../../../core/models/catalogo.models';
 export class ProfesionesComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly catalogosService = inject(CatalogosService);
+  private readonly notificacionService = inject(NotificacionService);
 
   protected readonly items = signal<CatProfesion[]>([]);
   protected readonly cargando = signal(true);
@@ -71,6 +73,7 @@ export class ProfesionesComponent implements OnInit {
 
     operacion.subscribe({
       next: () => {
+        this.notificacionService.exito(id ? 'Registro actualizado.' : 'Registro creado.');
         this.cancelar();
         this.cargar();
       },
@@ -83,7 +86,10 @@ export class ProfesionesComponent implements OnInit {
       return;
     }
     this.catalogosService.eliminarProfesion(item.idProfesion).subscribe({
-      next: () => this.cargar(),
+      next: () => {
+        this.notificacionService.exito('Registro eliminado.');
+        this.cargar();
+      },
       error: () => this.error.set('Error al eliminar.')
     });
   }

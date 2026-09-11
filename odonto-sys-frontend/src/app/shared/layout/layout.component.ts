@@ -3,42 +3,22 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { NavegacionService } from '../../core/services/navegacion.service';
 import { ModuloConMenus } from '../../core/models/menu.models';
+import { ToastContainerComponent } from '../toast-container/toast-container.component';
 
-const ICONOS_POR_RUTA: Record<string, string> = {
-  '/usuarios': 'bi-person-gear',
-  '/permisos': 'bi-shield-lock',
-  '/menus': 'bi-list-nested',
-  '/pacientes': 'bi-people',
-  '/doctores': 'bi-person-badge',
-  '/citas': 'bi-calendar-event',
-  '/historial-clinico': 'bi-clipboard2-pulse',
-  '/contactos-paciente': 'bi-person-lines-fill',
-  '/antecedentes-medicos': 'bi-file-earmark-medical',
-  '/recetas': 'bi-capsule',
-  '/insumos': 'bi-box2',
-  '/insumo-movimientos': 'bi-arrow-left-right',
-  '/gastos': 'bi-receipt',
-  '/cobros': 'bi-credit-card',
-  '/comisiones': 'bi-percent',
-  '/financiero/dashboard': 'bi-graph-up-arrow',
-  '/financiero/comisiones': 'bi-percent',
-  '/financiero/cierre-caja': 'bi-calculator',
-  '/bitacora': 'bi-clock-history',
-  '/departamentos': 'bi-map',
-  '/municipios': 'bi-geo-alt',
-  '/servicios': 'bi-gear',
-  '/catalogos/afecciones': 'bi-thermometer-half',
-  '/catalogos/especialidades': 'bi-mortarboard',
-  '/catalogos/tipos-gasto': 'bi-receipt',
-  '/catalogos/generos': 'bi-gender-ambiguous',
-  '/catalogos/metodos-pago': 'bi-credit-card-2-front',
-  '/catalogos/parentescos': 'bi-people',
-  '/catalogos/profesiones': 'bi-briefcase'
+const ICONOS_POR_MODULO: Record<string, string> = {
+  Dashboard: 'bi-speedometer2',
+  Agenda: 'bi-calendar-week',
+  Clínico: 'bi-heart-pulse',
+  Finanzas: 'bi-cash-stack',
+  Inventario: 'bi-boxes',
+  Catálogos: 'bi-tags',
+  Auditoría: 'bi-journal-text',
+  Administración: 'bi-gear-wide-connected'
 };
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, ToastContainerComponent],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss'
 })
@@ -95,8 +75,8 @@ export class LayoutComponent {
     this.menuUsuarioAbierto.set(false);
   }
 
-  iconoDe(ruta: string, icono: string | null): string {
-    return icono || ICONOS_POR_RUTA[ruta] || 'bi-chevron-right';
+  iconoDeModulo(nombre: string): string {
+    return ICONOS_POR_MODULO[nombre] || 'bi-folder2';
   }
 
   cerrarSesion(): void {

@@ -45,7 +45,7 @@
           </div>
           <div class="col-md-1">
             <label class="form-label">Edad</label>
-            <div class="form-control-plaintext fw-medium">{{ edad() !== null ? edad() : '—' }}</div>
+            <div class="form-control-plaintext fw-medium">{{ edad() !== null ? edad() : 0 }}</div>
           </div>
           <div class="col-md-4">
             <label class="form-label" for="idGenero">Género</label>
@@ -126,7 +126,7 @@
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h2 class="h6 text-secondary text-uppercase mb-0">Contacto de emergencia</h2>
+          <h2 class="h6 text-secondary text-uppercase mb-0">Contacto adicional</h2>
           <button type="button" class="btn btn-sm btn-outline-primary" (click)="agregarContacto()">
             <i class="bi bi-plus-lg"></i>
             Agregar contacto
@@ -165,7 +165,7 @@
             </div>
           }
           @if (contactosFormArray.length === 0) {
-            <p class="text-secondary small mb-0">No hay contactos de emergencia agregados.</p>
+            <p class="text-secondary small mb-0">No hay contactos adicionales agregados.</p>
           }
         </div>
 

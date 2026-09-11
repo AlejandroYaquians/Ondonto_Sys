@@ -79,7 +79,7 @@
           @for (item of items(); track item.idServicio) {
             <tr>
               <td>{{ item.nombre }}</td>
-              <td>Q{{ item.costoBase }}</td>
+              <td>Q{{ item.costoBase | number: '1.2-2' }}</td>
               <td>
                 @if (item.activo) {
                   <span class="badge text-bg-success">Activo</span>

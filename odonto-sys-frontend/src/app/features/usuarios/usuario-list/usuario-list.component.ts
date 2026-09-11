@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { RolService } from '../../../core/services/rol.service';
+import { NotificacionService } from '../../../core/services/notificacion.service';
 import { Usuario } from '../../../core/models/usuario.models';
 import { Rol } from '../../../core/models/rol.models';
 
@@ -13,6 +14,7 @@ import { Rol } from '../../../core/models/rol.models';
 export class UsuarioListComponent {
   private readonly usuarioService = inject(UsuarioService);
   private readonly rolService = inject(RolService);
+  private readonly notificacionService = inject(NotificacionService);
 
   protected readonly usuarios = signal<Usuario[]>([]);
   protected readonly roles = signal<Rol[]>([]);
@@ -52,7 +54,10 @@ export class UsuarioListComponent {
     }
 
     this.usuarioService.cambiarEstado(usuario.idUsuario, nuevoEstado).subscribe({
-      next: () => this.cargar(),
+      next: () => {
+        this.notificacionService.exito(nuevoEstado ? 'Usuario activado.' : 'Usuario desactivado.');
+        this.cargar();
+      },
       error: () => this.error.set('Error al cambiar el estado.')
     });
   }
