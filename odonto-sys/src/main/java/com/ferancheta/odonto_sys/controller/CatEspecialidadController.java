@@ -22,11 +22,6 @@ public class CatEspecialidadController {
         return Boolean.TRUE.equals(activos) ? service.listarActivos() : service.listar();
     }
 
-    @GetMapping("/{id}")
-    public CatEspecialidadResponse buscarPorId(@PathVariable Integer id) {
-        return service.buscarPorId(id);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CatEspecialidadResponse crear(@Valid @RequestBody CatEspecialidadRequest request) {

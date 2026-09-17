@@ -20,15 +20,7 @@ export class HistorialClinicoService {
     return this.http.get<HistorialClinico>(`${API_BASE_URL}/historial-clinico/${id}`);
   }
 
-  crear(request: HistorialClinicoRequest): Observable<HistorialClinico> {
-    return this.http.post<HistorialClinico>(`${API_BASE_URL}/historial-clinico`, request);
-  }
-
   actualizar(id: number, request: HistorialClinicoRequest): Observable<HistorialClinico> {
     return this.http.put<HistorialClinico>(`${API_BASE_URL}/historial-clinico/${id}`, request);
-  }
-
-  eliminar(id: number): Observable<void> {
-    return this.http.delete<void>(`${API_BASE_URL}/historial-clinico/${id}`);
   }
 }

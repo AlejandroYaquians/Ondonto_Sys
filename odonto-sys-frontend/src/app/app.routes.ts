@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
-import { adminGuard } from './core/guards/admin.guard';
+import { permisoGuard } from './core/guards/permiso.guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -23,40 +23,40 @@ export const routes: Routes = [
       },
       {
         path: 'usuarios',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/usuarios', 'ver')],
         loadComponent: () =>
           import('./features/usuarios/usuario-list/usuario-list.component').then((m) => m.UsuarioListComponent)
       },
       {
         path: 'usuarios/nuevo',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/usuarios', 'crear')],
         loadComponent: () =>
           import('./features/usuarios/usuario-form/usuario-form.component').then((m) => m.UsuarioFormComponent)
       },
       {
         path: 'usuarios/:id/editar',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/usuarios', 'editar')],
         loadComponent: () =>
           import('./features/usuarios/usuario-form/usuario-form.component').then((m) => m.UsuarioFormComponent)
       },
       {
         path: 'permisos',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/permisos', 'ver')],
         loadComponent: () => import('./features/permisos/permisos.component').then((m) => m.PermisosComponent)
       },
       {
         path: 'menus',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/menus', 'ver')],
         loadComponent: () => import('./features/menus/menu-list/menu-list.component').then((m) => m.MenuListComponent)
       },
       {
         path: 'menus/nuevo',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/menus', 'crear')],
         loadComponent: () => import('./features/menus/menu-form/menu-form.component').then((m) => m.MenuFormComponent)
       },
       {
         path: 'menus/:id/editar',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/menus', 'editar')],
         loadComponent: () => import('./features/menus/menu-form/menu-form.component').then((m) => m.MenuFormComponent)
       },
       {
@@ -100,18 +100,19 @@ export const routes: Routes = [
       },
       {
         path: 'doctores',
+        canActivate: [permisoGuard('/doctores', 'ver')],
         loadComponent: () =>
           import('./features/doctores/doctor-list/doctor-list.component').then((m) => m.DoctorListComponent)
       },
       {
         path: 'doctores/nuevo',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/doctores', 'crear')],
         loadComponent: () =>
           import('./features/doctores/doctor-form/doctor-form.component').then((m) => m.DoctorFormComponent)
       },
       {
         path: 'doctores/:id/editar',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/doctores', 'editar')],
         loadComponent: () =>
           import('./features/doctores/doctor-form/doctor-form.component').then((m) => m.DoctorFormComponent)
       },
@@ -136,60 +137,66 @@ export const routes: Routes = [
       },
       {
         path: 'catalogos/afecciones',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/catalogos/afecciones', 'ver')],
         loadComponent: () =>
           import('./features/catalogos/afecciones/afecciones.component').then((m) => m.AfeccionesComponent)
       },
       {
+        path: 'catalogos/motivos-cita',
+        canActivate: [permisoGuard('/catalogos/motivos-cita', 'ver')],
+        loadComponent: () =>
+          import('./features/catalogos/motivos-cita/motivos-cita.component').then((m) => m.MotivosCitaComponent)
+      },
+      {
         path: 'catalogos/especialidades',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/catalogos/especialidades', 'ver')],
         loadComponent: () =>
           import('./features/catalogos/especialidades/especialidades.component').then((m) => m.EspecialidadesComponent)
       },
       {
         path: 'catalogos/tipos-gasto',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/catalogos/tipos-gasto', 'ver')],
         loadComponent: () =>
           import('./features/catalogos/tipos-gasto/tipos-gasto.component').then((m) => m.TiposGastoComponent)
       },
       {
         path: 'catalogos/generos',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/catalogos/generos', 'ver')],
         loadComponent: () => import('./features/catalogos/generos/generos.component').then((m) => m.GenerosComponent)
       },
       {
         path: 'catalogos/metodos-pago',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/catalogos/metodos-pago', 'ver')],
         loadComponent: () =>
           import('./features/catalogos/metodos-pago/metodos-pago.component').then((m) => m.MetodosPagoComponent)
       },
       {
         path: 'catalogos/parentescos',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/catalogos/parentescos', 'ver')],
         loadComponent: () =>
           import('./features/catalogos/parentescos/parentescos.component').then((m) => m.ParentescosComponent)
       },
       {
         path: 'catalogos/profesiones',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/catalogos/profesiones', 'ver')],
         loadComponent: () =>
           import('./features/catalogos/profesiones/profesiones.component').then((m) => m.ProfesionesComponent)
       },
       {
         path: 'departamentos',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/departamentos', 'ver')],
         loadComponent: () =>
           import('./features/catalogos/departamentos/departamentos.component').then((m) => m.DepartamentosComponent)
       },
       {
         path: 'municipios',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/municipios', 'ver')],
         loadComponent: () =>
           import('./features/catalogos/municipios/municipios.component').then((m) => m.MunicipiosComponent)
       },
       {
         path: 'servicios',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/servicios', 'ver')],
         loadComponent: () =>
           import('./features/catalogos/servicios/servicios.component').then((m) => m.ServiciosComponent)
       },
@@ -245,14 +252,32 @@ export const routes: Routes = [
           )
       },
       {
-        path: 'financiero/comisiones',
+        path: 'financiero/pago-comisiones',
         loadComponent: () =>
-          import('./features/financiero/comisiones/comisiones.component').then((m) => m.ComisionesComponent)
+          import('./features/financiero/pago-comisiones/pago-comisiones-list/pago-comisiones-list.component').then(
+            (m) => m.PagoComisionesListComponent
+          )
       },
       {
-        path: 'financiero/cierre-caja',
+        path: 'financiero/pago-comisiones/:idDoctor',
         loadComponent: () =>
-          import('./features/financiero/cierre-caja/cierre-caja.component').then((m) => m.CierreCajaComponent)
+          import('./features/financiero/pago-comisiones/pago-comisiones-detalle/pago-comisiones-detalle.component').then(
+            (m) => m.PagoComisionesDetalleComponent
+          )
+      },
+      {
+        path: 'financiero/pago-comisiones/:idDoctor/registrar',
+        loadComponent: () =>
+          import(
+            './features/financiero/pago-comisiones/pago-comisiones-registrar/pago-comisiones-registrar.component'
+          ).then((m) => m.PagoComisionesRegistrarComponent)
+      },
+      {
+        path: 'financiero/pago-comisiones/:idDoctor/historial',
+        loadComponent: () =>
+          import(
+            './features/financiero/pago-comisiones/pago-comisiones-historial/pago-comisiones-historial.component'
+          ).then((m) => m.PagoComisionesHistorialComponent)
       },
       {
         path: 'gastos',
@@ -277,12 +302,12 @@ export const routes: Routes = [
       },
       {
         path: 'bitacora',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/bitacora', 'ver')],
         loadComponent: () => import('./features/bitacora/bitacora.component').then((m) => m.BitacoraComponent)
       },
       {
         path: 'bitacora/:id',
-        canActivate: [adminGuard],
+        canActivate: [permisoGuard('/bitacora', 'ver')],
         loadComponent: () =>
           import('./features/bitacora/bitacora-detalle/bitacora-detalle.component').then(
             (m) => m.BitacoraDetalleComponent

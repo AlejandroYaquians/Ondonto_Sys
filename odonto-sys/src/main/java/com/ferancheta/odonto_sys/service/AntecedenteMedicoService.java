@@ -28,11 +28,6 @@ public class AntecedenteMedicoService {
         return repository.findByPaciente_IdPaciente(idPaciente).stream().map(mapper::toResponse).toList();
     }
 
-    @Transactional(readOnly = true)
-    public AntecedenteMedicoResponse buscarPorId(Integer id) {
-        return mapper.toResponse(obtenerEntidad(id));
-    }
-
     @Transactional
     public AntecedenteMedicoResponse crear(AntecedenteMedicoRequest request) {
         AntecedenteMedico entidad = mapper.toEntity(request);

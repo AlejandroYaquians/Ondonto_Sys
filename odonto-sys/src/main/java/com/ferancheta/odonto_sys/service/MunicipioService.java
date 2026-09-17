@@ -39,11 +39,6 @@ public class MunicipioService {
                 .stream().map(mapper::toResponse).toList();
     }
 
-    @Transactional(readOnly = true)
-    public MunicipioResponse buscarPorId(Integer id) {
-        return mapper.toResponse(obtenerEntidad(id));
-    }
-
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public MunicipioResponse crear(MunicipioRequest request) {

@@ -8,10 +8,6 @@ import { Instrumental, InstrumentalRequest } from '../models/instrumental.models
 export class InstrumentalService {
   private readonly http = inject(HttpClient);
 
-  listar(): Observable<Instrumental[]> {
-    return this.http.get<Instrumental[]>(`${API_BASE_URL}/instrumental`);
-  }
-
   listarActivos(): Observable<Instrumental[]> {
     return this.http.get<Instrumental[]>(`${API_BASE_URL}/instrumental`, { params: { activos: true } });
   }

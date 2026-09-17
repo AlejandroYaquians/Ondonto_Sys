@@ -33,7 +33,7 @@
 
       <div class="d-flex justify-content-between align-items-center mb-2">
         <h2 class="h6 text-secondary text-uppercase mb-0">Notas de la Consulta</h2>
-        @if (!editandoDescripcion()) {
+        @if (!editandoDescripcion() && puedeEditar()) {
           <button type="button" class="btn btn-sm btn-outline-secondary" (click)="iniciarEdicionDescripcion()">
             <i class="bi bi-pencil"></i>
             Editar
@@ -64,7 +64,7 @@
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center" [class.mb-3]="mostrarFormularioReceta()">
         <h2 class="h6 text-uppercase text-secondary mb-0">Receta</h2>
-        @if (!idRecetaEditando()) {
+        @if (!idRecetaEditando() && puedeEditar()) {
           <button type="button" class="btn btn-sm btn-outline-primary" (click)="toggleFormularioReceta()">
             <i class="bi" [class.bi-plus-lg]="!mostrarFormularioReceta()" [class.bi-dash-lg]="mostrarFormularioReceta()"></i>
             {{ mostrarFormularioReceta() ? 'Cancelar' : 'Agregar receta' }}
@@ -128,14 +128,16 @@
                 }
                 <div class="text-secondary small">{{ fechaDiaMesAnio(item.fecha) }}</div>
               </div>
-              <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-outline-secondary" (click)="editarReceta(item)">
-                  <i class="bi bi-pencil"></i>
-                </button>
-                <button type="button" class="btn btn-outline-danger" (click)="eliminarReceta(item)">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </div>
+              @if (puedeEditar()) {
+                <div class="btn-group btn-group-sm">
+                  <button type="button" class="btn btn-outline-secondary" (click)="editarReceta(item)">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-danger" (click)="eliminarReceta(item)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              }
             </li>
           }
         </ul>

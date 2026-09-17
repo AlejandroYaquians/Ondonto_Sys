@@ -15,6 +15,9 @@ interface CeldaPermiso {
   puedeEliminar: boolean;
 }
 
+const VISTAS_SOLO_LECTURA = new Set(['/bitacora', '/dashboard', '/financiero/dashboard']);
+const VISTAS_SIN_EDITAR_NI_ELIMINAR = new Set(['/financiero/pago-comisiones']);
+
 @Component({
   selector: 'app-permisos',
   imports: [],
@@ -78,6 +81,18 @@ export class PermisosComponent implements OnInit {
         this.cargando.set(false);
       }
     });
+  }
+
+  muestraCrear(ruta: string): boolean {
+    return !VISTAS_SOLO_LECTURA.has(ruta);
+  }
+
+  muestraEditar(ruta: string): boolean {
+    return !VISTAS_SOLO_LECTURA.has(ruta) && !VISTAS_SIN_EDITAR_NI_ELIMINAR.has(ruta);
+  }
+
+  muestraEliminar(ruta: string): boolean {
+    return this.muestraEditar(ruta);
   }
 
   marcar(idMenu: number, campo: keyof Omit<CeldaPermiso, 'idPermiso'>, valor: boolean): void {

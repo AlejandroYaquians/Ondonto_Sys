@@ -45,10 +45,6 @@ export class HistorialClinicoSeccionComponent implements OnInit {
     return doctor ? `Dr(a). ${doctor.nombre} ${doctor.apellido}` : `#${idDoctor}`;
   }
 
-  resumen(descripcion: string): string {
-    return descripcion.length > 80 ? descripcion.slice(0, 80) + '…' : descripcion;
-  }
-
   formatoFecha(fecha: string): string {
     const [fechaParte, horaParte] = fecha.split('T');
     const [anio, mes, dia] = fechaParte.split('-');

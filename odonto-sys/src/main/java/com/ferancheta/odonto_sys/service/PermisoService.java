@@ -29,11 +29,6 @@ public class PermisoService {
         return repository.findByRol_IdRol(idRol).stream().map(mapper::toResponse).toList();
     }
 
-    @Transactional(readOnly = true)
-    public PermisoResponse buscarPorId(Integer id) {
-        return mapper.toResponse(obtenerEntidad(id));
-    }
-
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public PermisoResponse crear(PermisoRequest request) {
@@ -50,12 +45,6 @@ public class PermisoService {
         actualizado.setIdPermiso(existente.getIdPermiso());
         aplicarRelaciones(actualizado, request);
         return mapper.toResponse(repository.save(actualizado));
-    }
-
-    @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
-    public void eliminar(Integer id) {
-        repository.delete(obtenerEntidad(id));
     }
 
     private void aplicarRelaciones(Permiso entidad, PermisoRequest request) {

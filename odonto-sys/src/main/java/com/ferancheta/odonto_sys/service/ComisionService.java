@@ -3,10 +3,12 @@ package com.ferancheta.odonto_sys.service;
 import com.ferancheta.odonto_sys.dto.request.ComisionRequest;
 import com.ferancheta.odonto_sys.dto.response.ComisionResponse;
 import com.ferancheta.odonto_sys.entity.Comision;
+import com.ferancheta.odonto_sys.entity.EstadoComision;
 import com.ferancheta.odonto_sys.mapper.ComisionMapper;
 import com.ferancheta.odonto_sys.repository.CobroRepository;
 import com.ferancheta.odonto_sys.repository.ComisionRepository;
 import com.ferancheta.odonto_sys.repository.DoctorRepository;
+import com.ferancheta.odonto_sys.repository.EstadoComisionRepository;
 import com.ferancheta.odonto_sys.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -21,15 +23,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ComisionService {
 
+    private static final String ESTADO_PENDIENTE = "Pendiente";
+
     private final ComisionRepository repository;
     private final DoctorRepository doctorRepository;
     private final CobroRepository cobroRepository;
     private final UsuarioRepository usuarioRepository;
+    private final EstadoComisionRepository estadoComisionRepository;
     private final ComisionMapper mapper;
 
     @Transactional(readOnly = true)
     public List<ComisionResponse> listarPorDoctorYEstado(Integer idDoctor, String estado) {
-        return repository.findByDoctor_IdDoctorAndEstado(idDoctor, estado).stream().map(mapper::toResponse).toList();
+        return repository.findByDoctor_IdDoctorAndEstadoComision_NombreIgnoreCase(idDoctor, estado).stream()
+                .map(mapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
@@ -53,7 +59,7 @@ public class ComisionService {
     @Transactional
     public ComisionResponse crear(ComisionRequest request) {
         Comision entidad = mapper.toEntity(request);
-        entidad.setEstado("pendiente");
+        entidad.setEstadoComision(obtenerEstadoComision(ESTADO_PENDIENTE));
         aplicarRelaciones(entidad, request);
         return mapper.toResponse(repository.save(entidad));
     }
@@ -63,7 +69,7 @@ public class ComisionService {
         Comision existente = obtenerEntidad(id);
         Comision actualizada = mapper.toEntity(request);
         actualizada.setIdComision(existente.getIdComision());
-        actualizada.setEstado(existente.getEstado());
+        actualizada.setEstadoComision(existente.getEstadoComision());
         aplicarRelaciones(actualizada, request);
         return mapper.toResponse(repository.save(actualizada));
     }
@@ -71,8 +77,13 @@ public class ComisionService {
     @Transactional
     public ComisionResponse cambiarEstado(Integer id, String estado) {
         Comision comision = obtenerEntidad(id);
-        comision.setEstado(estado);
+        comision.setEstadoComision(obtenerEstadoComision(estado));
         return mapper.toResponse(repository.save(comision));
+    }
+
+    private EstadoComision obtenerEstadoComision(String nombre) {
+        return estadoComisionRepository.findByNombreIgnoreCase(nombre)
+                .orElseThrow(() -> new EntityNotFoundException("Estado de comisión no encontrado: " + nombre));
     }
 
     @Transactional

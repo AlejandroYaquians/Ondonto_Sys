@@ -51,7 +51,7 @@ public class Cita extends AuditableEntity {
     @JoinColumn(name = "id_estado_cita", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private CatEstadoCita estadoCita;
+    private EstadoCita estadoCita;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = false)

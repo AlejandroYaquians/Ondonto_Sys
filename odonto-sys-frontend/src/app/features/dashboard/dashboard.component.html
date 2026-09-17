@@ -60,7 +60,7 @@
             <ul class="list-group list-group-flush">
               @for (cita of agendaHoy(); track cita.idCita) {
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  <div class="fw-medium">{{ horaCorta(cita.hora) }} · {{ nombrePaciente(cita.idPaciente) }}</div>
+                  <div class="fw-medium">{{ horaCorta(cita.hora) }} | {{ nombrePaciente(cita.idPaciente) }}</div>
                   <span class="badge text-bg-info">{{ nombreEstado(cita.idEstadoCita) }}</span>
                 </li>
               }
@@ -127,16 +127,16 @@
   <div class="col-lg-4">
     <div class="card shadow-sm border-0 h-100">
       <div class="card-body">
-        <h2 class="h6 text-secondary text-uppercase mb-3">Citas del {{ fechaDiaMesAnio(diaSeleccionado()) }}</h2>
+        <h2 class="h6 text-secondary mb-3">Citas de {{ fechaDiaMesAnio(diaSeleccionado()) }}</h2>
         @if (citasDelDiaSeleccionado().length === 0) {
           <p class="text-secondary small mb-0">No hay citas para este día.</p>
         } @else {
           <ul class="list-group list-group-flush">
             @for (cita of citasDelDiaSeleccionado(); track cita.idCita) {
               <li class="list-group-item px-0">
-                <div class="fw-medium">{{ horaCorta(cita.hora) }} · {{ nombrePaciente(cita.idPaciente) }}</div>
+                <div class="fw-medium">{{ horaCorta(cita.hora) }} | {{ nombrePaciente(cita.idPaciente) }}</div>
                 <div class="text-secondary small">
-                  {{ nombreDoctor(cita.idDoctor) }} · {{ nombreEstado(cita.idEstadoCita) }}
+                  {{ nombreDoctor(cita.idDoctor) }} | {{ nombreEstado(cita.idEstadoCita) }}
                 </div>
               </li>
             }

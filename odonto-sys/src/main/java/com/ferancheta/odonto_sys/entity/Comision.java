@@ -29,8 +29,11 @@ public class Comision {
     @Column(name = "monto_comision", nullable = false, precision = 10, scale = 2)
     private BigDecimal montoComision = BigDecimal.ZERO;
 
-    @Column(name = "estado", length = 45)
-    private String estado = "pendiente";
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_estado_comision", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private EstadoComision estadoComision;
 
     @Column(name = "fecha", nullable = false)
     private LocalDate fecha;
@@ -56,4 +59,13 @@ public class Comision {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Usuario usuarioCreacion;
+
+    @Column(name = "fecha_pago")
+    private LocalDateTime fechaPago;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_usuario_pago")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Usuario usuarioPago;
 }

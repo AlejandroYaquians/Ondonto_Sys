@@ -104,15 +104,6 @@ public class UsuarioService {
         return despues;
     }
 
-    @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
-    public void eliminar(Integer id) {
-        Usuario usuario = obtenerEntidad(id);
-        UsuarioResponse antes = mapper.toResponse(usuario);
-        usuarioRepository.delete(usuario);
-        bitacoraService.registrarCambio("usuario", id, "DELETE", antes, null);
-    }
-
     private void crearDoctorParaUsuario(Usuario usuario, UsuarioRequest request) {
         if (request.porcentajeComision() == null) {
             throw new IllegalArgumentException("El porcentaje de comisión es obligatorio para crear un usuario con rol DOCTOR");

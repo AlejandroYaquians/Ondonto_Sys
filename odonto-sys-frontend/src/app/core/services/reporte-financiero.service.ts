@@ -9,13 +9,6 @@ export class ReporteFinancieroService {
   private readonly http = inject(HttpClient);
 
   generar(desde: string, hasta: string): Observable<ReporteFinanciero> {
-    return this.http.get<ReporteFinanciero>(`${API_BASE_URL}/reportes/financiero`, { params: { desde, hasta } });
-  }
-
-  descargarCsv(desde: string, hasta: string): Observable<Blob> {
-    return this.http.get(`${API_BASE_URL}/reportes/financiero/csv`, {
-      params: { desde, hasta },
-      responseType: 'blob'
-    });
+    return this.http.get<ReporteFinanciero>(`${API_BASE_URL}/financiero/dashboard`, { params: { desde, hasta } });
   }
 }

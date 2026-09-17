@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DoctorService } from '../../../core/services/doctor.service';
 import { CatalogosService } from '../../../core/services/catalogos.service';
-import { AuthService } from '../../../core/services/auth.service';
+import { AccesoService } from '../../../core/services/acceso.service';
 import { NotificacionService } from '../../../core/services/notificacion.service';
 import { Doctor } from '../../../core/models/doctor.models';
 import { CatEspecialidad } from '../../../core/models/catalogo.models';
@@ -15,7 +15,7 @@ import { CatEspecialidad } from '../../../core/models/catalogo.models';
 export class DoctorListComponent {
   private readonly doctorService = inject(DoctorService);
   private readonly catalogosService = inject(CatalogosService);
-  private readonly authService = inject(AuthService);
+  private readonly accesoService = inject(AccesoService);
   private readonly notificacionService = inject(NotificacionService);
 
   protected readonly doctores = signal<Doctor[]>([]);
@@ -24,7 +24,9 @@ export class DoctorListComponent {
   protected readonly error = signal<string | null>(null);
   protected readonly termino = signal('');
 
-  protected readonly esAdmin = computed(() => this.authService.rol() === 'ADMIN');
+  protected readonly puedeCrear = computed(() => this.accesoService.puedeCrear('/doctores'));
+  protected readonly puedeEditar = computed(() => this.accesoService.puedeEditar('/doctores'));
+  protected readonly puedeEliminar = computed(() => this.accesoService.puedeEliminar('/doctores'));
 
   protected readonly doctoresFiltrados = computed(() => {
     const texto = this.termino().trim().toLowerCase();

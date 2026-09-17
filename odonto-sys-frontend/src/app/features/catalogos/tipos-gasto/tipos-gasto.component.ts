@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CatalogosService } from '../../../core/services/catalogos.service';
 import { NotificacionService } from '../../../core/services/notificacion.service';
+import { AccesoService } from '../../../core/services/acceso.service';
 import { CatGasto } from '../../../core/models/catalogo.models';
 
 @Component({
@@ -13,12 +14,17 @@ export class TiposGastoComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly catalogosService = inject(CatalogosService);
   private readonly notificacionService = inject(NotificacionService);
+  private readonly accesoService = inject(AccesoService);
 
   protected readonly items = signal<CatGasto[]>([]);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly mostrarFormulario = signal(false);
   protected readonly idEditando = signal<number | null>(null);
+
+  protected readonly puedeCrear = computed(() => this.accesoService.puedeCrear('/catalogos/tipos-gasto'));
+  protected readonly puedeEditar = computed(() => this.accesoService.puedeEditar('/catalogos/tipos-gasto'));
+  protected readonly puedeEliminar = computed(() => this.accesoService.puedeEliminar('/catalogos/tipos-gasto'));
 
   protected readonly formulario = this.fb.group({
     nombreCategoria: ['', Validators.required],

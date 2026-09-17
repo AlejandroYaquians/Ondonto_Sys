@@ -2,11 +2,11 @@ package com.ferancheta.odonto_sys.service;
 
 import com.ferancheta.odonto_sys.dto.request.HistorialClinicoRequest;
 import com.ferancheta.odonto_sys.dto.response.HistorialClinicoResponse;
-import com.ferancheta.odonto_sys.entity.CatEstadoCita;
+import com.ferancheta.odonto_sys.entity.EstadoCita;
 import com.ferancheta.odonto_sys.entity.Cita;
 import com.ferancheta.odonto_sys.entity.HistorialClinico;
 import com.ferancheta.odonto_sys.mapper.HistorialClinicoMapper;
-import com.ferancheta.odonto_sys.repository.CatEstadoCitaRepository;
+import com.ferancheta.odonto_sys.repository.EstadoCitaRepository;
 import com.ferancheta.odonto_sys.repository.CitaRepository;
 import com.ferancheta.odonto_sys.repository.DoctorRepository;
 import com.ferancheta.odonto_sys.repository.HistorialClinicoRepository;
@@ -30,7 +30,7 @@ public class HistorialClinicoService {
     private final PacienteRepository pacienteRepository;
     private final DoctorRepository doctorRepository;
     private final CitaRepository citaRepository;
-    private final CatEstadoCitaRepository catEstadoCitaRepository;
+    private final EstadoCitaRepository estadoCitaRepository;
     private final ContextoAutenticacion contexto;
     private final BitacoraService bitacoraService;
     private final HistorialClinicoMapper mapper;
@@ -46,12 +46,7 @@ public class HistorialClinicoService {
 
     @Transactional(readOnly = true)
     public List<HistorialClinicoResponse> listarPorPaciente(Integer idPaciente) {
-        List<HistorialClinico> historiales = repository.findByPaciente_IdPaciente(idPaciente);
-        if (contexto.esDoctor()) {
-            Integer idDoctorActual = contexto.doctorActual().getIdDoctor();
-            historiales = historiales.stream().filter(h -> h.getDoctor().getIdDoctor().equals(idDoctorActual)).toList();
-        }
-        return historiales.stream().map(mapper::toResponse).toList();
+        return repository.findByPaciente_IdPaciente(idPaciente).stream().map(mapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
@@ -103,7 +98,7 @@ public class HistorialClinicoService {
         if (cita == null) {
             return;
         }
-        CatEstadoCita atendida = catEstadoCitaRepository.findByNombre(ESTADO_ATENDIDA)
+        EstadoCita atendida = estadoCitaRepository.findByNombre(ESTADO_ATENDIDA)
                 .orElseThrow(() -> new EntityNotFoundException("Estado de cita no encontrado: " + ESTADO_ATENDIDA));
         cita.setEstadoCita(atendida);
         citaRepository.save(cita);

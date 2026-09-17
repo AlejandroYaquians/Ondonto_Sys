@@ -42,7 +42,7 @@ $hover-bg: rgba(255, 255, 255, 0.08);
     background-color: rgba(255, 255, 255, 0.04);
   }
 
-  .accordion-button:not(.collapsed)::before {
+  .accordion-button.modulo-activo::before {
     content: '';
     position: absolute;
     left: 0;

@@ -48,9 +48,6 @@
       >
         Antecedentes médicos
       </button>
-      <button type="button" class="btn btn-outline-primary" [class.active]="pestanaActiva() === 'citas'" (click)="cambiarPestana('citas')">
-        Historial de citas
-      </button>
       <button
         type="button"
         class="btn btn-outline-primary"
@@ -140,14 +137,6 @@
     <div class="card shadow-sm border-0">
       <div class="card-body">
         <app-antecedentes-seccion [idPaciente]="p.idPaciente" />
-      </div>
-    </div>
-  }
-
-  @if (pestanaActiva() === 'citas') {
-    <div class="card shadow-sm border-0">
-      <div class="card-body">
-        <app-citas-seccion [idPaciente]="p.idPaciente" />
       </div>
     </div>
   }

@@ -2,11 +2,11 @@ package com.ferancheta.odonto_sys.service;
 
 import com.ferancheta.odonto_sys.dto.request.InstrumentalMovimientoRequest;
 import com.ferancheta.odonto_sys.dto.response.InstrumentalMovimientoResponse;
-import com.ferancheta.odonto_sys.entity.CatMovimiento;
+import com.ferancheta.odonto_sys.entity.TipoMovimiento;
 import com.ferancheta.odonto_sys.entity.Instrumental;
 import com.ferancheta.odonto_sys.entity.InstrumentalMovimiento;
 import com.ferancheta.odonto_sys.mapper.InstrumentalMovimientoMapper;
-import com.ferancheta.odonto_sys.repository.CatMovimientoRepository;
+import com.ferancheta.odonto_sys.repository.TipoMovimientoRepository;
 import com.ferancheta.odonto_sys.repository.InstrumentalMovimientoRepository;
 import com.ferancheta.odonto_sys.repository.InstrumentalRepository;
 import com.ferancheta.odonto_sys.security.ContextoAutenticacion;
@@ -26,7 +26,7 @@ public class InstrumentalMovimientoService {
 
     private final InstrumentalMovimientoRepository repository;
     private final InstrumentalRepository instrumentalRepository;
-    private final CatMovimientoRepository catMovimientoRepository;
+    private final TipoMovimientoRepository tipoMovimientoRepository;
     private final ContextoAutenticacion contexto;
     private final InstrumentalMovimientoMapper mapper;
 
@@ -50,7 +50,7 @@ public class InstrumentalMovimientoService {
         return mapper.toResponse(repository.save(entidad));
     }
 
-    private void validarAccesoPorRol(CatMovimiento tipoMovimiento) {
+    private void validarAccesoPorRol(TipoMovimiento tipoMovimiento) {
         if (contexto.esDoctor() && !TIPO_USO_EN_CONSULTA.equals(tipoMovimiento.getNombreMovimiento())) {
             throw new AccessDeniedException("Los doctores solo pueden registrar uso en consulta");
         }
@@ -63,7 +63,7 @@ public class InstrumentalMovimientoService {
         repository.delete(entidad);
     }
 
-    private void ajustarStock(Instrumental instrumental, CatMovimiento tipoMovimiento, Integer cantidad) {
+    private void ajustarStock(Instrumental instrumental, TipoMovimiento tipoMovimiento, Integer cantidad) {
         int stockActual = instrumental.getStockActual() != null ? instrumental.getStockActual() : 0;
         boolean suma = Boolean.TRUE.equals(tipoMovimiento.getOperacion());
         if (!suma && cantidad > stockActual) {
@@ -74,7 +74,7 @@ public class InstrumentalMovimientoService {
         instrumentalRepository.save(instrumental);
     }
 
-    private void revertirStock(Instrumental instrumental, CatMovimiento tipoMovimiento, Integer cantidad) {
+    private void revertirStock(Instrumental instrumental, TipoMovimiento tipoMovimiento, Integer cantidad) {
         int stockActual = instrumental.getStockActual() != null ? instrumental.getStockActual() : 0;
         int nuevoStock = Boolean.TRUE.equals(tipoMovimiento.getOperacion())
                 ? stockActual - cantidad
@@ -86,7 +86,7 @@ public class InstrumentalMovimientoService {
     private void aplicarRelaciones(InstrumentalMovimiento entidad, InstrumentalMovimientoRequest request) {
         entidad.setInstrumental(instrumentalRepository.findById(request.idInstrumental())
                 .orElseThrow(() -> new EntityNotFoundException("Instrumental no encontrado: " + request.idInstrumental())));
-        entidad.setTipoMovimiento(catMovimientoRepository.findById(request.idTipoMovimiento())
+        entidad.setTipoMovimiento(tipoMovimientoRepository.findById(request.idTipoMovimiento())
                 .orElseThrow(() -> new EntityNotFoundException("Tipo de movimiento no encontrado: " + request.idTipoMovimiento())));
     }
 

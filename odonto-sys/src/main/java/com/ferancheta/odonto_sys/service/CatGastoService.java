@@ -30,11 +30,6 @@ public class CatGastoService {
         return repository.findByActivoTrue().stream().map(mapper::toResponse).toList();
     }
 
-    @Transactional(readOnly = true)
-    public CatGastoResponse buscarPorId(Integer id) {
-        return mapper.toResponse(obtenerEntidad(id));
-    }
-
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public CatGastoResponse crear(CatGastoRequest request) {

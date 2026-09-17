@@ -30,11 +30,6 @@ public class DepartamentoService {
         return repository.findByActivoTrue().stream().map(mapper::toResponse).toList();
     }
 
-    @Transactional(readOnly = true)
-    public DepartamentoResponse buscarPorId(Integer id) {
-        return mapper.toResponse(obtenerEntidad(id));
-    }
-
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public DepartamentoResponse crear(DepartamentoRequest request) {

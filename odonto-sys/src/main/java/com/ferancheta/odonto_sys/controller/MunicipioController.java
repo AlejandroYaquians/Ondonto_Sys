@@ -28,11 +28,6 @@ public class MunicipioController {
         return Boolean.TRUE.equals(activos) ? service.listarActivos() : service.listar();
     }
 
-    @GetMapping("/{id}")
-    public MunicipioResponse buscarPorId(@PathVariable Integer id) {
-        return service.buscarPorId(id);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public MunicipioResponse crear(@Valid @RequestBody MunicipioRequest request) {

@@ -52,28 +52,40 @@
                     />
                   </td>
                   <td class="text-center">
-                    <input
-                      type="checkbox"
-                      class="form-check-input"
-                      [checked]="celdas()[menu.idMenu]?.puedeCrear"
-                      (change)="marcar(menu.idMenu, 'puedeCrear', $any($event.target).checked)"
-                    />
+                    @if (muestraCrear(menu.ruta)) {
+                      <input
+                        type="checkbox"
+                        class="form-check-input"
+                        [checked]="celdas()[menu.idMenu]?.puedeCrear"
+                        (change)="marcar(menu.idMenu, 'puedeCrear', $any($event.target).checked)"
+                      />
+                    } @else {
+                      <span class="text-secondary">-</span>
+                    }
                   </td>
                   <td class="text-center">
-                    <input
-                      type="checkbox"
-                      class="form-check-input"
-                      [checked]="celdas()[menu.idMenu]?.puedeEditar"
-                      (change)="marcar(menu.idMenu, 'puedeEditar', $any($event.target).checked)"
-                    />
+                    @if (muestraEditar(menu.ruta)) {
+                      <input
+                        type="checkbox"
+                        class="form-check-input"
+                        [checked]="celdas()[menu.idMenu]?.puedeEditar"
+                        (change)="marcar(menu.idMenu, 'puedeEditar', $any($event.target).checked)"
+                      />
+                    } @else {
+                      <span class="text-secondary">-</span>
+                    }
                   </td>
                   <td class="text-center">
-                    <input
-                      type="checkbox"
-                      class="form-check-input"
-                      [checked]="celdas()[menu.idMenu]?.puedeEliminar"
-                      (change)="marcar(menu.idMenu, 'puedeEliminar', $any($event.target).checked)"
-                    />
+                    @if (muestraEliminar(menu.ruta)) {
+                      <input
+                        type="checkbox"
+                        class="form-check-input"
+                        [checked]="celdas()[menu.idMenu]?.puedeEliminar"
+                        (change)="marcar(menu.idMenu, 'puedeEliminar', $any($event.target).checked)"
+                      />
+                    } @else {
+                      <span class="text-secondary">-</span>
+                    }
                   </td>
                 </tr>
               }

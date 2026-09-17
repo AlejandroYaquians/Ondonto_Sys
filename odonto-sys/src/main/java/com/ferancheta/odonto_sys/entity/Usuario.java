@@ -39,6 +39,7 @@ public class Usuario implements UserDetails {
     @Column(name = "estado")
     private Boolean estado = true;
 
+    @Builder.Default
     @Column(name = "intentos_fallidos")
     private Integer intentosFallidos = 0;
 

@@ -42,10 +42,4 @@ public class UsuarioController {
     public UsuarioResponse cambiarEstado(@PathVariable Integer id, @RequestParam boolean estado) {
         return service.cambiarEstado(id, estado);
     }
-
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void eliminar(@PathVariable Integer id) {
-        service.eliminar(id);
-    }
 }

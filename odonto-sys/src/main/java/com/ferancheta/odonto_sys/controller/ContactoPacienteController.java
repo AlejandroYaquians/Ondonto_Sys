@@ -22,11 +22,6 @@ public class ContactoPacienteController {
         return service.listarPorPaciente(idPaciente);
     }
 
-    @GetMapping("/{id}")
-    public ContactoPacienteResponse buscarPorId(@PathVariable Integer id) {
-        return service.buscarPorId(id);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ContactoPacienteResponse crear(@Valid @RequestBody ContactoPacienteRequest request) {

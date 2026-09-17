@@ -47,8 +47,4 @@ export class CobroService {
   cambiarEstado(id: number, estado: string): Observable<Cobro> {
     return this.http.patch<Cobro>(`${API_BASE_URL}/cobros/${id}/estado`, null, { params: { estado } });
   }
-
-  eliminar(id: number): Observable<void> {
-    return this.http.delete<void>(`${API_BASE_URL}/cobros/${id}`);
-  }
 }

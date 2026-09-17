@@ -1,8 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { RolService } from '../../../core/services/rol.service';
 import { NotificacionService } from '../../../core/services/notificacion.service';
+import { AccesoService } from '../../../core/services/acceso.service';
 import { Usuario } from '../../../core/models/usuario.models';
 import { Rol } from '../../../core/models/rol.models';
 
@@ -15,11 +16,15 @@ export class UsuarioListComponent {
   private readonly usuarioService = inject(UsuarioService);
   private readonly rolService = inject(RolService);
   private readonly notificacionService = inject(NotificacionService);
+  private readonly accesoService = inject(AccesoService);
 
   protected readonly usuarios = signal<Usuario[]>([]);
   protected readonly roles = signal<Rol[]>([]);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
+
+  protected readonly puedeCrear = computed(() => this.accesoService.puedeCrear('/usuarios'));
+  protected readonly puedeEditar = computed(() => this.accesoService.puedeEditar('/usuarios'));
 
   constructor() {
     this.cargar();

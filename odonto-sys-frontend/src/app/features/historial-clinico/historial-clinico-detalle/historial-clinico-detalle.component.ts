@@ -47,6 +47,9 @@ export class HistorialClinicoDetalleComponent implements OnInit {
   protected readonly guardando = signal(false);
 
   protected readonly esDoctor = computed(() => this.authService.rol() === 'DOCTOR');
+  protected readonly puedeEditar = computed(
+    () => !this.esDoctor() || this.doctor()?.idUsuario === this.authService.idUsuario()
+  );
 
   protected readonly formularioDescripcion = this.fb.group({
     descripcion: ['']

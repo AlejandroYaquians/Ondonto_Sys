@@ -58,7 +58,7 @@
         <div>
           <div class="fw-medium">{{ item.nombreCompleto }}</div>
           <div class="text-secondary small">
-            {{ item.telefonoContacto || '-' }} · {{ nombreParentesco(item.idParentesco) }}
+            {{ item.telefonoContacto || '-' }} | {{ nombreParentesco(item.idParentesco) }}
           </div>
         </div>
         @if (!soloLectura) {

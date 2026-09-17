@@ -1,0 +1,50 @@
+<div class="d-flex align-items-center gap-2 mb-4">
+  <a routerLink="/financiero/pago-comisiones" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left"></i>
+  </a>
+  <h1 class="h3 mb-0">
+    Historial de pagos
+    @if (doctor(); as d) {
+      de Dr(a). {{ d.nombre }} {{ d.apellido }}
+    }
+  </h1>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+<div class="card shadow-sm border-0">
+  <div class="card-body">
+    @if (cargando()) {
+      <div class="text-center text-secondary py-5">
+        <div class="spinner-border" role="status"></div>
+      </div>
+    } @else if (items().length === 0) {
+      <p class="text-secondary text-center py-4 mb-0">No hay pagos registrados.</p>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th scope="col">Fecha de pago</th>
+              <th scope="col">Monto pagado</th>
+              <th scope="col">Período cubierto</th>
+              <th scope="col">Usuario</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of items(); track item.fechaPago) {
+              <tr>
+                <td>{{ formatoFecha(item.fechaPago) }}</td>
+                <td>Q{{ item.montoPagado | number: '1.2-2' }}</td>
+                <td>{{ fechaDiaMesAnio(item.periodoDesde) }} al {{ fechaDiaMesAnio(item.periodoHasta) }}</td>
+                <td>{{ item.nombreUsuarioPago }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

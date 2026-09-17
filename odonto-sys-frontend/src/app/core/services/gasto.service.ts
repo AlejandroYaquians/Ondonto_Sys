@@ -8,10 +8,6 @@ import { Gasto, GastoRequest } from '../models/gasto.models';
 export class GastoService {
   private readonly http = inject(HttpClient);
 
-  listar(): Observable<Gasto[]> {
-    return this.http.get<Gasto[]>(`${API_BASE_URL}/gastos`);
-  }
-
   listarPorRango(desde: string, hasta: string, idTipoGasto: number | null): Observable<Gasto[]> {
     const params: Record<string, string | number> = { desde, hasta };
     if (idTipoGasto !== null) {

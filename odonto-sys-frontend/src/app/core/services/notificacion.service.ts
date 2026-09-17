@@ -18,10 +18,6 @@ export class NotificacionService {
     this.mostrar(mensaje, 'exito');
   }
 
-  error(mensaje: string): void {
-    this.mostrar(mensaje, 'error');
-  }
-
   cerrar(id: number): void {
     this.notificaciones.update((actuales) => actuales.filter((n) => n.id !== id));
   }

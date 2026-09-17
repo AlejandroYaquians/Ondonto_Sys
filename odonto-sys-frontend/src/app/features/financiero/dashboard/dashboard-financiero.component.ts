@@ -2,9 +2,12 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import autoTable from 'jspdf-autotable';
 import { ReporteFinancieroService } from '../../../core/services/reporte-financiero.service';
 import { CobroService } from '../../../core/services/cobro.service';
 import { PacienteService } from '../../../core/services/paciente.service';
+import { ESTILO_TABLA_PDF, PdfService } from '../../../core/services/pdf.service';
+import { ExcelService } from '../../../core/services/excel.service';
 import { ReporteFinanciero } from '../../../core/models/reporte-financiero.models';
 import { Cobro } from '../../../core/models/cobro.models';
 import { Paciente } from '../../../core/models/paciente.models';
@@ -53,12 +56,15 @@ export class DashboardFinancieroComponent implements OnInit {
   private readonly reporteService = inject(ReporteFinancieroService);
   private readonly cobroService = inject(CobroService);
   private readonly pacienteService = inject(PacienteService);
+  private readonly pdfService = inject(PdfService);
+  private readonly excelService = inject(ExcelService);
 
   protected readonly periodo = signal<Periodo>('hoy');
   protected readonly reporte = signal<ReporteFinanciero | null>(null);
   protected readonly cobrosRecientes = signal<Cobro[]>([]);
   protected readonly pacientes = signal<Paciente[]>([]);
   protected readonly cargando = signal(true);
+  protected readonly descargando = signal(false);
   protected readonly error = signal<string | null>(null);
 
   protected readonly filtroPersonalizado = this.fb.group({
@@ -133,5 +139,149 @@ export class DashboardFinancieroComponent implements OnInit {
     const [fechaParte, horaParte] = fecha.split('T');
     const [anio, mes, dia] = fechaParte.split('-');
     return `${dia}-${mes}-${anio} ${horaParte.slice(0, 5)}`;
+  }
+
+  async exportarExcel(): Promise<void> {
+    const r = this.reporte();
+    if (!r) {
+      return;
+    }
+    const { desde, hasta } = this.rangoDelPeriodo();
+
+    this.descargando.set(true);
+
+    try {
+      const { workbook, hoja } = this.excelService.crearLibro('Reporte Financiero', `Período: ${desde} al ${hasta}`);
+      let fila = 5;
+
+      fila = this.excelService.agregarSeccion(hoja, fila, 'Resumen de cobros');
+      fila = this.excelService.agregarTabla(
+        hoja,
+        fila,
+        ['Concepto', 'Monto'],
+        [
+          ['Ingresos brutos', r.ingresosBrutos],
+          ['Efectivo', r.cobroEfectivo],
+          ['Tarjeta', r.cobroTarjeta],
+          ['Comisión bancaria', r.comisionBancaria],
+          ['Costo de laboratorio', r.costoLaboratorio],
+          ['Monto neto', r.montoNeto]
+        ],
+        [1]
+      );
+
+      fila = this.excelService.agregarSeccion(hoja, fila, 'Comisiones por doctor');
+      fila = this.excelService.agregarTabla(
+        hoja,
+        fila,
+        ['Doctor', 'Porcentaje', 'Monto comisión'],
+        r.comisionesPorDoctor.length === 0
+          ? [['No hay comisiones en este período.', '', '']]
+          : r.comisionesPorDoctor.map((item) => [item.nombreDoctor, `${item.porcentaje}%`, item.montoComision]),
+        [2]
+      );
+
+      fila = this.excelService.agregarSeccion(hoja, fila, 'Gastos del período');
+      fila = this.excelService.agregarTabla(
+        hoja,
+        fila,
+        ['Concepto', 'Monto'],
+        [
+          ['Gastos fijos', r.gastosFijos],
+          ['Gastos variables', r.gastosVariables]
+        ],
+        [1]
+      );
+
+      fila = this.excelService.agregarSeccion(hoja, fila, 'Ganancia neta');
+      this.excelService.agregarTabla(hoja, fila, ['Concepto', 'Monto'], [['Ganancia neta', r.gananciaNeta]], [1]);
+
+      await this.excelService.descargar(workbook, `Reporte_Financiero_${desde}_${hasta}.xlsx`);
+      this.descargando.set(false);
+    } catch {
+      this.error.set('Error al exportar.');
+      this.descargando.set(false);
+    }
+  }
+
+  async exportarPdf(): Promise<void> {
+    const r = this.reporte();
+    if (!r) {
+      return;
+    }
+    const { desde, hasta } = this.rangoDelPeriodo();
+
+    const { doc, primeraLineaY } = await this.pdfService.crearDocumento('Reporte Financiero');
+    let y = primeraLineaY;
+
+    autoTable(doc, {
+      ...ESTILO_TABLA_PDF,
+      startY: y,
+      columnStyles: { 0: { fontStyle: 'bold' } },
+      body: [['Período', `${desde} al ${hasta}`]]
+    });
+    y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
+
+    doc.setTextColor(0);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text('Resumen de cobros', 14, y);
+    y += 4;
+
+    autoTable(doc, {
+      ...ESTILO_TABLA_PDF,
+      startY: y,
+      columnStyles: { 0: { fontStyle: 'bold' } },
+      body: [
+        ['Ingresos brutos', `Q${r.ingresosBrutos.toFixed(2)}`],
+        ['Efectivo', `Q${r.cobroEfectivo.toFixed(2)}`],
+        ['Tarjeta', `Q${r.cobroTarjeta.toFixed(2)}`],
+        ['Comisión bancaria', `Q${r.comisionBancaria.toFixed(2)}`],
+        ['Costo de laboratorio', `Q${r.costoLaboratorio.toFixed(2)}`],
+        ['Monto neto', `Q${r.montoNeto.toFixed(2)}`]
+      ]
+    });
+    y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text('Comisiones por doctor', 14, y);
+    y += 4;
+
+    autoTable(doc, {
+      ...ESTILO_TABLA_PDF,
+      startY: y,
+      head: [['Doctor', 'Porcentaje', 'Monto comisión']],
+      body:
+        r.comisionesPorDoctor.length === 0
+          ? [['No hay comisiones en este período.', '', '']]
+          : r.comisionesPorDoctor.map((item) => [item.nombreDoctor, `${item.porcentaje}%`, `Q${item.montoComision.toFixed(2)}`])
+    });
+    y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text('Gastos del período', 14, y);
+    y += 4;
+
+    autoTable(doc, {
+      ...ESTILO_TABLA_PDF,
+      startY: y,
+      columnStyles: { 0: { fontStyle: 'bold' } },
+      body: [
+        ['Gastos fijos', `Q${r.gastosFijos.toFixed(2)}`],
+        ['Gastos variables', `Q${r.gastosVariables.toFixed(2)}`]
+      ]
+    });
+    y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
+
+    autoTable(doc, {
+      ...ESTILO_TABLA_PDF,
+      startY: y,
+      styles: { ...ESTILO_TABLA_PDF.styles, fontStyle: 'bold' },
+      body: [['Ganancia neta', `Q${r.gananciaNeta.toFixed(2)}`]]
+    });
+
+    this.pdfService.abrir(doc, `Reporte_Financiero_${desde}_${hasta}.pdf`);
   }
 }

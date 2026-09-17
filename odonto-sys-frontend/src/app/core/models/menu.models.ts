@@ -7,10 +7,21 @@ export interface MenuItem {
   idModulo: number;
 }
 
+export interface MenuNavegacionItem {
+  idMenu: number;
+  nombre: string;
+  ruta: string;
+  orden: number;
+  idModulo: number;
+  puedeCrear: boolean;
+  puedeEditar: boolean;
+  puedeEliminar: boolean;
+}
+
 export interface ModuloConMenus {
   idModulo: number;
   nombre: string;
-  menus: MenuItem[];
+  menus: MenuNavegacionItem[];
 }
 
 export interface MenuRequest {

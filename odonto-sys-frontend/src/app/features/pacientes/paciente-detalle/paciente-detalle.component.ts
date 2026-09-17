@@ -9,7 +9,7 @@ import { HistorialClinicoService } from '../../../core/services/historial-clinic
 import { DoctorService } from '../../../core/services/doctor.service';
 import { ContactoPacienteService } from '../../../core/services/contacto-paciente.service';
 import { AntecedenteMedicoService } from '../../../core/services/antecedente-medico.service';
-import { PdfService } from '../../../core/services/pdf.service';
+import { ESTILO_TABLA_PDF, PdfService } from '../../../core/services/pdf.service';
 import { Paciente } from '../../../core/models/paciente.models';
 import { CatAfeccion, CatGenero, CatParentesco, CatProfesion, Departamento, Municipio } from '../../../core/models/catalogo.models';
 import { HistorialClinico } from '../../../core/models/historial-clinico.models';
@@ -18,7 +18,6 @@ import { ContactoPaciente } from '../../../core/models/contacto-paciente.models'
 import { AntecedenteMedico } from '../../../core/models/antecedente-medico.models';
 import { ContactosSeccionComponent } from './secciones/contactos-seccion.component';
 import { AntecedentesSeccionComponent } from './secciones/antecedentes-seccion.component';
-import { CitasSeccionComponent } from './secciones/citas-seccion.component';
 import { HistorialClinicoSeccionComponent } from './secciones/historial-clinico-seccion.component';
 import { RecetasSeccionComponent } from './secciones/recetas-seccion.component';
 import { CobrosSeccionComponent } from './secciones/cobros-seccion.component';
@@ -39,7 +38,7 @@ function calcularEdad(fechaNacimiento: string): number | null {
   return edad;
 }
 
-type PestanaExpediente = 'datos' | 'antecedentes' | 'citas' | 'historialClinico' | 'recetas' | 'cobros';
+type PestanaExpediente = 'datos' | 'antecedentes' | 'historialClinico' | 'recetas' | 'cobros';
 
 @Component({
   selector: 'app-paciente-detalle',
@@ -47,7 +46,6 @@ type PestanaExpediente = 'datos' | 'antecedentes' | 'citas' | 'historialClinico'
     RouterLink,
     ContactosSeccionComponent,
     AntecedentesSeccionComponent,
-    CitasSeccionComponent,
     HistorialClinicoSeccionComponent,
     RecetasSeccionComponent,
     CobrosSeccionComponent
@@ -195,9 +193,8 @@ export class PacienteDetalleComponent implements OnInit {
     let y = primeraLineaY;
 
     autoTable(doc, {
+      ...ESTILO_TABLA_PDF,
       startY: y,
-      theme: 'plain',
-      styles: { fontSize: 10 },
       columnStyles: { 0: { fontStyle: 'bold' }, 2: { fontStyle: 'bold' } },
       body: [
         ['Paciente', `${p.nombre} ${p.apellido}`, 'Edad', String(this.edad() ?? 0)],
@@ -209,13 +206,15 @@ export class PacienteDetalleComponent implements OnInit {
     });
     y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
 
+    doc.setTextColor(0);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.text('Contactos adicionales', 14, y);
     y += 4;
 
     const contactos = this.contactosParaExportar();
     autoTable(doc, {
+      ...ESTILO_TABLA_PDF,
       startY: y,
       head: [['Nombre', 'Teléfono', 'Parentesco']],
       body:
@@ -226,12 +225,13 @@ export class PacienteDetalleComponent implements OnInit {
     y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
 
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.text('Antecedentes médicos', 14, y);
     y += 4;
 
     const antecedentes = this.antecedentesParaExportar();
     autoTable(doc, {
+      ...ESTILO_TABLA_PDF,
       startY: y,
       head: [['Afección', 'Detalle']],
       body:
@@ -242,12 +242,13 @@ export class PacienteDetalleComponent implements OnInit {
     y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
 
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.text('Historial clínico', 14, y);
     y += 4;
 
     const historial = this.historialParaExportar();
     autoTable(doc, {
+      ...ESTILO_TABLA_PDF,
       startY: y,
       head: [['Fecha', 'Doctor', 'Descripción']],
       body:

@@ -1,0 +1,84 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div class="d-flex align-items-center gap-2">
+    @if (mostrarFormulario()) {
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelar()">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+    }
+    <h1 class="h3 mb-0">Motivos de Cita</h1>
+  </div>
+  @if (!mostrarFormulario() && puedeCrear()) {
+    <button type="button" class="btn btn-primary d-flex align-items-center gap-2" (click)="nuevo()">
+      <i class="bi bi-plus-lg"></i>
+      Nuevo
+    </button>
+  }
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+@if (mostrarFormulario()) {
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <form [formGroup]="formulario" (ngSubmit)="guardar()">
+        <div class="mb-3">
+          <label class="form-label">Nombre</label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="nombre"
+            [class.is-invalid]="formulario.controls.nombre.touched && formulario.controls.nombre.invalid"
+          />
+        </div>
+        <div class="d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-outline-secondary" (click)="cancelar()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<div class="card shadow-sm border-0">
+  <div class="card-body">
+    @if (cargando()) {
+      <div class="text-center text-secondary py-5">
+        <div class="spinner-border" role="status"></div>
+      </div>
+    } @else if (items().length === 0) {
+      <p class="text-secondary text-center py-4 mb-0">No hay registros.</p>
+    } @else {
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col" class="text-end">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of items(); track item.idMotivoCita) {
+            <tr>
+              <td>{{ item.nombre }}</td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  @if (puedeEditar()) {
+                    <button type="button" class="btn btn-outline-secondary" (click)="editar(item)">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                  }
+                  @if (puedeEliminar()) {
+                    <button type="button" class="btn btn-outline-danger" (click)="eliminar(item)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>

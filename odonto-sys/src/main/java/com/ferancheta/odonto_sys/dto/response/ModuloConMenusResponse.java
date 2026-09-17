@@ -5,6 +5,6 @@ import java.util.List;
 public record ModuloConMenusResponse(
         Integer idModulo,
         String nombre,
-        List<MenuResponse> menus
+        List<MenuNavegacionResponse> menus
 ) {
 }

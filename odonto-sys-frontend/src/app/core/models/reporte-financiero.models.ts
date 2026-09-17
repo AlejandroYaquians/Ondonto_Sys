@@ -15,5 +15,8 @@ export interface ReporteFinanciero {
   gastosFijos: number;
   gastosVariables: number;
   gananciaNeta: number;
+  cantidadCobrosPagados: number;
+  cantidadCobrosAnulados: number;
+  montoCobrosAnulados: number;
   comisionesPorDoctor: ComisionDoctorItem[];
 }

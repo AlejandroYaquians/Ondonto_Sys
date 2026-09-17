@@ -8,6 +8,8 @@ import com.ferancheta.odonto_sys.entity.Cobro;
 import com.ferancheta.odonto_sys.entity.CobroDetalle;
 import com.ferancheta.odonto_sys.entity.Comision;
 import com.ferancheta.odonto_sys.entity.Doctor;
+import com.ferancheta.odonto_sys.entity.EstadoCobro;
+import com.ferancheta.odonto_sys.entity.EstadoComision;
 import com.ferancheta.odonto_sys.entity.Paciente;
 import com.ferancheta.odonto_sys.entity.Servicio;
 import com.ferancheta.odonto_sys.mapper.CobroMapper;
@@ -18,6 +20,8 @@ import com.ferancheta.odonto_sys.repository.CobroDetalleRepository;
 import com.ferancheta.odonto_sys.repository.CobroRepository;
 import com.ferancheta.odonto_sys.repository.ComisionRepository;
 import com.ferancheta.odonto_sys.repository.DoctorRepository;
+import com.ferancheta.odonto_sys.repository.EstadoCobroRepository;
+import com.ferancheta.odonto_sys.repository.EstadoComisionRepository;
 import com.ferancheta.odonto_sys.repository.PacienteRepository;
 import com.ferancheta.odonto_sys.repository.ServicioRepository;
 import com.ferancheta.odonto_sys.security.ContextoAutenticacion;
@@ -40,6 +44,8 @@ public class CobroService {
     private static final int ESCALA = 2;
     private static final String NOMBRE_EFECTIVO = "Efectivo";
     private static final String NOMBRE_TARJETA = "Tarjeta";
+    private static final String ESTADO_COBRO_PAGADO = "Pagado";
+    private static final String ESTADO_COMISION_PENDIENTE = "Pendiente";
     private static final DateTimeFormatter FORMATO_CODIGO = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
     private static final LocalDateTime FECHA_MINIMA = LocalDateTime.of(2000, 1, 1, 0, 0);
     private static final LocalDateTime FECHA_MAXIMA = LocalDateTime.of(2100, 1, 1, 0, 0);
@@ -52,6 +58,8 @@ public class CobroService {
     private final CitaRepository citaRepository;
     private final ServicioRepository servicioRepository;
     private final CatMetodoPagoRepository catMetodoPagoRepository;
+    private final EstadoCobroRepository estadoCobroRepository;
+    private final EstadoComisionRepository estadoComisionRepository;
     private final ContextoAutenticacion contexto;
     private final BitacoraService bitacoraService;
     private final CobroMapper mapper;
@@ -141,7 +149,7 @@ public class CobroService {
         cobro.setMontoBruto(montoBruto);
         cobro.setMontoNeto(montoNeto);
         cobro.setCodigoCobro(generarCodigoCobro());
-        cobro.setEstado("pagado");
+        cobro.setEstadoCobro(obtenerEstadoCobro(ESTADO_COBRO_PAGADO));
         cobro.setPaciente(paciente);
         cobro.setCita(cita);
         cobro.setMetodoPago(metodoPago);
@@ -165,7 +173,7 @@ public class CobroService {
         comision.setMontoBase(montoNeto);
         comision.setPorcentajeAplicado(porcentajeComisionDoctor);
         comision.setMontoComision(comisionDoctor);
-        comision.setEstado("pendiente");
+        comision.setEstadoComision(obtenerEstadoComision(ESTADO_COMISION_PENDIENTE));
         comision.setFecha(LocalDate.now());
         comision.setUsuarioCreacion(contexto.usuarioActual());
         Comision comisionGuardada = comisionRepository.save(comision);
@@ -195,10 +203,20 @@ public class CobroService {
         return Long.parseLong(LocalDateTime.now().format(FORMATO_CODIGO));
     }
 
+    private EstadoCobro obtenerEstadoCobro(String nombre) {
+        return estadoCobroRepository.findByNombreIgnoreCase(nombre)
+                .orElseThrow(() -> new EntityNotFoundException("Estado de cobro no encontrado: " + nombre));
+    }
+
+    private EstadoComision obtenerEstadoComision(String nombre) {
+        return estadoComisionRepository.findByNombreIgnoreCase(nombre)
+                .orElseThrow(() -> new EntityNotFoundException("Estado de comisión no encontrado: " + nombre));
+    }
+
     @Transactional
     public CobroResponse cambiarEstado(Integer id, String estado) {
         Cobro cobro = obtenerEntidad(id);
-        cobro.setEstado(estado);
+        cobro.setEstadoCobro(obtenerEstadoCobro(estado));
         return mapper.toResponse(repository.save(cobro));
     }
 

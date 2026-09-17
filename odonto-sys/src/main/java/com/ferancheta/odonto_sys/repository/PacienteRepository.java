@@ -9,8 +9,6 @@ public interface PacienteRepository extends JpaRepository<Paciente, Integer> {
 
     List<Paciente> findByActivoTrue();
 
-    List<Paciente> findByNombreContainingIgnoreCaseOrApellidoContainingIgnoreCase(String nombre, String apellido);
-
     List<Paciente> findByActivoTrueAndNombreContainingIgnoreCaseOrActivoTrueAndApellidoContainingIgnoreCase(
             String nombre, String apellido);
 }

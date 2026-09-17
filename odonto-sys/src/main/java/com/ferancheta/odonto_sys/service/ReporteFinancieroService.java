@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -27,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReporteFinancieroService {
 
-    private static final String ESTADO_ANULADO = "anulado";
+    private static final String ESTADO_ANULADO = "Anulado";
     private static final String TIPO_FIJO = "Fijo";
     private static final String TIPO_VARIABLE = "Variable";
 
@@ -37,7 +36,16 @@ public class ReporteFinancieroService {
 
     @Transactional(readOnly = true)
     public ReporteFinancieroResponse generar(LocalDate desde, LocalDate hasta) {
-        List<Cobro> cobros = obtenerCobrosVigentes(desde, hasta);
+        LocalDateTime desdeFecha = LocalDateTime.of(desde, LocalTime.MIN);
+        LocalDateTime hastaFecha = LocalDateTime.of(hasta, LocalTime.MAX);
+        List<Cobro> todosLosCobros = cobroRepository.findByFechaBetween(desdeFecha, hastaFecha);
+
+        List<Cobro> cobrosAnulados = todosLosCobros.stream()
+                .filter(c -> ESTADO_ANULADO.equalsIgnoreCase(c.getEstadoCobro().getNombre()))
+                .toList();
+        List<Cobro> cobros = todosLosCobros.stream()
+                .filter(c -> !ESTADO_ANULADO.equalsIgnoreCase(c.getEstadoCobro().getNombre()))
+                .toList();
 
         BigDecimal ingresosBrutos = sumar(cobros, Cobro::getMontoBruto);
         BigDecimal cobroEfectivo = sumar(cobros, Cobro::getMontoEfectivo);
@@ -45,6 +53,7 @@ public class ReporteFinancieroService {
         BigDecimal comisionBancaria = sumar(cobros, Cobro::getComisionTarjeta);
         BigDecimal costoLaboratorio = sumar(cobros, Cobro::getCostoLaboratorio);
         BigDecimal montoNeto = sumar(cobros, Cobro::getMontoNeto);
+        BigDecimal montoCobrosAnulados = sumar(cobrosAnulados, Cobro::getMontoBruto);
 
         List<ReporteFinancieroResponse.ComisionDoctorItem> comisionesPorDoctor = obtenerComisionesPorDoctor(desde, hasta);
 
@@ -56,48 +65,9 @@ public class ReporteFinancieroService {
 
         return new ReporteFinancieroResponse(
                 ingresosBrutos, cobroEfectivo, cobroTarjeta, comisionBancaria, costoLaboratorio, montoNeto,
-                gastosFijos, gastosVariables, gananciaNeta, comisionesPorDoctor);
-    }
-
-    @Transactional(readOnly = true)
-    public byte[] generarCsv(LocalDate desde, LocalDate hasta) {
-        ReporteFinancieroResponse reporte = generar(desde, hasta);
-
-        StringBuilder csv = new StringBuilder("﻿");
-        csv.append("Clínica Dental Fernando Ancheta\n");
-        csv.append("Reporte financiero;").append(desde).append(" a ").append(hasta).append("\n\n");
-        csv.append("Concepto;Monto\n");
-        csv.append("Ingresos brutos;").append(formatearMonto(reporte.ingresosBrutos())).append("\n");
-        csv.append("Cobro efectivo;").append(formatearMonto(reporte.cobroEfectivo())).append("\n");
-        csv.append("Cobro tarjeta;").append(formatearMonto(reporte.cobroTarjeta())).append("\n");
-        csv.append("Comisión bancaria;").append(formatearMonto(reporte.comisionBancaria())).append("\n");
-        csv.append("Costo laboratorio;").append(formatearMonto(reporte.costoLaboratorio())).append("\n");
-        csv.append("Monto neto;").append(formatearMonto(reporte.montoNeto())).append("\n");
-        csv.append("Gastos fijos;").append(formatearMonto(reporte.gastosFijos())).append("\n");
-        csv.append("Gastos variables;").append(formatearMonto(reporte.gastosVariables())).append("\n");
-        csv.append("Ganancia neta;").append(formatearMonto(reporte.gananciaNeta())).append("\n\n");
-
-        csv.append("Comisiones por doctor\n");
-        csv.append("Doctor;Porcentaje;Monto comisión\n");
-        for (ReporteFinancieroResponse.ComisionDoctorItem item : reporte.comisionesPorDoctor()) {
-            csv.append(item.nombreDoctor()).append(";")
-                    .append(formatearMonto(item.porcentaje())).append("%;")
-                    .append(formatearMonto(item.montoComision())).append("\n");
-        }
-
-        return csv.toString().getBytes(StandardCharsets.UTF_8);
-    }
-
-    private String formatearMonto(BigDecimal valor) {
-        return valor.setScale(2, java.math.RoundingMode.HALF_UP).toPlainString();
-    }
-
-    private List<Cobro> obtenerCobrosVigentes(LocalDate desde, LocalDate hasta) {
-        LocalDateTime desdeFecha = LocalDateTime.of(desde, LocalTime.MIN);
-        LocalDateTime hastaFecha = LocalDateTime.of(hasta, LocalTime.MAX);
-        return cobroRepository.findByFechaBetween(desdeFecha, hastaFecha).stream()
-                .filter(c -> !ESTADO_ANULADO.equals(c.getEstado()))
-                .toList();
+                gastosFijos, gastosVariables, gananciaNeta,
+                cobros.size(), cobrosAnulados.size(), montoCobrosAnulados,
+                comisionesPorDoctor);
     }
 
     private List<ReporteFinancieroResponse.ComisionDoctorItem> obtenerComisionesPorDoctor(LocalDate desde, LocalDate hasta) {

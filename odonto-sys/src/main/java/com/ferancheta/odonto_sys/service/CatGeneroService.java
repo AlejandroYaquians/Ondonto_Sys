@@ -30,11 +30,6 @@ public class CatGeneroService {
         return repository.findByActivoTrue().stream().map(mapper::toResponse).toList();
     }
 
-    @Transactional(readOnly = true)
-    public CatGeneroResponse buscarPorId(Integer id) {
-        return mapper.toResponse(obtenerEntidad(id));
-    }
-
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public CatGeneroResponse crear(CatGeneroRequest request) {

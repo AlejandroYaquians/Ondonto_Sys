@@ -22,11 +22,6 @@ public class CatGastoController {
         return Boolean.TRUE.equals(activos) ? service.listarActivos() : service.listar();
     }
 
-    @GetMapping("/{id}")
-    public CatGastoResponse buscarPorId(@PathVariable Integer id) {
-        return service.buscarPorId(id);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CatGastoResponse crear(@Valid @RequestBody CatGastoRequest request) {

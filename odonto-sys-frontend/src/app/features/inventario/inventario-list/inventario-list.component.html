@@ -1,6 +1,6 @@
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
   <h1 class="h3 mb-0">Inventario</h1>
-  @if (puedeGestionar()) {
+  @if (puedeCrear()) {
     <a routerLink="/instrumental/nuevo" class="btn btn-primary d-flex align-items-center gap-2">
       <i class="bi bi-plus-lg"></i>
       Agregar artículo
@@ -48,11 +48,15 @@
                 </td>
                 <td>
                   <div class="btn-group btn-group-sm">
-                    <a [routerLink]="['/instrumental', item.idInstrumental, 'entrada']" class="btn btn-outline-success">
-                      Entrada
+                    <a
+                      [routerLink]="['/instrumental', item.idInstrumental, 'entrada']"
+                      class="btn btn-outline-success btn-entrada"
+                      title="Registrar entrada"
+                    >
+                      <i class="bi bi-arrow-down-circle"></i>
                     </a>
-                    <a [routerLink]="['/instrumental', item.idInstrumental, 'salida']" class="btn btn-outline-danger">
-                      Salida
+                    <a [routerLink]="['/instrumental', item.idInstrumental, 'salida']" class="btn btn-outline-danger" title="Registrar salida">
+                      <i class="bi bi-arrow-up-circle"></i>
                     </a>
                   </div>
                 </td>
@@ -61,12 +65,12 @@
                     <a [routerLink]="['/instrumental', item.idInstrumental, 'historial']" class="btn btn-outline-secondary" title="Historial">
                       <i class="bi bi-clock-history"></i>
                     </a>
-                    @if (puedeGestionar()) {
+                    @if (puedeEditar()) {
                       <a [routerLink]="['/instrumental', item.idInstrumental, 'editar']" class="btn btn-outline-secondary" title="Editar">
                         <i class="bi bi-pencil"></i>
                       </a>
                     }
-                    @if (esAdmin()) {
+                    @if (puedeEliminar()) {
                       <button type="button" class="btn btn-outline-danger" title="Eliminar" (click)="eliminar(item)">
                         <i class="bi bi-trash"></i>
                       </button>

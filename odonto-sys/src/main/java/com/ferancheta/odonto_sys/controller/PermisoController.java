@@ -22,11 +22,6 @@ public class PermisoController {
         return service.listarPorRol(idRol);
     }
 
-    @GetMapping("/{id}")
-    public PermisoResponse buscarPorId(@PathVariable Integer id) {
-        return service.buscarPorId(id);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PermisoResponse crear(@Valid @RequestBody PermisoRequest request) {
@@ -38,9 +33,4 @@ public class PermisoController {
         return service.actualizar(id, request);
     }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void eliminar(@PathVariable Integer id) {
-        service.eliminar(id);
-    }
 }

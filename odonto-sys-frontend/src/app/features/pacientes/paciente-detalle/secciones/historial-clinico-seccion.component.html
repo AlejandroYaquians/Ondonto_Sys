@@ -22,13 +22,13 @@
   <p class="text-secondary small mb-0">No hay registros en el historial clínico.</p>
 } @else {
   <div class="table-responsive">
-    <table class="table table-sm table-hover align-middle">
+    <table class="table table-sm table-hover align-middle" style="table-layout: fixed;">
       <thead>
         <tr>
-          <th scope="col">Fecha</th>
-          <th scope="col">Doctor</th>
+          <th scope="col" style="width: 12%">Fecha</th>
+          <th scope="col" style="width: 18%">Doctor</th>
           <th scope="col">Resumen</th>
-          <th scope="col" class="text-end">Detalle</th>
+          <th scope="col" class="text-end" style="width: 12%">Detalle</th>
         </tr>
       </thead>
       <tbody>
@@ -36,7 +36,7 @@
           <tr>
             <td>{{ formatoFecha(item.fecha) }}</td>
             <td>{{ nombreDoctor(item.idDoctor) }}</td>
-            <td>{{ resumen(item.descripcion) }}</td>
+            <td style="white-space: normal;">{{ item.descripcion }}</td>
             <td class="text-end">
               <a [routerLink]="['/historial-clinico', item.idHistorialClinico]" class="btn btn-sm btn-outline-primary">
                 <i class="bi bi-eye"></i>

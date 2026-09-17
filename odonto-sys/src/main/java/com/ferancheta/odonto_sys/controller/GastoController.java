@@ -31,11 +31,6 @@ public class GastoController {
         return service.listar();
     }
 
-    @GetMapping("/{id}")
-    public GastoResponse buscarPorId(@PathVariable Integer id) {
-        return service.buscarPorId(id);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public GastoResponse crear(@Valid @RequestBody GastoRequest request) {

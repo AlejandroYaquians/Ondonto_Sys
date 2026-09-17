@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { API_BASE_URL } from '../config/api-config';
 import { LoginRequest, LoginResponse } from '../models/auth.models';
+import { AccesoService } from './acceso.service';
 
 const TOKEN_KEY = 'odonto_token';
 const ID_USUARIO_KEY = 'odonto_id_usuario';
@@ -16,6 +17,7 @@ const ROL_KEY = 'odonto_rol';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly accesoService = inject(AccesoService);
 
   readonly idUsuario = signal<number | null>(this.leerIdUsuarioAlmacenado());
   readonly nombre = signal<string | null>(localStorage.getItem(NOMBRE_KEY));
@@ -53,6 +55,7 @@ export class AuthService {
     this.apellido.set(null);
     this.username.set(null);
     this.rol.set(null);
+    this.accesoService.limpiar();
     this.router.navigateByUrl('/login');
   }
 

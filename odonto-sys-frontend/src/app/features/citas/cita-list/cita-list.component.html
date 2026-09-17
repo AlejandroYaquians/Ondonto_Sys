@@ -112,7 +112,7 @@
                         <i class="bi bi-pencil"></i>
                       </a>
                     }
-                    @if (!esDoctor()) {
+                    @if (!esDoctor() && !esAtendida(cita)) {
                       <button type="button" class="btn btn-outline-danger" title="Eliminar" (click)="eliminar(cita)">
                         <i class="bi bi-trash"></i>
                       </button>

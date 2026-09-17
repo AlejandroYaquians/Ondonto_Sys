@@ -79,7 +79,7 @@
               <div>
                 <div class="fw-medium">{{ cobro.codigoCobro }}</div>
                 <div class="text-secondary small">
-                  {{ cobro.montoBruto !== null ? 'Q' + (cobro.montoBruto | number: '1.2-2') : '-' }} · {{ cobro.estado }}
+                  {{ cobro.montoBruto !== null ? 'Q' + (cobro.montoBruto | number: '1.2-2') : '-' }} | {{ cobro.estado }}
                 </div>
               </div>
               <a [routerLink]="['/cobros', cobro.idCobro]" class="btn btn-sm btn-outline-secondary">

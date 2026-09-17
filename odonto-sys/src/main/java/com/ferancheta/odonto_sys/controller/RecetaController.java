@@ -28,11 +28,6 @@ public class RecetaController {
         return service.listarPorPaciente(idPaciente);
     }
 
-    @GetMapping("/{id}")
-    public RecetaResponse buscarPorId(@PathVariable Integer id) {
-        return service.buscarPorId(id);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public RecetaResponse crear(@Valid @RequestBody RecetaRequest request) {

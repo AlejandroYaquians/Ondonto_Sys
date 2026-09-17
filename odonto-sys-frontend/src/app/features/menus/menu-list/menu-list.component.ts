@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { MenuService } from '../../../core/services/menu.service';
 import { ModuloService } from '../../../core/services/modulo.service';
 import { NotificacionService } from '../../../core/services/notificacion.service';
+import { AccesoService } from '../../../core/services/acceso.service';
 import { MenuItem } from '../../../core/models/menu.models';
 import { Modulo } from '../../../core/models/modulo.models';
 
@@ -20,11 +21,16 @@ export class MenuListComponent {
   private readonly menuService = inject(MenuService);
   private readonly moduloService = inject(ModuloService);
   private readonly notificacionService = inject(NotificacionService);
+  private readonly accesoService = inject(AccesoService);
 
   protected readonly menus = signal<MenuItem[]>([]);
   protected readonly modulos = signal<Modulo[]>([]);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
+
+  protected readonly puedeCrear = computed(() => this.accesoService.puedeCrear('/menus'));
+  protected readonly puedeEditar = computed(() => this.accesoService.puedeEditar('/menus'));
+  protected readonly puedeEliminar = computed(() => this.accesoService.puedeEliminar('/menus'));
 
   protected readonly grupos = computed<GrupoModulo[]>(() => {
     return this.modulos()

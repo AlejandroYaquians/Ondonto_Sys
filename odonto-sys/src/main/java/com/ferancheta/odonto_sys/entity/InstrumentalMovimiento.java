@@ -36,7 +36,7 @@ public class InstrumentalMovimiento {
     @JoinColumn(name = "id_tipo_movimiento", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private CatMovimiento tipoMovimiento;
+    private TipoMovimiento tipoMovimiento;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = false)

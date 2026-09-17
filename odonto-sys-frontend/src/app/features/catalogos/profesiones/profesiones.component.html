@@ -7,7 +7,7 @@
     }
     <h1 class="h3 mb-0">Profesiones</h1>
   </div>
-  @if (!mostrarFormulario()) {
+  @if (!mostrarFormulario() && puedeCrear()) {
     <button type="button" class="btn btn-primary d-flex align-items-center gap-2" (click)="nuevo()">
       <i class="bi bi-plus-lg"></i>
       Nuevo
@@ -63,12 +63,16 @@
               <td>{{ item.nombre }}</td>
               <td class="text-end">
                 <div class="btn-group btn-group-sm">
-                  <button type="button" class="btn btn-outline-secondary" (click)="editar(item)">
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                  <button type="button" class="btn btn-outline-danger" (click)="eliminar(item)">
-                    <i class="bi bi-trash"></i>
-                  </button>
+                  @if (puedeEditar()) {
+                    <button type="button" class="btn btn-outline-secondary" (click)="editar(item)">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                  }
+                  @if (puedeEliminar()) {
+                    <button type="button" class="btn btn-outline-danger" (click)="eliminar(item)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  }
                 </div>
               </td>
             </tr>

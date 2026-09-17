@@ -22,11 +22,6 @@ public class CatAfeccionController {
         return Boolean.TRUE.equals(activos) ? service.listarActivos() : service.listar();
     }
 
-    @GetMapping("/{id}")
-    public CatAfeccionResponse buscarPorId(@PathVariable Integer id) {
-        return service.buscarPorId(id);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CatAfeccionResponse crear(@Valid @RequestBody CatAfeccionRequest request) {

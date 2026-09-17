@@ -3,7 +3,7 @@ package com.ferancheta.odonto_sys.service;
 import com.ferancheta.odonto_sys.dto.request.HistorialClinicoCobroRequest;
 import com.ferancheta.odonto_sys.dto.response.CobroResponse;
 import com.ferancheta.odonto_sys.dto.response.HistorialClinicoCobroResponse;
-import com.ferancheta.odonto_sys.entity.CatEstadoCita;
+import com.ferancheta.odonto_sys.entity.EstadoCita;
 import com.ferancheta.odonto_sys.entity.Cita;
 import com.ferancheta.odonto_sys.entity.Doctor;
 import com.ferancheta.odonto_sys.entity.HistorialClinico;
@@ -11,7 +11,7 @@ import com.ferancheta.odonto_sys.entity.Paciente;
 import com.ferancheta.odonto_sys.entity.Receta;
 import com.ferancheta.odonto_sys.entity.Servicio;
 import com.ferancheta.odonto_sys.mapper.HistorialClinicoMapper;
-import com.ferancheta.odonto_sys.repository.CatEstadoCitaRepository;
+import com.ferancheta.odonto_sys.repository.EstadoCitaRepository;
 import com.ferancheta.odonto_sys.repository.CitaRepository;
 import com.ferancheta.odonto_sys.repository.DoctorRepository;
 import com.ferancheta.odonto_sys.repository.HistorialClinicoRepository;
@@ -39,7 +39,7 @@ public class HistorialClinicoCobroService {
     private final ServicioRepository servicioRepository;
     private final HistorialClinicoRepository historialClinicoRepository;
     private final RecetaRepository recetaRepository;
-    private final CatEstadoCitaRepository catEstadoCitaRepository;
+    private final EstadoCitaRepository estadoCitaRepository;
     private final ContextoAutenticacion contexto;
     private final BitacoraService bitacoraService;
     private final HistorialClinicoMapper historialClinicoMapper;
@@ -90,7 +90,7 @@ public class HistorialClinicoCobroService {
                 request.idMetodoPago(), historialGuardado);
 
         if (cita != null) {
-            CatEstadoCita atendida = catEstadoCitaRepository.findByNombre(ESTADO_ATENDIDA)
+            EstadoCita atendida = estadoCitaRepository.findByNombre(ESTADO_ATENDIDA)
                     .orElseThrow(() -> new EntityNotFoundException("Estado de cita no encontrado: " + ESTADO_ATENDIDA));
             cita.setEstadoCita(atendida);
             citaRepository.save(cita);

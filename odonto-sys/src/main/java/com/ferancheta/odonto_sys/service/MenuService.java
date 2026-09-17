@@ -1,6 +1,7 @@
 package com.ferancheta.odonto_sys.service;
 
 import com.ferancheta.odonto_sys.dto.request.MenuRequest;
+import com.ferancheta.odonto_sys.dto.response.MenuNavegacionResponse;
 import com.ferancheta.odonto_sys.dto.response.MenuResponse;
 import com.ferancheta.odonto_sys.dto.response.ModuloConMenusResponse;
 import com.ferancheta.odonto_sys.entity.Menu;
@@ -44,23 +45,34 @@ public class MenuService {
     public List<ModuloConMenusResponse> listarNavegacion() {
         Integer idRol = contexto.usuarioActual().getRol().getIdRol();
 
-        Map<Modulo, List<Menu>> menusPorModulo = permisoRepository.findByRol_IdRol(idRol).stream()
+        Map<Modulo, List<Permiso>> permisosPorModulo = permisoRepository.findByRol_IdRol(idRol).stream()
                 .filter(p -> Boolean.TRUE.equals(p.getPuedeVer()))
-                .map(Permiso::getMenu)
-                .filter(m -> Boolean.TRUE.equals(m.getActivo()))
-                .distinct()
-                .collect(Collectors.groupingBy(Menu::getModulo));
+                .filter(p -> Boolean.TRUE.equals(p.getMenu().getActivo()))
+                .collect(Collectors.groupingBy(p -> p.getMenu().getModulo()));
 
-        return menusPorModulo.entrySet().stream()
+        return permisosPorModulo.entrySet().stream()
                 .map(entrada -> new ModuloConMenusResponse(
                         entrada.getKey().getIdModulo(),
                         entrada.getKey().getNombre(),
                         entrada.getValue().stream()
-                                .sorted(Comparator.comparing(Menu::getOrden))
-                                .map(mapper::toResponse)
+                                .sorted(Comparator.comparing(p -> p.getMenu().getOrden()))
+                                .map(this::toNavegacionResponse)
                                 .toList()))
                 .sorted(Comparator.comparing(m -> ORDEN_MODULOS.indexOf(m.nombre())))
                 .toList();
+    }
+
+    private MenuNavegacionResponse toNavegacionResponse(Permiso permiso) {
+        Menu menu = permiso.getMenu();
+        return new MenuNavegacionResponse(
+                menu.getIdMenu(),
+                menu.getNombre(),
+                menu.getRuta(),
+                menu.getOrden(),
+                menu.getModulo().getIdModulo(),
+                permiso.getPuedeCrear(),
+                permiso.getPuedeEditar(),
+                permiso.getPuedeEliminar());
     }
 
     @Transactional(readOnly = true)

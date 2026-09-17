@@ -30,11 +30,6 @@ public class CatEspecialidadService {
         return repository.findByActivoTrue().stream().map(mapper::toResponse).toList();
     }
 
-    @Transactional(readOnly = true)
-    public CatEspecialidadResponse buscarPorId(Integer id) {
-        return mapper.toResponse(obtenerEntidad(id));
-    }
-
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public CatEspecialidadResponse crear(CatEspecialidadRequest request) {

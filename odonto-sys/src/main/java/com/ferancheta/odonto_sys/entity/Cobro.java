@@ -45,8 +45,11 @@ public class Cobro extends AuditableEntity {
     @Column(name = "codigo_cobro")
     private Long codigoCobro;
 
-    @Column(name = "estado", length = 45)
-    private String estado = "pendiente";
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_estado_cobro", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private EstadoCobro estadoCobro;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_paciente", nullable = false)

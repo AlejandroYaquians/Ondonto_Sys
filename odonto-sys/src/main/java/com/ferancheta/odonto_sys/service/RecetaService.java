@@ -27,28 +27,17 @@ public class RecetaService {
 
     @Transactional(readOnly = true)
     public List<RecetaResponse> listarPorHistorialClinico(Integer idHistorialClinico) {
-        obtenerHistorialVerificado(idHistorialClinico);
+        if (!historialClinicoRepository.existsById(idHistorialClinico)) {
+            throw new EntityNotFoundException("Historial clínico no encontrado: " + idHistorialClinico);
+        }
         return repository.findByHistorialClinico_IdHistorialClinico(idHistorialClinico).stream()
                 .map(mapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
     public List<RecetaResponse> listarPorPaciente(Integer idPaciente) {
-        List<Receta> recetas = repository.findByHistorialClinico_Paciente_IdPaciente(idPaciente);
-        if (contexto.esDoctor()) {
-            Integer idDoctorActual = contexto.doctorActual().getIdDoctor();
-            recetas = recetas.stream()
-                    .filter(r -> r.getHistorialClinico().getDoctor().getIdDoctor().equals(idDoctorActual))
-                    .toList();
-        }
-        return recetas.stream().map(mapper::toResponse).toList();
-    }
-
-    @Transactional(readOnly = true)
-    public RecetaResponse buscarPorId(Integer id) {
-        Receta entidad = obtenerEntidad(id);
-        validarPropietario(entidad);
-        return mapper.toResponse(entidad);
+        return repository.findByHistorialClinico_Paciente_IdPaciente(idPaciente).stream()
+                .map(mapper::toResponse).toList();
     }
 
     @Transactional

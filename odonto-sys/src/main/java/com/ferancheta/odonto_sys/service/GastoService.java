@@ -37,11 +37,6 @@ public class GastoService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
-    public GastoResponse buscarPorId(Integer id) {
-        return mapper.toResponse(obtenerEntidad(id));
-    }
-
     @Transactional
     public GastoResponse crear(GastoRequest request) {
         Gasto entidad = mapper.toEntity(request);

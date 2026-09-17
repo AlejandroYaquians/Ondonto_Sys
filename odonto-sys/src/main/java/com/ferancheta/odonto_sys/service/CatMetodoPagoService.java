@@ -31,11 +31,6 @@ public class CatMetodoPagoService {
         return repository.findByActivoTrue().stream().map(mapper::toResponse).toList();
     }
 
-    @Transactional(readOnly = true)
-    public CatMetodoPagoResponse buscarPorId(Integer id) {
-        return mapper.toResponse(obtenerEntidad(id));
-    }
-
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public CatMetodoPagoResponse actualizar(Integer id, CatMetodoPagoRequest request) {

@@ -1,4 +1,18 @@
-<h1 class="h3 mb-4">Dashboard financiero</h1>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <h1 class="h3 mb-0">Dashboard financiero</h1>
+  @if (reporte()) {
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-outline-secondary" [disabled]="descargando()" (click)="exportarExcel()">
+        <i class="bi bi-file-earmark-spreadsheet"></i>
+        Exportar Excel
+      </button>
+      <button type="button" class="btn btn-outline-secondary" (click)="exportarPdf()">
+        <i class="bi bi-file-earmark-pdf"></i>
+        Exportar PDF
+      </button>
+    </div>
+  }
+</div>
 
 @if (error()) {
   <div class="alert alert-danger" role="alert">{{ error() }}</div>
@@ -113,6 +127,49 @@
         </div>
       </div>
     </div>
+    <div class="col-md-4 col-lg-2">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="text-secondary small text-uppercase">Cobros</div>
+          <div class="h4 mb-0">
+            <span class="text-success">{{ r.cantidadCobrosPagados }}</span>
+            <span class="text-secondary fs-6"> pagados</span>
+          </div>
+          @if (r.cantidadCobrosAnulados > 0) {
+            <div class="small text-danger">
+              {{ r.cantidadCobrosAnulados }} anulado(s) · Q{{ r.montoCobrosAnulados | number: '1.2-2' }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="text-secondary small text-uppercase">Gastos fijos</div>
+          <div class="h5 mb-0">Q{{ r.gastosFijos | number: '1.2-2' }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="text-secondary small text-uppercase">Gastos variables</div>
+          <div class="h5 mb-0">Q{{ r.gastosVariables | number: '1.2-2' }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0 h-100 border-primary">
+        <div class="card-body">
+          <div class="text-secondary small text-uppercase">Ganancia neta</div>
+          <div class="h5 mb-0 text-primary">Q{{ r.gananciaNeta | number: '1.2-2' }}</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="row g-4">
@@ -163,9 +220,14 @@
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                   <div>
                     <div class="fw-medium">{{ nombrePaciente(cobro.idPaciente) }}</div>
-                    <div class="text-secondary small">{{ formatoFecha(cobro.fecha) }} · {{ cobro.codigoCobro }}</div>
+                    <div class="text-secondary small">{{ formatoFecha(cobro.fecha) }} | {{ cobro.codigoCobro }}</div>
                   </div>
                   <div class="d-flex align-items-center gap-2">
+                    @if (cobro.estado === 'Anulado') {
+                      <span class="badge text-bg-secondary">Anulado</span>
+                    } @else {
+                      <span class="badge text-bg-success">Pagado</span>
+                    }
                     <span class="fw-medium">Q{{ cobro.montoBruto | number: '1.2-2' }}</span>
                     <a [routerLink]="['/cobros', cobro.idCobro]" class="btn btn-sm btn-outline-secondary">
                       <i class="bi bi-eye"></i>

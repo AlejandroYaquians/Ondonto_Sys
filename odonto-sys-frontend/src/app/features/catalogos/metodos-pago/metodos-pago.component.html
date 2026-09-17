@@ -49,7 +49,7 @@
                     <button type="button" class="btn btn-primary" (click)="guardar(item)">Guardar</button>
                     <button type="button" class="btn btn-outline-secondary" (click)="cancelar()">Cancelar</button>
                   </div>
-                } @else {
+                } @else if (puedeEditar()) {
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="editar(item)">
                     <i class="bi bi-pencil"></i>
                   </button>

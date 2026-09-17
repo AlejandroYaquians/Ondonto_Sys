@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public abstract class CobroMapper {
 
+    @Mapping(target = "estado", source = "estadoCobro.nombre")
     @Mapping(target = "idPaciente", source = "paciente.idPaciente")
     @Mapping(target = "idCita", source = "cita.idCita")
     @Mapping(target = "idMetodoPago", source = "metodoPago.idMetodoPago")

@@ -18,7 +18,7 @@ interface DiaCalendario {
   citas: Cita[];
 }
 
-const ESTADOS_OCULTOS_EN_CALENDARIO = ['Cancelada', 'No asistió'];
+const ESTADOS_OCULTOS_EN_CALENDARIO = ['Cancelada', 'No asistió', 'Atendida'];
 const ROL_ADMIN = 'ADMIN';
 
 function fechaIso(fecha: Date): string {
@@ -68,9 +68,10 @@ export class DashboardComponent implements OnInit {
   protected readonly mesActual = signal(new Date().getMonth());
   protected readonly diaSeleccionado = signal(fechaIso(new Date()));
 
-  protected readonly nombreMes = computed(() =>
-    new Date(this.anioActual(), this.mesActual(), 1).toLocaleDateString('es-GT', { month: 'long', year: 'numeric' })
-  );
+  protected readonly nombreMes = computed(() => {
+    const mes = new Date(this.anioActual(), this.mesActual(), 1).toLocaleDateString('es-GT', { month: 'long' });
+    return `${mes} ${this.anioActual()}`;
+  });
 
   private readonly citasVisiblesEnCalendario = computed(() =>
     this.citas().filter((c) => !ESTADOS_OCULTOS_EN_CALENDARIO.includes(this.nombreEstado(c.idEstadoCita)))

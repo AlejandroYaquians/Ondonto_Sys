@@ -7,7 +7,7 @@ import { PacienteService } from '../../../../core/services/paciente.service';
 import { DoctorService } from '../../../../core/services/doctor.service';
 import { CatalogosService } from '../../../../core/services/catalogos.service';
 import { NotificacionService } from '../../../../core/services/notificacion.service';
-import { PdfService } from '../../../../core/services/pdf.service';
+import { ESTILO_TABLA_PDF, PdfService } from '../../../../core/services/pdf.service';
 import { Cobro } from '../../../../core/models/cobro.models';
 import { Paciente } from '../../../../core/models/paciente.models';
 import { Doctor } from '../../../../core/models/doctor.models';
@@ -83,9 +83,8 @@ export class CobroDetalleComponent implements OnInit {
     const { doc, primeraLineaY } = await this.pdfService.crearDocumento('Comprobante de Cobro');
 
     autoTable(doc, {
+      ...ESTILO_TABLA_PDF,
       startY: primeraLineaY,
-      theme: 'plain',
-      styles: { fontSize: 10 },
       columnStyles: { 0: { fontStyle: 'bold' } },
       body: [
         ['Código de cobro', datosCobro.codigoCobro],
@@ -101,6 +100,7 @@ export class CobroDetalleComponent implements OnInit {
     const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
 
     autoTable(doc, {
+      ...ESTILO_TABLA_PDF,
       startY: finalY + 8,
       head: [['Concepto', 'Monto']],
       body: [
@@ -111,7 +111,7 @@ export class CobroDetalleComponent implements OnInit {
       ]
     });
 
-    this.pdfService.abrir(doc, `comprobante-cobro-${datosCobro.codigoCobro}.pdf`);
+    this.pdfService.abrir(doc, `Comprobante_Cobro_${datosCobro.codigoCobro}.pdf`);
   }
 
   anular(): void {
@@ -119,7 +119,7 @@ export class CobroDetalleComponent implements OnInit {
     if (!cobro || !window.confirm('¿Desea anular este cobro?')) {
       return;
     }
-    this.cobroService.cambiarEstado(cobro.idCobro, 'anulado').subscribe({
+    this.cobroService.cambiarEstado(cobro.idCobro, 'Anulado').subscribe({
       next: (actualizado) => {
         this.cobro.set(actualizado);
         this.notificacionService.exito('Cobro anulado.');

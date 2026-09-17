@@ -48,6 +48,11 @@ export interface CatEstadoCita {
 export interface CatMotivoCita {
   idMotivoCita: number;
   nombre: string;
+  activo: boolean;
+}
+
+export interface CatMotivoCitaRequest {
+  nombre: string;
 }
 
 export interface CatEspecialidad {

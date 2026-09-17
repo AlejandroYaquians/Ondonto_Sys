@@ -2,13 +2,15 @@ package com.ferancheta.odonto_sys.service;
 
 import com.ferancheta.odonto_sys.dto.request.CitaRequest;
 import com.ferancheta.odonto_sys.dto.response.CitaResponse;
-import com.ferancheta.odonto_sys.entity.CatEstadoCita;
+import com.ferancheta.odonto_sys.entity.EstadoCita;
 import com.ferancheta.odonto_sys.entity.Cita;
 import com.ferancheta.odonto_sys.mapper.CitaMapper;
-import com.ferancheta.odonto_sys.repository.CatEstadoCitaRepository;
+import com.ferancheta.odonto_sys.repository.EstadoCitaRepository;
 import com.ferancheta.odonto_sys.repository.CatMotivoCitaRepository;
 import com.ferancheta.odonto_sys.repository.CitaRepository;
+import com.ferancheta.odonto_sys.repository.CobroRepository;
 import com.ferancheta.odonto_sys.repository.DoctorRepository;
+import com.ferancheta.odonto_sys.repository.HistorialClinicoRepository;
 import com.ferancheta.odonto_sys.repository.PacienteRepository;
 import com.ferancheta.odonto_sys.repository.UsuarioRepository;
 import com.ferancheta.odonto_sys.security.ContextoAutenticacion;
@@ -43,9 +45,11 @@ public class CitaService {
     private final CitaRepository citaRepository;
     private final PacienteRepository pacienteRepository;
     private final DoctorRepository doctorRepository;
-    private final CatEstadoCitaRepository catEstadoCitaRepository;
+    private final EstadoCitaRepository estadoCitaRepository;
     private final CatMotivoCitaRepository catMotivoCitaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final HistorialClinicoRepository historialClinicoRepository;
+    private final CobroRepository cobroRepository;
     private final ContextoAutenticacion contexto;
     private final CitaMapper mapper;
 
@@ -148,6 +152,12 @@ public class CitaService {
     public void eliminar(Integer id) {
         Cita cita = obtenerEntidad(id);
         validarPropietario(cita);
+
+        if (historialClinicoRepository.findByCita_IdCita(id).isPresent() || !cobroRepository.findByCita_IdCita(id).isEmpty()) {
+            throw new IllegalStateException(
+                    "No se puede eliminar una cita que ya tiene una consulta o un cobro registrado.");
+        }
+
         citaRepository.delete(cita);
     }
 
@@ -197,8 +207,8 @@ public class CitaService {
         }
     }
 
-    private CatEstadoCita buscarEstadoPorNombre(String nombre) {
-        return catEstadoCitaRepository.findByNombre(nombre)
+    private EstadoCita buscarEstadoPorNombre(String nombre) {
+        return estadoCitaRepository.findByNombre(nombre)
                 .orElseThrow(() -> new EntityNotFoundException("Estado de cita no encontrado: " + nombre));
     }
 

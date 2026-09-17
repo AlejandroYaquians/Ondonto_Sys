@@ -15,6 +15,7 @@ import {
   CatMetodoPago,
   CatMetodoPagoRequest,
   CatMotivoCita,
+  CatMotivoCitaRequest,
   CatMovimiento,
   CatParentesco,
   CatParentescoRequest,
@@ -99,11 +100,23 @@ export class CatalogosService {
   }
 
   estadosCita(): Observable<CatEstadoCita[]> {
-    return this.http.get<CatEstadoCita[]>(`${API_BASE_URL}/catalogos/estados-cita`);
+    return this.http.get<CatEstadoCita[]>(`${API_BASE_URL}/estados-cita`);
   }
 
   motivosCita(): Observable<CatMotivoCita[]> {
-    return this.http.get<CatMotivoCita[]>(`${API_BASE_URL}/catalogos/motivos-cita`);
+    return this.http.get<CatMotivoCita[]>(`${API_BASE_URL}/catalogos/motivos-cita`, { params: { activos: true } });
+  }
+
+  crearMotivoCita(request: CatMotivoCitaRequest): Observable<CatMotivoCita> {
+    return this.http.post<CatMotivoCita>(`${API_BASE_URL}/catalogos/motivos-cita`, request);
+  }
+
+  actualizarMotivoCita(id: number, request: CatMotivoCitaRequest): Observable<CatMotivoCita> {
+    return this.http.put<CatMotivoCita>(`${API_BASE_URL}/catalogos/motivos-cita/${id}`, request);
+  }
+
+  eliminarMotivoCita(id: number): Observable<void> {
+    return this.http.delete<void>(`${API_BASE_URL}/catalogos/motivos-cita/${id}`);
   }
 
   especialidades(): Observable<CatEspecialidad[]> {
@@ -195,6 +208,6 @@ export class CatalogosService {
   }
 
   tiposMovimiento(): Observable<CatMovimiento[]> {
-    return this.http.get<CatMovimiento[]>(`${API_BASE_URL}/catalogos/tipos-movimiento`);
+    return this.http.get<CatMovimiento[]>(`${API_BASE_URL}/tipos-movimiento`);
   }
 }

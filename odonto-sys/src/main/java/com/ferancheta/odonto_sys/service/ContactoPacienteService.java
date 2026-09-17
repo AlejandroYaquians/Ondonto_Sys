@@ -28,11 +28,6 @@ public class ContactoPacienteService {
         return repository.findByPaciente_IdPaciente(idPaciente).stream().map(mapper::toResponse).toList();
     }
 
-    @Transactional(readOnly = true)
-    public ContactoPacienteResponse buscarPorId(Integer id) {
-        return mapper.toResponse(obtenerEntidad(id));
-    }
-
     @Transactional
     public ContactoPacienteResponse crear(ContactoPacienteRequest request) {
         ContactoPaciente entidad = mapper.toEntity(request);

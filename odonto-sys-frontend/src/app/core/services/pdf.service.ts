@@ -5,6 +5,23 @@ const MARGEN_IZQUIERDO = 14;
 const ALTO_LOGO_MM = 16;
 const LADO_MAYOR_LOGO_PX = 240;
 
+export const ESTILO_TABLA_PDF = {
+  theme: 'grid' as const,
+  styles: {
+    textColor: 0,
+    lineColor: 0,
+    lineWidth: 0.1,
+    fontSize: 10
+  },
+  headStyles: {
+    fillColor: 255,
+    textColor: 0,
+    lineColor: 0,
+    lineWidth: 0.1,
+    fontStyle: 'bold' as const
+  }
+};
+
 interface LogoCargado {
   dataUrl: string;
   anchoAltoRatio: number;
@@ -48,12 +65,13 @@ export class PdfService {
 
     doc.addImage(logo.dataUrl, 'PNG', centroPagina - anchoLogo / 2, 10, anchoLogo, altoLogo);
 
+    doc.setTextColor(0);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(13);
     doc.text(titulo, centroPagina, 10 + altoLogo + 8, { align: 'center' });
 
     const lineaY = 10 + altoLogo + 14;
-    doc.setDrawColor(180, 180, 180);
+    doc.setDrawColor(0);
     doc.line(MARGEN_IZQUIERDO, lineaY, anchoPagina - MARGEN_IZQUIERDO, lineaY);
 
     return { doc, primeraLineaY: lineaY + 8 };

@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CatalogosService } from '../../../core/services/catalogos.service';
 import { NotificacionService } from '../../../core/services/notificacion.service';
+import { AccesoService } from '../../../core/services/acceso.service';
 import { CatMetodoPago } from '../../../core/models/catalogo.models';
 
 @Component({
@@ -12,12 +13,15 @@ import { CatMetodoPago } from '../../../core/models/catalogo.models';
 export class MetodosPagoComponent implements OnInit {
   private readonly catalogosService = inject(CatalogosService);
   private readonly notificacionService = inject(NotificacionService);
+  private readonly accesoService = inject(AccesoService);
 
   protected readonly items = signal<CatMetodoPago[]>([]);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly idEditando = signal<number | null>(null);
   protected readonly comisionEditando = signal<number | null>(null);
+
+  protected readonly puedeEditar = computed(() => this.accesoService.puedeEditar('/catalogos/metodos-pago'));
 
   ngOnInit(): void {
     this.cargar();

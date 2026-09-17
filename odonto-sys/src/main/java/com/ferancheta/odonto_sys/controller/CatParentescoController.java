@@ -22,11 +22,6 @@ public class CatParentescoController {
         return Boolean.TRUE.equals(activos) ? service.listarActivos() : service.listar();
     }
 
-    @GetMapping("/{id}")
-    public CatParentescoResponse buscarPorId(@PathVariable Integer id) {
-        return service.buscarPorId(id);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CatParentescoResponse crear(@Valid @RequestBody CatParentescoRequest request) {

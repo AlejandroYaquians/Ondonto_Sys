@@ -22,11 +22,6 @@ public class AntecedenteMedicoController {
         return service.listarPorPaciente(idPaciente);
     }
 
-    @GetMapping("/{id}")
-    public AntecedenteMedicoResponse buscarPorId(@PathVariable Integer id) {
-        return service.buscarPorId(id);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AntecedenteMedicoResponse crear(@Valid @RequestBody AntecedenteMedicoRequest request) {

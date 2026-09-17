@@ -13,6 +13,9 @@ public record ReporteFinancieroResponse(
         BigDecimal gastosFijos,
         BigDecimal gastosVariables,
         BigDecimal gananciaNeta,
+        Integer cantidadCobrosPagados,
+        Integer cantidadCobrosAnulados,
+        BigDecimal montoCobrosAnulados,
         List<ComisionDoctorItem> comisionesPorDoctor
 ) {
 

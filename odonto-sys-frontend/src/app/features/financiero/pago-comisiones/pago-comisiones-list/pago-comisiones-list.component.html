@@ -1,0 +1,60 @@
+<h1 class="h3 mb-4">Pago de comisiones</h1>
+
+@if (error()) {
+  <div class="alert alert-danger" role="alert">{{ error() }}</div>
+}
+
+<div class="card shadow-sm border-0">
+  <div class="card-body">
+    @if (cargando()) {
+      <div class="text-center text-secondary py-5">
+        <div class="spinner-border" role="status"></div>
+      </div>
+    } @else if (items().length === 0) {
+      <p class="text-secondary text-center py-4 mb-0">No hay doctores activos.</p>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th scope="col">Doctor</th>
+              <th scope="col">Última fecha pagada</th>
+              <th scope="col">Acumulado pendiente</th>
+              <th scope="col" class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of items(); track item.idDoctor) {
+              <tr>
+                <td>Dr(a). {{ item.nombreDoctor }}</td>
+                <td>{{ formatoFecha(item.ultimaFechaPago) }}</td>
+                <td>Q{{ item.montoAcumulado | number: '1.2-2' }}</td>
+                <td class="text-end">
+                  <div class="btn-group btn-group-sm">
+                    <a [routerLink]="['/financiero/pago-comisiones', item.idDoctor]" class="btn btn-outline-primary" title="Ver detalle">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                    <a
+                      [routerLink]="['/financiero/pago-comisiones', item.idDoctor, 'historial']"
+                      class="btn btn-outline-secondary"
+                      title="Ver historial"
+                    >
+                      <i class="bi bi-clock-history"></i>
+                    </a>
+                    <a
+                      [routerLink]="['/financiero/pago-comisiones', item.idDoctor, 'registrar']"
+                      class="btn btn-outline-success btn-pagar"
+                      title="Registrar pago"
+                    >
+                      <i class="bi bi-cash-coin"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

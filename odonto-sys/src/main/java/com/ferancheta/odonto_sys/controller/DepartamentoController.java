@@ -22,11 +22,6 @@ public class DepartamentoController {
         return Boolean.TRUE.equals(activos) ? service.listarActivos() : service.listar();
     }
 
-    @GetMapping("/{id}")
-    public DepartamentoResponse buscarPorId(@PathVariable Integer id) {
-        return service.buscarPorId(id);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public DepartamentoResponse crear(@Valid @RequestBody DepartamentoRequest request) {

@@ -22,11 +22,6 @@ public class CatGeneroController {
         return Boolean.TRUE.equals(activos) ? service.listarActivos() : service.listar();
     }
 
-    @GetMapping("/{id}")
-    public CatGeneroResponse buscarPorId(@PathVariable Integer id) {
-        return service.buscarPorId(id);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CatGeneroResponse crear(@Valid @RequestBody CatGeneroRequest request) {

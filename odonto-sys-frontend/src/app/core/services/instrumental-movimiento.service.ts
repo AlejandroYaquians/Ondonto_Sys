@@ -17,8 +17,4 @@ export class InstrumentalMovimientoService {
   crear(request: InstrumentalMovimientoRequest): Observable<InstrumentalMovimiento> {
     return this.http.post<InstrumentalMovimiento>(`${API_BASE_URL}/instrumental-movimientos`, request);
   }
-
-  eliminar(id: number): Observable<void> {
-    return this.http.delete<void>(`${API_BASE_URL}/instrumental-movimientos/${id}`);
-  }
 }
