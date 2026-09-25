@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PerfilService } from '../../core/services/perfil.service';
+import { NotificacionService } from '../../core/services/notificacion.service';
 import { Perfil } from '../../core/models/perfil.models';
 
 @Component({
@@ -11,6 +12,7 @@ import { Perfil } from '../../core/models/perfil.models';
 export class PerfilComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly perfilService = inject(PerfilService);
+  private readonly notificacionService = inject(NotificacionService);
 
   protected readonly perfil = signal<Perfil | null>(null);
   protected readonly cargando = signal(true);
@@ -19,7 +21,6 @@ export class PerfilComponent implements OnInit {
   protected readonly mostrarFormulario = signal(false);
   protected readonly guardando = signal(false);
   protected readonly errorPassword = signal<string | null>(null);
-  protected readonly exitoPassword = signal(false);
 
   protected readonly mostrarPasswordActual = signal(false);
   protected readonly mostrarPasswordNueva = signal(false);
@@ -47,7 +48,6 @@ export class PerfilComponent implements OnInit {
   toggleFormulario(): void {
     this.mostrarFormulario.update((actual) => !actual);
     this.errorPassword.set(null);
-    this.exitoPassword.set(false);
     this.formulario.reset({ passwordActual: '', passwordNueva: '', confirmarPassword: '' });
   }
 
@@ -77,7 +77,6 @@ export class PerfilComponent implements OnInit {
 
     this.guardando.set(true);
     this.errorPassword.set(null);
-    this.exitoPassword.set(false);
 
     this.perfilService
       .cambiarPassword({
@@ -87,8 +86,8 @@ export class PerfilComponent implements OnInit {
       .subscribe({
         next: () => {
           this.guardando.set(false);
-          this.exitoPassword.set(true);
           this.mostrarFormulario.set(false);
+          this.notificacionService.exito('Contraseña actualizada correctamente.');
         },
         error: (err) => {
           this.guardando.set(false);

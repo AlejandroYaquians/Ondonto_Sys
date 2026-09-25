@@ -2,7 +2,7 @@
   <a routerLink="/instrumental" class="btn btn-outline-secondary btn-sm">
     <i class="bi bi-arrow-left"></i>
   </a>
-  <h1 class="h3 mb-0">{{ esEntrada ? 'Entrada' : 'Salida' }} de {{ instrumental()?.nombre ?? '...' }}</h1>
+  <h1 class="h3 mb-0">Registrar movimiento</h1>
 </div>
 
 @if (error()) {
@@ -16,6 +16,17 @@
 } @else {
   <div class="card shadow-sm border-0">
     <div class="card-body p-4">
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <div class="text-secondary small text-uppercase">Artículo</div>
+          <div class="fw-medium">{{ instrumental()?.nombre ?? '-' }}</div>
+        </div>
+        <div class="col-md-6">
+          <div class="text-secondary small text-uppercase">Tipo de movimiento</div>
+          <div class="fw-medium">{{ esEntrada ? 'Entrada' : 'Salida' }}</div>
+        </div>
+      </div>
+
       <form [formGroup]="formulario" (ngSubmit)="onSubmit()">
         <div class="row g-3 mb-4">
           <div class="col-md-6">

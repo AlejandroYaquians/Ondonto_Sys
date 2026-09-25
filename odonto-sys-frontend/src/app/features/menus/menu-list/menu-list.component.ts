@@ -44,7 +44,7 @@ export class MenuListComponent {
   });
 
   constructor() {
-    this.moduloService.listarActivos().subscribe((datos) => this.modulos.set(datos));
+    this.moduloService.listar().subscribe((datos) => this.modulos.set(datos));
     this.cargar();
   }
 

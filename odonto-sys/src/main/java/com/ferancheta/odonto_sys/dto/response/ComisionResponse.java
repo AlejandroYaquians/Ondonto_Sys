@@ -9,11 +9,11 @@ public record ComisionResponse(
         BigDecimal montoBase,
         BigDecimal porcentajeAplicado,
         BigDecimal montoComision,
-        String estado,
         LocalDate fecha,
         Integer idDoctor,
         Integer idCobro,
         Integer idUsuarioCreacion,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        Integer idPagoComision
 ) {
 }

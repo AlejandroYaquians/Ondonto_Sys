@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 public record CatMetodoPagoResponse(
         Integer idMetodoPago,
         String nombre,
-        BigDecimal comisionPorcentaje,
-        Boolean activo
+        BigDecimal comisionPorcentaje
 ) {
 }

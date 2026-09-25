@@ -53,7 +53,7 @@
     <div class="col-12">
       <div class="card shadow-sm border-0">
         <div class="card-body">
-          <h2 class="h6 text-secondary text-uppercase mb-3">Agenda de hoy</h2>
+          <h2 class="h6 text-uppercase text-secondary mb-3">Agenda de hoy</h2>
           @if (agendaHoy().length === 0) {
             <p class="text-secondary small mb-0">No hay citas para hoy.</p>
           } @else {
@@ -80,7 +80,7 @@
           <button type="button" class="btn btn-outline-secondary btn-sm" (click)="mesAnterior()">
             <i class="bi bi-chevron-left"></i>
           </button>
-          <h2 class="h5 mb-0 text-capitalize">{{ nombreMes() }}</h2>
+          <h2 class="h6 mb-0 text-uppercase text-secondary">{{ nombreMes() }}</h2>
           <button type="button" class="btn btn-outline-secondary btn-sm" (click)="mesSiguiente()">
             <i class="bi bi-chevron-right"></i>
           </button>
@@ -127,7 +127,7 @@
   <div class="col-lg-4">
     <div class="card shadow-sm border-0 h-100">
       <div class="card-body">
-        <h2 class="h6 text-secondary mb-3">Citas de {{ fechaDiaMesAnio(diaSeleccionado()) }}</h2>
+        <h2 class="h6 text-uppercase text-secondary mb-3">Citas de {{ fechaDiaMesAnio(diaSeleccionado()) }}</h2>
         @if (citasDelDiaSeleccionado().length === 0) {
           <p class="text-secondary small mb-0">No hay citas para este día.</p>
         } @else {

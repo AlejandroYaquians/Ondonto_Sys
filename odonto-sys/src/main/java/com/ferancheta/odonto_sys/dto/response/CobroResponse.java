@@ -9,6 +9,7 @@ public record CobroResponse(
         Long codigoCobro,
         BigDecimal montoEfectivo,
         BigDecimal montoTarjeta,
+        BigDecimal montoTransferencia,
         BigDecimal comisionTarjeta,
         BigDecimal costoLaboratorio,
         BigDecimal montoBruto,

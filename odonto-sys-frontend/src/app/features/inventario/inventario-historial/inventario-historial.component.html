@@ -2,7 +2,7 @@
   <a routerLink="/instrumental" class="btn btn-outline-secondary btn-sm">
     <i class="bi bi-arrow-left"></i>
   </a>
-  <h1 class="h3 mb-0">Historial de {{ instrumental()?.nombre ?? '...' }}</h1>
+  <h1 class="h3 mb-0">Historial de movimientos</h1>
 </div>
 
 @if (error()) {
@@ -11,6 +11,11 @@
 
 <div class="card shadow-sm border-0 mb-4">
   <div class="card-body">
+    <div class="mb-3">
+      <div class="text-secondary small text-uppercase">Artículo</div>
+      <div class="fw-medium">{{ instrumental()?.nombre ?? '-' }}</div>
+    </div>
+
     @if (cargando()) {
       <div class="text-center text-secondary py-5">
         <div class="spinner-border" role="status"></div>

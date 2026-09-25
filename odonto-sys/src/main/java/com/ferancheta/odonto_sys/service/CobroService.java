@@ -9,7 +9,6 @@ import com.ferancheta.odonto_sys.entity.CobroDetalle;
 import com.ferancheta.odonto_sys.entity.Comision;
 import com.ferancheta.odonto_sys.entity.Doctor;
 import com.ferancheta.odonto_sys.entity.EstadoCobro;
-import com.ferancheta.odonto_sys.entity.EstadoComision;
 import com.ferancheta.odonto_sys.entity.Paciente;
 import com.ferancheta.odonto_sys.entity.Servicio;
 import com.ferancheta.odonto_sys.mapper.CobroMapper;
@@ -21,7 +20,6 @@ import com.ferancheta.odonto_sys.repository.CobroRepository;
 import com.ferancheta.odonto_sys.repository.ComisionRepository;
 import com.ferancheta.odonto_sys.repository.DoctorRepository;
 import com.ferancheta.odonto_sys.repository.EstadoCobroRepository;
-import com.ferancheta.odonto_sys.repository.EstadoComisionRepository;
 import com.ferancheta.odonto_sys.repository.PacienteRepository;
 import com.ferancheta.odonto_sys.repository.ServicioRepository;
 import com.ferancheta.odonto_sys.security.ContextoAutenticacion;
@@ -45,7 +43,6 @@ public class CobroService {
     private static final String NOMBRE_EFECTIVO = "Efectivo";
     private static final String NOMBRE_TARJETA = "Tarjeta";
     private static final String ESTADO_COBRO_PAGADO = "Pagado";
-    private static final String ESTADO_COMISION_PENDIENTE = "Pendiente";
     private static final DateTimeFormatter FORMATO_CODIGO = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
     private static final LocalDateTime FECHA_MINIMA = LocalDateTime.of(2000, 1, 1, 0, 0);
     private static final LocalDateTime FECHA_MAXIMA = LocalDateTime.of(2100, 1, 1, 0, 0);
@@ -59,7 +56,6 @@ public class CobroService {
     private final ServicioRepository servicioRepository;
     private final CatMetodoPagoRepository catMetodoPagoRepository;
     private final EstadoCobroRepository estadoCobroRepository;
-    private final EstadoComisionRepository estadoComisionRepository;
     private final ContextoAutenticacion contexto;
     private final BitacoraService bitacoraService;
     private final CobroMapper mapper;
@@ -112,24 +108,24 @@ public class CobroService {
 
         return registrarCobro(paciente, cita, doctor, servicio, request.precioAplicado(),
                 request.costoLaboratorio(), request.montoEfectivo(), request.montoTarjeta(),
-                request.idMetodoPago(), null);
+                request.montoTransferencia(), request.idMetodoPago(), null);
     }
 
     @Transactional
     CobroResponse registrarCobro(Paciente paciente, Cita cita, Doctor doctor, Servicio servicio, BigDecimal precioAplicado,
                           BigDecimal costoLaboratorioRequest, BigDecimal montoEfectivoRequest,
-                          BigDecimal montoTarjetaRequest, Integer idMetodoPagoSolicitado,
+                          BigDecimal montoTarjetaRequest, BigDecimal montoTransferenciaRequest, Integer idMetodoPagoSolicitado,
                           com.ferancheta.odonto_sys.entity.HistorialClinico historialClinico) {
 
         BigDecimal montoEfectivo = montoEfectivoRequest != null ? montoEfectivoRequest : BigDecimal.ZERO;
         BigDecimal montoTarjeta = montoTarjetaRequest != null ? montoTarjetaRequest : BigDecimal.ZERO;
+        BigDecimal montoTransferencia = montoTransferenciaRequest != null ? montoTransferenciaRequest : BigDecimal.ZERO;
         BigDecimal costoLaboratorio = costoLaboratorioRequest != null ? costoLaboratorioRequest : BigDecimal.ZERO;
 
         CatMetodoPago metodoPago = obtenerMetodoPago(idMetodoPagoSolicitado, montoTarjeta);
-        BigDecimal comisionPorcentajeBanco = metodoPago.getComisionPorcentaje() != null
-                ? metodoPago.getComisionPorcentaje() : BigDecimal.ZERO;
+        BigDecimal comisionPorcentajeBanco = obtenerPorcentajeComisionTarjeta();
 
-        BigDecimal montoBruto = montoEfectivo.add(montoTarjeta);
+        BigDecimal montoBruto = montoEfectivo.add(montoTarjeta).add(montoTransferencia);
         BigDecimal comisionTarjeta = montoTarjeta
                 .multiply(comisionPorcentajeBanco)
                 .divide(BigDecimal.valueOf(100), ESCALA, RoundingMode.HALF_UP);
@@ -144,6 +140,7 @@ public class CobroService {
         Cobro cobro = new Cobro();
         cobro.setMontoEfectivo(montoEfectivo);
         cobro.setMontoTarjeta(montoTarjeta);
+        cobro.setMontoTransferencia(montoTransferencia);
         cobro.setComisionTarjeta(comisionTarjeta);
         cobro.setCostoLaboratorio(costoLaboratorio);
         cobro.setMontoBruto(montoBruto);
@@ -173,7 +170,6 @@ public class CobroService {
         comision.setMontoBase(montoNeto);
         comision.setPorcentajeAplicado(porcentajeComisionDoctor);
         comision.setMontoComision(comisionDoctor);
-        comision.setEstadoComision(obtenerEstadoComision(ESTADO_COMISION_PENDIENTE));
         comision.setFecha(LocalDate.now());
         comision.setUsuarioCreacion(contexto.usuarioActual());
         Comision comisionGuardada = comisionRepository.save(comision);
@@ -199,6 +195,12 @@ public class CobroService {
                 .orElseThrow(() -> new EntityNotFoundException("Método de pago no encontrado: " + nombre));
     }
 
+    private BigDecimal obtenerPorcentajeComisionTarjeta() {
+        CatMetodoPago tarjeta = catMetodoPagoRepository.findByNombreIgnoreCase(NOMBRE_TARJETA)
+                .orElseThrow(() -> new EntityNotFoundException("Método de pago no encontrado: " + NOMBRE_TARJETA));
+        return tarjeta.getComisionPorcentaje() != null ? tarjeta.getComisionPorcentaje() : BigDecimal.ZERO;
+    }
+
     private Long generarCodigoCobro() {
         return Long.parseLong(LocalDateTime.now().format(FORMATO_CODIGO));
     }
@@ -206,11 +208,6 @@ public class CobroService {
     private EstadoCobro obtenerEstadoCobro(String nombre) {
         return estadoCobroRepository.findByNombreIgnoreCase(nombre)
                 .orElseThrow(() -> new EntityNotFoundException("Estado de cobro no encontrado: " + nombre));
-    }
-
-    private EstadoComision obtenerEstadoComision(String nombre) {
-        return estadoComisionRepository.findByNombreIgnoreCase(nombre)
-                .orElseThrow(() -> new EntityNotFoundException("Estado de comisión no encontrado: " + nombre));
     }
 
     @Transactional

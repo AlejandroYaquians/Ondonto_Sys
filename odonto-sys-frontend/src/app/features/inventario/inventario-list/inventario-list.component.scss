@@ -1,10 +1,10 @@
 .btn-entrada {
-  color: #198754;
-  border-color: #198754;
+  color: var(--bs-success);
+  border-color: var(--bs-success);
 
   &:hover {
     color: #ffffff;
-    background-color: #198754;
-    border-color: #198754;
+    background-color: var(--bs-success);
+    border-color: var(--bs-success);
   }
 }

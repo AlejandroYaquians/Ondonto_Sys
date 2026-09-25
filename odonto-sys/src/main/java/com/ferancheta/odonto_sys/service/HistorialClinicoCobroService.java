@@ -87,7 +87,7 @@ public class HistorialClinicoCobroService {
 
         CobroResponse cobro = cobroService.registrarCobro(paciente, cita, doctor, servicio, servicio.getCostoBase(),
                 request.costoLaboratorio(), request.montoEfectivo(), request.montoTarjeta(),
-                request.idMetodoPago(), historialGuardado);
+                request.montoTransferencia(), request.idMetodoPago(), historialGuardado);
 
         if (cita != null) {
             EstadoCita atendida = estadoCitaRepository.findByNombre(ESTADO_ATENDIDA)

@@ -74,6 +74,23 @@ export class CobroDetalleComponent implements OnInit {
     return `${dia}-${mes}-${anio} ${horaParte.slice(0, 5)}`;
   }
 
+  private filasPago(datosCobro: Cobro): (string | number)[][] {
+    const filas: (string | number)[][] = [];
+    if (datosCobro.montoEfectivo) {
+      filas.push(['Efectivo', `Q${datosCobro.montoEfectivo.toFixed(2)}`]);
+    }
+    if (datosCobro.montoTarjeta) {
+      filas.push(['Tarjeta', `Q${datosCobro.montoTarjeta.toFixed(2)}`]);
+    }
+    if (datosCobro.montoTransferencia) {
+      filas.push(['Transferencia', `Q${datosCobro.montoTransferencia.toFixed(2)}`]);
+    }
+    if (filas.length === 0) {
+      filas.push([this.nombreMetodoPago(datosCobro.idMetodoPago), datosCobro.montoBruto !== null ? `Q${datosCobro.montoBruto.toFixed(2)}` : '-']);
+    }
+    return filas;
+  }
+
   async imprimir(): Promise<void> {
     const datosCobro = this.cobro();
     if (!datosCobro) {
@@ -91,24 +108,31 @@ export class CobroDetalleComponent implements OnInit {
         ['Fecha', this.formatoFecha(datosCobro.fecha)],
         ['Paciente', this.paciente() ? `${this.paciente()!.nombre} ${this.paciente()!.apellido}` : '-'],
         ['Doctor', this.doctor() ? `Dr(a). ${this.doctor()!.nombre} ${this.doctor()!.apellido}` : '-'],
-        ['Servicio', this.nombreServicio(datosCobro.idServicio)],
-        ['Método de pago', this.nombreMetodoPago(datosCobro.idMetodoPago)],
         ['Estado', datosCobro.estado]
       ]
     });
 
-    const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+    const finalYEncabezado = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
 
     autoTable(doc, {
       ...ESTILO_TABLA_PDF,
-      startY: finalY + 8,
-      head: [['Concepto', 'Monto']],
-      body: [
-        ['Monto bruto', datosCobro.montoBruto !== null ? `Q${datosCobro.montoBruto.toFixed(2)}` : '-'],
-        ['Comisión bancaria', datosCobro.comisionTarjeta !== null ? `Q${datosCobro.comisionTarjeta.toFixed(2)}` : '-'],
-        ['Costo de laboratorio', datosCobro.costoLaboratorio !== null ? `Q${datosCobro.costoLaboratorio.toFixed(2)}` : '-'],
-        ['Monto neto', datosCobro.montoNeto !== null ? `Q${datosCobro.montoNeto.toFixed(2)}` : '-']
-      ]
+      startY: finalYEncabezado + 8,
+      head: [['Servicio']],
+      body: [[this.nombreServicio(datosCobro.idServicio)]]
+    });
+
+    const finalYServicio = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+
+    const filasPago = this.filasPago(datosCobro);
+    if (filasPago.length > 1) {
+      filasPago.push(['Total', datosCobro.montoBruto !== null ? `Q${datosCobro.montoBruto.toFixed(2)}` : '-']);
+    }
+
+    autoTable(doc, {
+      ...ESTILO_TABLA_PDF,
+      startY: finalYServicio + 8,
+      head: [['Forma de pago', 'Monto']],
+      body: filasPago
     });
 
     this.pdfService.abrir(doc, `Comprobante_Cobro_${datosCobro.codigoCobro}.pdf`);

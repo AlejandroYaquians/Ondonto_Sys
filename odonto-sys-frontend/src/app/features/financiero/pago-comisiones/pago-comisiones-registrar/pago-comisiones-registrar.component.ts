@@ -2,11 +2,15 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { PagoComisionService } from '../../../../core/services/pago-comision.service';
 import { DoctorService } from '../../../../core/services/doctor.service';
+import { CobroService } from '../../../../core/services/cobro.service';
+import { PacienteService } from '../../../../core/services/paciente.service';
 import { NotificacionService } from '../../../../core/services/notificacion.service';
-import { Comision } from '../../../../core/models/cobro.models';
+import { Comision, Cobro } from '../../../../core/models/cobro.models';
 import { Doctor } from '../../../../core/models/doctor.models';
+import { Paciente } from '../../../../core/models/paciente.models';
 
 function hoyIso(): string {
   const hoy = new Date();
@@ -34,19 +38,24 @@ export class PagoComisionesRegistrarComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly pagoComisionService = inject(PagoComisionService);
   private readonly doctorService = inject(DoctorService);
+  private readonly cobroService = inject(CobroService);
+  private readonly pacienteService = inject(PacienteService);
   private readonly notificacionService = inject(NotificacionService);
 
   protected readonly idDoctor = Number(this.route.snapshot.paramMap.get('idDoctor'));
   protected readonly maximaFecha = hoyIso();
   protected readonly doctor = signal<Doctor | null>(null);
   protected readonly pendientes = signal<Comision[]>([]);
+  protected readonly cobros = signal<Cobro[]>([]);
+  protected readonly pacientes = signal<Paciente[]>([]);
   protected readonly cargando = signal(true);
   protected readonly guardando = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly fechaCorte = signal(ayerIso());
 
   protected readonly formulario = this.fb.nonNullable.group({
-    fechaCorte: [ayerIso()]
+    fechaCorte: [ayerIso()],
+    numeroReferencia: ['']
   });
 
   protected readonly comisionesIncluidas = computed(() =>
@@ -68,10 +77,30 @@ export class PagoComisionesRegistrarComponent implements OnInit {
 
   ngOnInit(): void {
     this.doctorService.buscarPorId(this.idDoctor).subscribe((datos) => this.doctor.set(datos));
+    this.pacienteService.listar().subscribe((datos) => this.pacientes.set(datos));
 
     this.pagoComisionService.listarPendientes(this.idDoctor).subscribe({
       next: (datos) => {
         this.pendientes.set(datos);
+        this.cargarCobros(datos);
+      },
+      error: () => {
+        this.error.set('Error al cargar.');
+        this.cargando.set(false);
+      }
+    });
+  }
+
+  private cargarCobros(comisiones: Comision[]): void {
+    const idsUnicos = [...new Set(comisiones.map((item) => item.idCobro))];
+    if (idsUnicos.length === 0) {
+      this.cargando.set(false);
+      return;
+    }
+
+    forkJoin(idsUnicos.map((id) => this.cobroService.buscarPorId(id))).subscribe({
+      next: (datos) => {
+        this.cobros.set(datos);
         this.cargando.set(false);
       },
       error: () => {
@@ -79,6 +108,19 @@ export class PagoComisionesRegistrarComponent implements OnInit {
         this.cargando.set(false);
       }
     });
+  }
+
+  cobroDe(idCobro: number): Cobro | undefined {
+    return this.cobros().find((cobro) => cobro.idCobro === idCobro);
+  }
+
+  nombrePaciente(idCobro: number): string {
+    const cobro = this.cobroDe(idCobro);
+    if (!cobro) {
+      return '—';
+    }
+    const paciente = this.pacientes().find((p) => p.idPaciente === cobro.idPaciente);
+    return paciente ? `${paciente.nombre} ${paciente.apellido}` : `#${cobro.idPaciente}`;
   }
 
   cambiarFechaCorte(valor: string): void {
@@ -94,7 +136,9 @@ export class PagoComisionesRegistrarComponent implements OnInit {
     this.guardando.set(true);
     this.error.set(null);
 
-    this.pagoComisionService.registrarPago(this.idDoctor, { fechaCorte: this.fechaCorte() }).subscribe({
+    const numeroReferencia = this.formulario.controls.numeroReferencia.value.trim() || null;
+
+    this.pagoComisionService.registrarPago(this.idDoctor, { fechaCorte: this.fechaCorte(), numeroReferencia }).subscribe({
       next: () => {
         this.notificacionService.exito('Pago registrado.');
         this.router.navigateByUrl('/financiero/pago-comisiones');

@@ -35,7 +35,7 @@ export class MenuFormComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.moduloService.listarActivos().subscribe((datos) => this.modulos.set(datos));
+    this.moduloService.listar().subscribe((datos) => this.modulos.set(datos));
 
     const parametroId = this.route.snapshot.paramMap.get('id');
     if (parametroId) {

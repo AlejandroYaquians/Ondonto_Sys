@@ -115,7 +115,6 @@ export interface CatMetodoPago {
   idMetodoPago: number;
   nombre: string;
   comisionPorcentaje: number | null;
-  activo: boolean;
 }
 
 export interface CatMetodoPagoRequest {

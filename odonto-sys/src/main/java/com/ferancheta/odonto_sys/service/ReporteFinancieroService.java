@@ -50,22 +50,26 @@ public class ReporteFinancieroService {
         BigDecimal ingresosBrutos = sumar(cobros, Cobro::getMontoBruto);
         BigDecimal cobroEfectivo = sumar(cobros, Cobro::getMontoEfectivo);
         BigDecimal cobroTarjeta = sumar(cobros, Cobro::getMontoTarjeta);
+        BigDecimal cobroTransferencia = sumar(cobros, Cobro::getMontoTransferencia);
         BigDecimal comisionBancaria = sumar(cobros, Cobro::getComisionTarjeta);
         BigDecimal costoLaboratorio = sumar(cobros, Cobro::getCostoLaboratorio);
         BigDecimal montoNeto = sumar(cobros, Cobro::getMontoNeto);
         BigDecimal montoCobrosAnulados = sumar(cobrosAnulados, Cobro::getMontoBruto);
 
         List<ReporteFinancieroResponse.ComisionDoctorItem> comisionesPorDoctor = obtenerComisionesPorDoctor(desde, hasta);
+        BigDecimal totalComisiones = comisionesPorDoctor.stream()
+                .map(ReporteFinancieroResponse.ComisionDoctorItem::montoComision)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         List<Gasto> gastos = gastoRepository.findByFechaBetween(desde, hasta);
         BigDecimal gastosFijos = sumarGastosPorTipo(gastos, TIPO_FIJO);
         BigDecimal gastosVariables = sumarGastosPorTipo(gastos, TIPO_VARIABLE);
 
-        BigDecimal gananciaNeta = montoNeto.subtract(gastosFijos).subtract(gastosVariables);
+        BigDecimal gananciaNeta = montoNeto.subtract(gastosFijos).subtract(gastosVariables).subtract(totalComisiones);
 
         return new ReporteFinancieroResponse(
-                ingresosBrutos, cobroEfectivo, cobroTarjeta, comisionBancaria, costoLaboratorio, montoNeto,
-                gastosFijos, gastosVariables, gananciaNeta,
+                ingresosBrutos, cobroEfectivo, cobroTarjeta, cobroTransferencia, comisionBancaria, costoLaboratorio, montoNeto,
+                gastosFijos, gastosVariables, totalComisiones, gananciaNeta,
                 cobros.size(), cobrosAnulados.size(), montoCobrosAnulados,
                 comisionesPorDoctor);
     }

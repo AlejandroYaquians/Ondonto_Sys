@@ -14,9 +14,6 @@ import { Doctor } from '../../../../core/models/doctor.models';
 import { CatMetodoPago, Servicio } from '../../../../core/models/catalogo.models';
 import { BuscadorSelectComponent } from '../../../../shared/buscador-select/buscador-select.component';
 
-const MIXTO = 'mixto';
-type MetodoPagoForma = number | typeof MIXTO;
-
 @Component({
   selector: 'app-cobro-form',
   imports: [ReactiveFormsModule, RouterLink, BuscadorSelectComponent, DecimalPipe],
@@ -48,10 +45,11 @@ export class CobroFormComponent implements OnInit {
     idServicio: [null as number | null, Validators.required],
     precioAplicado: [0, [Validators.required, Validators.min(0)]],
     costoLaboratorio: [null as number | null],
-    metodoPago: [null as MetodoPagoForma | null, Validators.required],
+    metodoPago: [null as number | null, Validators.required],
     montoUnico: [null as number | null],
     montoEfectivo: [null as number | null],
-    montoTarjeta: [null as number | null]
+    montoTarjeta: [null as number | null],
+    montoTransferencia: [null as number | null]
   });
 
   private readonly idDoctorSeleccionado = toSignal(this.formulario.controls.idDoctor.valueChanges, {
@@ -59,7 +57,7 @@ export class CobroFormComponent implements OnInit {
   });
 
   private readonly metodoPagoSeleccionado = toSignal(this.formulario.controls.metodoPago.valueChanges, {
-    initialValue: null as MetodoPagoForma | null
+    initialValue: null as number | null
   });
 
   private readonly montoUnicoValor = toSignal(this.formulario.controls.montoUnico.valueChanges, {
@@ -74,6 +72,10 @@ export class CobroFormComponent implements OnInit {
     initialValue: null as number | null
   });
 
+  private readonly montoTransferenciaValor = toSignal(this.formulario.controls.montoTransferencia.valueChanges, {
+    initialValue: null as number | null
+  });
+
   private readonly costoLaboratorioValor = toSignal(this.formulario.controls.costoLaboratorio.valueChanges, {
     initialValue: null as number | null
   });
@@ -82,35 +84,57 @@ export class CobroFormComponent implements OnInit {
     this.doctores().find((d) => d.idDoctor === this.idDoctorSeleccionado()) ?? null
   );
 
-  protected readonly esMixto = computed(() => this.metodoPagoSeleccionado() === MIXTO);
+  protected readonly idMetodoMixto = computed(
+    () => this.metodosPago().find((m) => m.nombre.toLowerCase() === 'mixto')?.idMetodoPago ?? null
+  );
+
+  protected readonly esMixto = computed(
+    () => this.metodoPagoSeleccionado() !== null && this.metodoPagoSeleccionado() === this.idMetodoMixto()
+  );
 
   protected readonly metodoUnicoSeleccionado = computed(() => {
     const valor = this.metodoPagoSeleccionado();
-    if (valor === null || valor === MIXTO) {
+    if (valor === null || valor === this.idMetodoMixto()) {
       return null;
     }
     return this.metodosPago().find((m) => m.idMetodoPago === valor) ?? null;
   });
 
-  protected readonly metodoUnicoTieneComision = computed(
-    () => (this.metodoUnicoSeleccionado()?.comisionPorcentaje ?? 0) > 0
-  );
+  private readonly bucketMetodoUnico = computed<'efectivo' | 'tarjeta' | 'transferencia' | null>(() => {
+    const metodo = this.metodoUnicoSeleccionado();
+    if (!metodo) {
+      return null;
+    }
+    const nombre = metodo.nombre.toLowerCase();
+    if (nombre === 'tarjeta') {
+      return 'tarjeta';
+    }
+    if (nombre === 'transferencia') {
+      return 'transferencia';
+    }
+    return 'efectivo';
+  });
 
   protected readonly previaCobro = computed(() => {
     let efectivo = 0;
     let tarjeta = 0;
+    let transferencia = 0;
     let porcentajeBanco = 0;
 
     if (this.esMixto()) {
       efectivo = this.montoEfectivoValor() ?? 0;
       tarjeta = this.montoTarjetaValor() ?? 0;
-      const tarjetaCat = this.metodosPago().find((m) => (m.comisionPorcentaje ?? 0) > 0);
+      transferencia = this.montoTransferenciaValor() ?? 0;
+      const tarjetaCat = this.metodosPago().find((m) => m.nombre.toLowerCase() === 'tarjeta');
       porcentajeBanco = tarjetaCat?.comisionPorcentaje ?? 0;
     } else {
       const monto = this.montoUnicoValor() ?? 0;
-      if (this.metodoUnicoTieneComision()) {
+      const bucket = this.bucketMetodoUnico();
+      if (bucket === 'tarjeta') {
         tarjeta = monto;
         porcentajeBanco = this.metodoUnicoSeleccionado()?.comisionPorcentaje ?? 0;
+      } else if (bucket === 'transferencia') {
+        transferencia = monto;
       } else {
         efectivo = monto;
       }
@@ -119,7 +143,7 @@ export class CobroFormComponent implements OnInit {
     const costoLaboratorio = this.costoLaboratorioValor() ?? 0;
     const porcentajeDoctor = this.doctorSeleccionado()?.porcentajeComision ?? 0;
 
-    const montoBruto = efectivo + tarjeta;
+    const montoBruto = efectivo + tarjeta + transferencia;
     const comisionTarjeta = Math.round(tarjeta * (porcentajeBanco / 100) * 100) / 100;
     const montoNeto = montoBruto - comisionTarjeta - costoLaboratorio;
     const comisionDoctor = Math.round(montoNeto * (porcentajeDoctor / 100) * 100) / 100;
@@ -151,19 +175,22 @@ export class CobroFormComponent implements OnInit {
     this.error.set(null);
 
     const valores = this.formulario.getRawValue();
-    const metodoPago = valores.metodoPago;
+    const idMetodoPago = valores.metodoPago;
 
-    let idMetodoPago: number | null = null;
     let montoEfectivo: number | null = null;
     let montoTarjeta: number | null = null;
+    let montoTransferencia: number | null = null;
 
-    if (metodoPago === MIXTO) {
+    if (this.esMixto()) {
       montoEfectivo = valores.montoEfectivo;
       montoTarjeta = valores.montoTarjeta;
+      montoTransferencia = valores.montoTransferencia;
     } else {
-      idMetodoPago = metodoPago;
-      if (this.metodoUnicoTieneComision()) {
+      const bucket = this.bucketMetodoUnico();
+      if (bucket === 'tarjeta') {
         montoTarjeta = valores.montoUnico;
+      } else if (bucket === 'transferencia') {
+        montoTransferencia = valores.montoUnico;
       } else {
         montoEfectivo = valores.montoUnico;
       }
@@ -178,6 +205,7 @@ export class CobroFormComponent implements OnInit {
       costoLaboratorio: valores.costoLaboratorio,
       idMetodoPago,
       montoEfectivo,
+      montoTransferencia,
       montoTarjeta
     };
 

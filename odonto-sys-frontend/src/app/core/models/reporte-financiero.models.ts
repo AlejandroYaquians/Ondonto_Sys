@@ -9,11 +9,13 @@ export interface ReporteFinanciero {
   ingresosBrutos: number;
   cobroEfectivo: number;
   cobroTarjeta: number;
+  cobroTransferencia: number;
   comisionBancaria: number;
   costoLaboratorio: number;
   montoNeto: number;
   gastosFijos: number;
   gastosVariables: number;
+  totalComisiones: number;
   gananciaNeta: number;
   cantidadCobrosPagados: number;
   cantidadCobrosAnulados: number;

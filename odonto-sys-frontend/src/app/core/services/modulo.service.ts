@@ -8,7 +8,7 @@ import { Modulo } from '../models/modulo.models';
 export class ModuloService {
   private readonly http = inject(HttpClient);
 
-  listarActivos(): Observable<Modulo[]> {
-    return this.http.get<Modulo[]>(`${API_BASE_URL}/modulos`, { params: { activos: true } });
+  listar(): Observable<Modulo[]> {
+    return this.http.get<Modulo[]>(`${API_BASE_URL}/modulos`);
   }
 }

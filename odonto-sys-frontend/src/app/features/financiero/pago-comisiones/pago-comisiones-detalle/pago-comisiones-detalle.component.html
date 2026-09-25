@@ -2,12 +2,7 @@
   <a routerLink="/financiero/pago-comisiones" class="btn btn-outline-secondary btn-sm">
     <i class="bi bi-arrow-left"></i>
   </a>
-  <h1 class="h3 mb-0">
-    Comisiones pendientes
-    @if (doctor(); as d) {
-      de Dr(a). {{ d.nombre }} {{ d.apellido }}
-    }
-  </h1>
+  <h1 class="h3 mb-0">Comisiones pendientes</h1>
 </div>
 
 @if (error()) {
@@ -16,6 +11,12 @@
 
 <div class="card shadow-sm border-0">
   <div class="card-body">
+    @if (doctor(); as d) {
+      <div class="mb-3">
+        <div class="text-secondary small text-uppercase">Doctor</div>
+        <div class="fw-medium">{{ d.nombre }} {{ d.apellido }}</div>
+      </div>
+    }
     @if (cargando()) {
       <div class="text-center text-secondary py-5">
         <div class="spinner-border" role="status"></div>
@@ -27,6 +28,8 @@
         <table class="table table-sm align-middle">
           <thead>
             <tr>
+              <th scope="col">Código</th>
+              <th scope="col">Paciente</th>
               <th scope="col">Fecha</th>
               <th scope="col">Monto base</th>
               <th scope="col">Porcentaje</th>
@@ -36,6 +39,10 @@
           <tbody>
             @for (item of items(); track item.idComision) {
               <tr>
+                <td>
+                  <a [routerLink]="['/cobros', item.idCobro]">{{ cobroDe(item.idCobro)?.codigoCobro ?? ('#' + item.idCobro) }}</a>
+                </td>
+                <td>{{ nombrePaciente(item.idCobro) }}</td>
                 <td>{{ fechaDiaMesAnio(item.fecha) }}</td>
                 <td>Q{{ item.montoBase | number: '1.2-2' }}</td>
                 <td>{{ item.porcentajeAplicado | number: '1.2-2' }}%</td>
@@ -45,7 +52,7 @@
           </tbody>
           <tfoot>
             <tr>
-              <td colspan="3" class="text-end fw-bold">Total acumulado pendiente</td>
+              <td colspan="5" class="text-end fw-bold">Total acumulado pendiente</td>
               <td class="fw-bold">Q{{ totalAcumulado() | number: '1.2-2' }}</td>
             </tr>
           </tfoot>
@@ -53,11 +60,4 @@
       </div>
     }
   </div>
-</div>
-
-<div class="d-flex justify-content-end gap-2 mt-3">
-  <a routerLink="/financiero/pago-comisiones" class="btn btn-outline-secondary">Regresar</a>
-  @if (items().length > 0) {
-    <a [routerLink]="['/financiero/pago-comisiones', idDoctor, 'registrar']" class="btn btn-primary">Registrar pago</a>
-  }
 </div>

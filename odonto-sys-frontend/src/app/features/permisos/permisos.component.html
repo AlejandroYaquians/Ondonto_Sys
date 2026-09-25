@@ -3,9 +3,6 @@
 @if (error()) {
   <div class="alert alert-danger" role="alert">{{ error() }}</div>
 }
-@if (mensajeExito()) {
-  <div class="alert alert-success" role="alert">{{ mensajeExito() }}</div>
-}
 
 <div class="card shadow-sm border-0 mb-4">
   <div class="card-body">
@@ -27,7 +24,7 @@
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-body">
       @for (modulo of modulos(); track modulo.idModulo) {
-        <h2 class="h6 text-secondary text-uppercase mb-2 mt-3">{{ modulo.nombre }}</h2>
+        <h2 class="h6 text-uppercase text-secondary mb-3 mt-3">{{ modulo.nombre }}</h2>
         <div class="table-responsive mb-3">
           <table class="table table-sm align-middle" style="table-layout: fixed;">
             <thead>

@@ -252,8 +252,7 @@ ALTER SEQUENCE public.cat_genero_id_genero_seq OWNED BY public.cat_genero.id_gen
 CREATE TABLE public.cat_metodo_pago (
     id_metodo_pago integer NOT NULL,
     nombre character varying(45) NOT NULL,
-    comision_porcentaje numeric(5,2) DEFAULT 0.00,
-    activo boolean DEFAULT true NOT NULL
+    comision_porcentaje numeric(5,2) DEFAULT 0.00
 );
 
 
@@ -464,6 +463,7 @@ CREATE TABLE public.cobro (
     fecha timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     monto_efectivo numeric(10,2) DEFAULT 0.00,
     monto_tarjeta numeric(10,2) DEFAULT 0.00,
+    monto_transferencia numeric(10,2) DEFAULT 0.00 NOT NULL,
     comision_tarjeta numeric(10,2) DEFAULT 0.00,
     costo_laboratorio numeric(10,2) DEFAULT 0.00,
     monto_bruto numeric(10,2) DEFAULT 0.00,
@@ -511,9 +511,7 @@ CREATE TABLE public.comision (
     id_cobro integer CONSTRAINT comision_id_pago_not_null NOT NULL,
     fecha_creacion timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     id_usuario_creacion integer,
-    fecha_pago timestamp without time zone,
-    id_usuario_pago integer,
-    id_estado_comision integer NOT NULL
+    id_pago_comision integer
 );
 
 
@@ -700,36 +698,6 @@ CREATE SEQUENCE public.estado_cobro_id_estado_cobro_seq
 --
 
 ALTER SEQUENCE public.estado_cobro_id_estado_cobro_seq OWNED BY public.estado_cobro.id_estado_cobro;
-
-
---
--- Name: estado_comision; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.estado_comision (
-    id_estado_comision integer NOT NULL,
-    nombre character varying(45) NOT NULL
-);
-
-
---
--- Name: estado_comision_id_estado_comision_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.estado_comision_id_estado_comision_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: estado_comision_id_estado_comision_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.estado_comision_id_estado_comision_seq OWNED BY public.estado_comision.id_estado_comision;
 
 
 --
@@ -941,8 +909,7 @@ ALTER SEQUENCE public.menu_id_menu_seq OWNED BY public.menu.id_menu;
 CREATE TABLE public.modulo (
     id_modulo integer NOT NULL,
     nombre character varying(100) NOT NULL,
-    descripcion character varying(255),
-    activo boolean DEFAULT true
+    descripcion character varying(255)
 );
 
 
@@ -996,6 +963,40 @@ CREATE SEQUENCE public.municipio_id_municipio_seq
 --
 
 ALTER SEQUENCE public.municipio_id_municipio_seq OWNED BY public.municipio.id_municipio;
+
+
+--
+-- Name: pago_comision; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.pago_comision (
+    id_pago_comision integer NOT NULL,
+    id_doctor integer NOT NULL,
+    fecha_pago timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    monto_total numeric(10,2) DEFAULT 0.00 NOT NULL,
+    numero_referencia character varying(50),
+    id_usuario_pago integer NOT NULL
+);
+
+
+--
+-- Name: pago_comision_id_pago_comision_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.pago_comision_id_pago_comision_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: pago_comision_id_pago_comision_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.pago_comision_id_pago_comision_seq OWNED BY public.pago_comision.id_pago_comision;
 
 
 --
@@ -1393,13 +1394,6 @@ ALTER TABLE ONLY public.estado_cobro ALTER COLUMN id_estado_cobro SET DEFAULT ne
 
 
 --
--- Name: estado_comision id_estado_comision; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.estado_comision ALTER COLUMN id_estado_comision SET DEFAULT nextval('public.estado_comision_id_estado_comision_seq'::regclass);
-
-
---
 -- Name: gasto id_gasto; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1446,6 +1440,13 @@ ALTER TABLE ONLY public.modulo ALTER COLUMN id_modulo SET DEFAULT nextval('publi
 --
 
 ALTER TABLE ONLY public.municipio ALTER COLUMN id_municipio SET DEFAULT nextval('public.municipio_id_municipio_seq'::regclass);
+
+
+--
+-- Name: pago_comision id_pago_comision; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pago_comision ALTER COLUMN id_pago_comision SET DEFAULT nextval('public.pago_comision_id_pago_comision_seq'::regclass);
 
 
 --
@@ -1643,22 +1644,6 @@ ALTER TABLE ONLY public.estado_cobro
 
 
 --
--- Name: estado_comision estado_comision_nombre_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.estado_comision
-    ADD CONSTRAINT estado_comision_nombre_key UNIQUE (nombre);
-
-
---
--- Name: estado_comision estado_comision_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.estado_comision
-    ADD CONSTRAINT estado_comision_pkey PRIMARY KEY (id_estado_comision);
-
-
---
 -- Name: gasto gasto_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1720,6 +1705,14 @@ ALTER TABLE ONLY public.modulo
 
 ALTER TABLE ONLY public.municipio
     ADD CONSTRAINT municipio_pkey PRIMARY KEY (id_municipio);
+
+
+--
+-- Name: pago_comision pago_comision_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pago_comision
+    ADD CONSTRAINT pago_comision_pkey PRIMARY KEY (id_pago_comision);
 
 
 --
@@ -1868,14 +1861,6 @@ ALTER TABLE ONLY public.cobro_detalle
 
 
 --
--- Name: comision comision_id_usuario_pago_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.comision
-    ADD CONSTRAINT comision_id_usuario_pago_fkey FOREIGN KEY (id_usuario_pago) REFERENCES public.usuario(id_usuario);
-
-
---
 -- Name: bitacora fk_bitacora_usuario; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1948,14 +1933,6 @@ ALTER TABLE ONLY public.comision
 
 
 --
--- Name: comision fk_comision_estado; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.comision
-    ADD CONSTRAINT fk_comision_estado FOREIGN KEY (id_estado_comision) REFERENCES public.estado_comision(id_estado_comision);
-
-
---
 -- Name: comision fk_comision_pago; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1969,6 +1946,30 @@ ALTER TABLE ONLY public.comision
 
 ALTER TABLE ONLY public.comision
     ADD CONSTRAINT fk_comision_usuario FOREIGN KEY (id_usuario_creacion) REFERENCES public.usuario(id_usuario);
+
+
+--
+-- Name: comision fk_comision_pago_comision; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.comision
+    ADD CONSTRAINT fk_comision_pago_comision FOREIGN KEY (id_pago_comision) REFERENCES public.pago_comision(id_pago_comision);
+
+
+--
+-- Name: pago_comision fk_pago_comision_doctor; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pago_comision
+    ADD CONSTRAINT fk_pago_comision_doctor FOREIGN KEY (id_doctor) REFERENCES public.doctor(id_doctor);
+
+
+--
+-- Name: pago_comision fk_pago_comision_usuario; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pago_comision
+    ADD CONSTRAINT fk_pago_comision_usuario FOREIGN KEY (id_usuario_pago) REFERENCES public.usuario(id_usuario);
 
 
 --
@@ -2380,9 +2381,10 @@ INSERT INTO public.cat_genero (id_genero, nombre, activo) VALUES (2, 'Femenino',
 -- Data for Name: cat_metodo_pago; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.cat_metodo_pago (id_metodo_pago, nombre, comision_porcentaje, activo) VALUES (2, 'Trasferencia', 0.00, true);
-INSERT INTO public.cat_metodo_pago (id_metodo_pago, nombre, comision_porcentaje, activo) VALUES (3, 'Efectivo', 0.00, true);
-INSERT INTO public.cat_metodo_pago (id_metodo_pago, nombre, comision_porcentaje, activo) VALUES (1, 'Tarjeta', 8.00, true);
+INSERT INTO public.cat_metodo_pago (id_metodo_pago, nombre, comision_porcentaje) VALUES (2, 'Transferencia', 0.00);
+INSERT INTO public.cat_metodo_pago (id_metodo_pago, nombre, comision_porcentaje) VALUES (3, 'Efectivo', 0.00);
+INSERT INTO public.cat_metodo_pago (id_metodo_pago, nombre, comision_porcentaje) VALUES (1, 'Tarjeta', 8.00);
+INSERT INTO public.cat_metodo_pago (id_metodo_pago, nombre, comision_porcentaje) VALUES (4, 'Mixto', 0.00);
 
 
 --
@@ -2558,25 +2560,17 @@ INSERT INTO public.estado_cobro (id_estado_cobro, nombre) VALUES (2, 'Anulado');
 
 
 --
--- Data for Name: estado_comision; Type: TABLE DATA; Schema: public; Owner: -
---
-
-INSERT INTO public.estado_comision (id_estado_comision, nombre) VALUES (1, 'Pendiente');
-INSERT INTO public.estado_comision (id_estado_comision, nombre) VALUES (2, 'Pagada');
-
-
---
 -- Data for Name: modulo; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.modulo (id_modulo, nombre, descripcion, activo) VALUES (1, 'Inventario', 'Control de insumos', true);
-INSERT INTO public.modulo (id_modulo, nombre, descripcion, activo) VALUES (2, 'Auditoría', 'Bitácora del sistema', true);
-INSERT INTO public.modulo (id_modulo, nombre, descripcion, activo) VALUES (3, 'Agenda', 'Agenda de citas', true);
-INSERT INTO public.modulo (id_modulo, nombre, descripcion, activo) VALUES (4, 'Clínico', 'Historial clínico, consultas y tratamientos', true);
-INSERT INTO public.modulo (id_modulo, nombre, descripcion, activo) VALUES (5, 'Catálogos', 'Catálogos generales del sistema', true);
-INSERT INTO public.modulo (id_modulo, nombre, descripcion, activo) VALUES (6, 'Finanzas', 'Pagos, gastos y comisiones', true);
-INSERT INTO public.modulo (id_modulo, nombre, descripcion, activo) VALUES (7, 'Administración', 'Gestión de usuarios y permisos del sistema', true);
-INSERT INTO public.modulo (id_modulo, nombre, descripcion, activo) VALUES (8, 'Dashboard', 'Panel principal del sistema', true);
+INSERT INTO public.modulo (id_modulo, nombre, descripcion) VALUES (1, 'Inventario', 'Control de insumos');
+INSERT INTO public.modulo (id_modulo, nombre, descripcion) VALUES (2, 'Auditoría', 'Bitácora del sistema');
+INSERT INTO public.modulo (id_modulo, nombre, descripcion) VALUES (3, 'Agenda', 'Agenda de citas');
+INSERT INTO public.modulo (id_modulo, nombre, descripcion) VALUES (4, 'Clínico', 'Historial clínico, consultas y tratamientos');
+INSERT INTO public.modulo (id_modulo, nombre, descripcion) VALUES (5, 'Catálogos', 'Catálogos generales del sistema');
+INSERT INTO public.modulo (id_modulo, nombre, descripcion) VALUES (6, 'Finanzas', 'Pagos, gastos y comisiones');
+INSERT INTO public.modulo (id_modulo, nombre, descripcion) VALUES (7, 'Administración', 'Gestión de usuarios y permisos del sistema');
+INSERT INTO public.modulo (id_modulo, nombre, descripcion) VALUES (8, 'Dashboard', 'Panel principal del sistema');
 
 
 --
@@ -3019,13 +3013,6 @@ SELECT pg_catalog.setval('public.departamento_id_departamento_seq', 22, true);
 --
 
 SELECT pg_catalog.setval('public.estado_cobro_id_estado_cobro_seq', 2, true);
-
-
---
--- Name: estado_comision_id_estado_comision_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.estado_comision_id_estado_comision_seq', 2, true);
 
 
 --

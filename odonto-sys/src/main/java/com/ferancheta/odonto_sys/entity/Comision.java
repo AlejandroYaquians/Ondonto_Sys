@@ -29,12 +29,6 @@ public class Comision {
     @Column(name = "monto_comision", nullable = false, precision = 10, scale = 2)
     private BigDecimal montoComision = BigDecimal.ZERO;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_estado_comision", nullable = false)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private EstadoComision estadoComision;
-
     @Column(name = "fecha", nullable = false)
     private LocalDate fecha;
 
@@ -60,12 +54,9 @@ public class Comision {
     @EqualsAndHashCode.Exclude
     private Usuario usuarioCreacion;
 
-    @Column(name = "fecha_pago")
-    private LocalDateTime fechaPago;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario_pago")
+    @JoinColumn(name = "id_pago_comision")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Usuario usuarioPago;
+    private PagoComision pagoComision;
 }

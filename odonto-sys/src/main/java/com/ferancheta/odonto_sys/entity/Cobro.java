@@ -30,6 +30,9 @@ public class Cobro extends AuditableEntity {
     @Column(name = "monto_tarjeta", precision = 10, scale = 2)
     private BigDecimal montoTarjeta = BigDecimal.ZERO;
 
+    @Column(name = "monto_transferencia", precision = 10, scale = 2)
+    private BigDecimal montoTransferencia = BigDecimal.ZERO;
+
     @Column(name = "comision_tarjeta", precision = 10, scale = 2)
     private BigDecimal comisionTarjeta = BigDecimal.ZERO;
 

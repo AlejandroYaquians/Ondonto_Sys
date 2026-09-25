@@ -200,7 +200,7 @@ export class CatalogosService {
   }
 
   metodosPago(): Observable<CatMetodoPago[]> {
-    return this.http.get<CatMetodoPago[]>(`${API_BASE_URL}/catalogos/metodos-pago`, { params: { activos: true } });
+    return this.http.get<CatMetodoPago[]>(`${API_BASE_URL}/catalogos/metodos-pago`);
   }
 
   actualizarMetodoPago(id: number, request: CatMetodoPagoRequest): Observable<CatMetodoPago> {

@@ -15,9 +15,6 @@ import { Paciente } from '../../../core/models/paciente.models';
 import { Doctor } from '../../../core/models/doctor.models';
 import { CatMetodoPago, Servicio } from '../../../core/models/catalogo.models';
 
-const MIXTO = 'mixto';
-type MetodoPagoForma = number | typeof MIXTO;
-
 @Component({
   selector: 'app-historial-clinico-form',
   imports: [ReactiveFormsModule, RouterLink, DecimalPipe],
@@ -57,10 +54,11 @@ export class HistorialClinicoFormComponent implements OnInit {
     indicaciones: [''],
     idServicio: [null as number | null, Validators.required],
     costoLaboratorio: [null as number | null],
-    metodoPago: [null as MetodoPagoForma | null, Validators.required],
+    metodoPago: [null as number | null, Validators.required],
     montoUnico: [null as number | null],
     montoEfectivo: [null as number | null],
-    montoTarjeta: [null as number | null]
+    montoTarjeta: [null as number | null],
+    montoTransferencia: [null as number | null]
   });
 
   private readonly idDoctorSeleccionado = toSignal(this.formulario.controls.idDoctor.valueChanges, {
@@ -72,7 +70,7 @@ export class HistorialClinicoFormComponent implements OnInit {
   });
 
   private readonly metodoPagoSeleccionado = toSignal(this.formulario.controls.metodoPago.valueChanges, {
-    initialValue: null as MetodoPagoForma | null
+    initialValue: null as number | null
   });
 
   private readonly montoUnicoValor = toSignal(this.formulario.controls.montoUnico.valueChanges, {
@@ -84,6 +82,10 @@ export class HistorialClinicoFormComponent implements OnInit {
   });
 
   private readonly montoTarjetaValor = toSignal(this.formulario.controls.montoTarjeta.valueChanges, {
+    initialValue: null as number | null
+  });
+
+  private readonly montoTransferenciaValor = toSignal(this.formulario.controls.montoTransferencia.valueChanges, {
     initialValue: null as number | null
   });
 
@@ -103,35 +105,57 @@ export class HistorialClinicoFormComponent implements OnInit {
     this.servicios().find((s) => s.idServicio === this.idServicioSeleccionado()) ?? null
   );
 
-  protected readonly esMixto = computed(() => this.metodoPagoSeleccionado() === MIXTO);
+  protected readonly idMetodoMixto = computed(
+    () => this.metodosPago().find((m) => m.nombre.toLowerCase() === 'mixto')?.idMetodoPago ?? null
+  );
+
+  protected readonly esMixto = computed(
+    () => this.metodoPagoSeleccionado() !== null && this.metodoPagoSeleccionado() === this.idMetodoMixto()
+  );
 
   protected readonly metodoUnicoSeleccionado = computed(() => {
     const valor = this.metodoPagoSeleccionado();
-    if (valor === null || valor === MIXTO) {
+    if (valor === null || valor === this.idMetodoMixto()) {
       return null;
     }
     return this.metodosPago().find((m) => m.idMetodoPago === valor) ?? null;
   });
 
-  protected readonly metodoUnicoTieneComision = computed(
-    () => (this.metodoUnicoSeleccionado()?.comisionPorcentaje ?? 0) > 0
-  );
+  private readonly bucketMetodoUnico = computed<'efectivo' | 'tarjeta' | 'transferencia' | null>(() => {
+    const metodo = this.metodoUnicoSeleccionado();
+    if (!metodo) {
+      return null;
+    }
+    const nombre = metodo.nombre.toLowerCase();
+    if (nombre === 'tarjeta') {
+      return 'tarjeta';
+    }
+    if (nombre === 'transferencia') {
+      return 'transferencia';
+    }
+    return 'efectivo';
+  });
 
   protected readonly previaCobro = computed(() => {
     let efectivo = 0;
     let tarjeta = 0;
+    let transferencia = 0;
     let porcentajeBanco = 0;
 
     if (this.esMixto()) {
       efectivo = this.montoEfectivoValor() ?? 0;
       tarjeta = this.montoTarjetaValor() ?? 0;
-      const tarjetaCat = this.metodosPago().find((m) => (m.comisionPorcentaje ?? 0) > 0);
+      transferencia = this.montoTransferenciaValor() ?? 0;
+      const tarjetaCat = this.metodosPago().find((m) => m.nombre.toLowerCase() === 'tarjeta');
       porcentajeBanco = tarjetaCat?.comisionPorcentaje ?? 0;
     } else {
       const monto = this.montoUnicoValor() ?? 0;
-      if (this.metodoUnicoTieneComision()) {
+      const bucket = this.bucketMetodoUnico();
+      if (bucket === 'tarjeta') {
         tarjeta = monto;
         porcentajeBanco = this.metodoUnicoSeleccionado()?.comisionPorcentaje ?? 0;
+      } else if (bucket === 'transferencia') {
+        transferencia = monto;
       } else {
         efectivo = monto;
       }
@@ -140,7 +164,7 @@ export class HistorialClinicoFormComponent implements OnInit {
     const costoLaboratorio = this.costoLaboratorioValor() ?? 0;
     const porcentajeDoctor = this.doctorSeleccionado()?.porcentajeComision ?? 0;
 
-    const montoBruto = efectivo + tarjeta;
+    const montoBruto = efectivo + tarjeta + transferencia;
     const comisionTarjeta = Math.round(tarjeta * (porcentajeBanco / 100) * 100) / 100;
     const montoNeto = montoBruto - comisionTarjeta - costoLaboratorio;
     const comisionDoctor = Math.round(montoNeto * (porcentajeDoctor / 100) * 100) / 100;
@@ -192,19 +216,22 @@ export class HistorialClinicoFormComponent implements OnInit {
     this.error.set(null);
 
     const valores = this.formulario.getRawValue();
-    const metodoPago = valores.metodoPago;
+    const idMetodoPago = valores.metodoPago;
 
-    let idMetodoPago: number | null = null;
     let montoEfectivo: number | null = null;
     let montoTarjeta: number | null = null;
+    let montoTransferencia: number | null = null;
 
-    if (metodoPago === MIXTO) {
+    if (this.esMixto()) {
       montoEfectivo = valores.montoEfectivo;
       montoTarjeta = valores.montoTarjeta;
+      montoTransferencia = valores.montoTransferencia;
     } else {
-      idMetodoPago = metodoPago;
-      if (this.metodoUnicoTieneComision()) {
+      const bucket = this.bucketMetodoUnico();
+      if (bucket === 'tarjeta') {
         montoTarjeta = valores.montoUnico;
+      } else if (bucket === 'transferencia') {
+        montoTransferencia = valores.montoUnico;
       } else {
         montoEfectivo = valores.montoUnico;
       }
@@ -225,7 +252,8 @@ export class HistorialClinicoFormComponent implements OnInit {
         costoLaboratorio: valores.costoLaboratorio,
         idMetodoPago,
         montoEfectivo,
-        montoTarjeta
+        montoTarjeta,
+        montoTransferencia
       })
       .subscribe({
         next: (respuesta) => {
@@ -240,11 +268,40 @@ export class HistorialClinicoFormComponent implements OnInit {
       });
   }
 
+  private resolverPaciente(): Paciente | null {
+    return this.paciente() ?? this.pacientes().find((p) => p.idPaciente === this.formulario.controls.idPaciente.value) ?? null;
+  }
+
+  private filasPago(): (string | number)[][] {
+    if (this.esMixto()) {
+      const filas: (string | number)[][] = [];
+      const efectivo = this.montoEfectivoValor() ?? 0;
+      const tarjeta = this.montoTarjetaValor() ?? 0;
+      const transferencia = this.montoTransferenciaValor() ?? 0;
+      if (efectivo > 0) {
+        filas.push(['Efectivo', `Q${efectivo.toFixed(2)}`]);
+      }
+      if (tarjeta > 0) {
+        filas.push(['Tarjeta', `Q${tarjeta.toFixed(2)}`]);
+      }
+      if (transferencia > 0) {
+        filas.push(['Transferencia', `Q${transferencia.toFixed(2)}`]);
+      }
+      return filas;
+    }
+    const monto = this.montoUnicoValor() ?? 0;
+    return [[this.metodoUnicoSeleccionado()?.nombre ?? '-', `Q${monto.toFixed(2)}`]];
+  }
+
   async imprimir(): Promise<void> {
     const comprobante = this.resultado();
     if (!comprobante) {
       return;
     }
+
+    const paciente = this.resolverPaciente();
+    const doctor = this.doctorSeleccionado();
+    const servicio = this.servicioSeleccionado();
 
     const { doc, primeraLineaY } = await this.pdfService.crearDocumento('Comprobante de Cobro');
 
@@ -252,20 +309,34 @@ export class HistorialClinicoFormComponent implements OnInit {
       ...ESTILO_TABLA_PDF,
       startY: primeraLineaY,
       columnStyles: { 0: { fontStyle: 'bold' } },
-      body: [['Código de cobro', comprobante.codigoCobro]]
+      body: [
+        ['Código de cobro', comprobante.codigoCobro],
+        ['Paciente', paciente ? `${paciente.nombre} ${paciente.apellido}` : '-'],
+        ['Doctor', doctor ? `Dr(a). ${doctor.nombre} ${doctor.apellido}` : '-']
+      ]
     });
 
-    const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+    const finalYEncabezado = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
 
     autoTable(doc, {
       ...ESTILO_TABLA_PDF,
-      startY: finalY + 8,
-      head: [['Concepto', 'Monto']],
-      body: [
-        ['Monto bruto', `Q${comprobante.montoBruto.toFixed(2)}`],
-        ['Comisión bancaria', `Q${comprobante.comisionTarjeta.toFixed(2)}`],
-        ['Monto neto', `Q${comprobante.montoNeto.toFixed(2)}`]
-      ]
+      startY: finalYEncabezado + 8,
+      head: [['Servicio']],
+      body: [[servicio?.nombre ?? '-']]
+    });
+
+    const finalYServicio = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+
+    const filasPago = this.filasPago();
+    if (filasPago.length > 1) {
+      filasPago.push(['Total', `Q${comprobante.montoBruto.toFixed(2)}`]);
+    }
+
+    autoTable(doc, {
+      ...ESTILO_TABLA_PDF,
+      startY: finalYServicio + 8,
+      head: [['Forma de pago', 'Monto']],
+      body: filasPago
     });
 
     this.pdfService.abrir(doc, `Comprobante_Cobro_${comprobante.codigoCobro}.pdf`);

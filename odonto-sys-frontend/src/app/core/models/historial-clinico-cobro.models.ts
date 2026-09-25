@@ -13,6 +13,7 @@ export interface HistorialClinicoCobroRequest {
   idMetodoPago: number | null;
   montoEfectivo: number | null;
   montoTarjeta: number | null;
+  montoTransferencia: number | null;
 }
 
 export interface HistorialClinicoCobroResponse {

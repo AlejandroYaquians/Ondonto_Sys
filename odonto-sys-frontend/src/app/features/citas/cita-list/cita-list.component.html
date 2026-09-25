@@ -49,7 +49,6 @@
     @if (cargando()) {
       <div class="text-center text-secondary py-5">
         <div class="spinner-border" role="status"></div>
-        <p class="mt-2 mb-0">Cargando agenda...</p>
       </div>
     } @else if (citasDelDia().length === 0) {
       <p class="text-secondary text-center py-4 mb-0">No hay citas para la fecha seleccionada.</p>

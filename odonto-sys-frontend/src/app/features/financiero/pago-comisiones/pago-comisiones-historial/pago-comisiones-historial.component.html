@@ -2,12 +2,7 @@
   <a routerLink="/financiero/pago-comisiones" class="btn btn-outline-secondary btn-sm">
     <i class="bi bi-arrow-left"></i>
   </a>
-  <h1 class="h3 mb-0">
-    Historial de pagos
-    @if (doctor(); as d) {
-      de Dr(a). {{ d.nombre }} {{ d.apellido }}
-    }
-  </h1>
+  <h1 class="h3 mb-0">Historial de pagos</h1>
 </div>
 
 @if (error()) {
@@ -16,6 +11,12 @@
 
 <div class="card shadow-sm border-0">
   <div class="card-body">
+    @if (doctor(); as d) {
+      <div class="mb-3">
+        <div class="text-secondary small text-uppercase">Doctor</div>
+        <div class="fw-medium">{{ d.nombre }} {{ d.apellido }}</div>
+      </div>
+    }
     @if (cargando()) {
       <div class="text-center text-secondary py-5">
         <div class="spinner-border" role="status"></div>
@@ -30,6 +31,7 @@
               <th scope="col">Fecha de pago</th>
               <th scope="col">Monto pagado</th>
               <th scope="col">Período cubierto</th>
+              <th scope="col">Número de referencia</th>
               <th scope="col">Usuario</th>
             </tr>
           </thead>
@@ -39,6 +41,7 @@
                 <td>{{ formatoFecha(item.fechaPago) }}</td>
                 <td>Q{{ item.montoPagado | number: '1.2-2' }}</td>
                 <td>{{ fechaDiaMesAnio(item.periodoDesde) }} al {{ fechaDiaMesAnio(item.periodoHasta) }}</td>
+                <td>{{ item.numeroReferencia || '—' }}</td>
                 <td>{{ item.nombreUsuarioPago }}</td>
               </tr>
             }

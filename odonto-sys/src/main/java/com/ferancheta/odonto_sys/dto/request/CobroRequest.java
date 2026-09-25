@@ -25,6 +25,8 @@ public record CobroRequest(
 
         BigDecimal montoEfectivo,
 
-        BigDecimal montoTarjeta
+        BigDecimal montoTarjeta,
+
+        BigDecimal montoTransferencia
 ) {
 }

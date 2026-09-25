@@ -5,17 +5,19 @@ import com.ferancheta.odonto_sys.dto.response.ComisionResponse;
 import com.ferancheta.odonto_sys.dto.response.PagoComisionResponse;
 import com.ferancheta.odonto_sys.entity.Comision;
 import com.ferancheta.odonto_sys.entity.Doctor;
-import com.ferancheta.odonto_sys.entity.EstadoComision;
+import com.ferancheta.odonto_sys.entity.PagoComision;
+import com.ferancheta.odonto_sys.entity.Usuario;
 import com.ferancheta.odonto_sys.mapper.ComisionMapper;
 import com.ferancheta.odonto_sys.repository.ComisionRepository;
 import com.ferancheta.odonto_sys.repository.DoctorRepository;
-import com.ferancheta.odonto_sys.repository.EstadoComisionRepository;
+import com.ferancheta.odonto_sys.repository.PagoComisionRepository;
 import com.ferancheta.odonto_sys.security.ContextoAutenticacion;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,12 +26,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PagoComisionService {
 
-    private static final String ESTADO_PENDIENTE = "Pendiente";
-    private static final String ESTADO_PAGADA = "Pagada";
-
     private final ComisionRepository comisionRepository;
+    private final PagoComisionRepository pagoComisionRepository;
     private final DoctorRepository doctorRepository;
-    private final EstadoComisionRepository estadoComisionRepository;
     private final ContextoAutenticacion contexto;
     private final BitacoraService bitacoraService;
     private final ComisionMapper mapper;
@@ -41,25 +40,25 @@ public class PagoComisionService {
                         doctor.getIdDoctor(),
                         doctor.getNombre() + " " + doctor.getApellido(),
                         comisionRepository.sumarPendientePorDoctor(doctor.getIdDoctor()),
-                        comisionRepository.ultimaFechaPagoPorDoctor(doctor.getIdDoctor())))
+                        pagoComisionRepository.ultimaFechaPagoPorDoctor(doctor.getIdDoctor())))
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public List<ComisionResponse> listarPendientes(Integer idDoctor) {
         return comisionRepository
-                .findByDoctor_IdDoctorAndEstadoComision_NombreIgnoreCaseOrderByFechaAsc(idDoctor, ESTADO_PENDIENTE).stream()
+                .findByDoctor_IdDoctorAndPagoComisionIsNullOrderByFechaAsc(idDoctor).stream()
                 .map(mapper::toResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public List<PagoComisionResponse> historialPagos(Integer idDoctor) {
-        return comisionRepository.historialPagosPorDoctor(idDoctor);
+        return pagoComisionRepository.historialPagosPorDoctor(idDoctor);
     }
 
     @Transactional
-    public void registrarPago(Integer idDoctor, LocalDate fechaCorte) {
+    public void registrarPago(Integer idDoctor, LocalDate fechaCorte, String numeroReferencia) {
         if (fechaCorte.isAfter(LocalDate.now())) {
             throw new IllegalArgumentException("La fecha de corte no puede ser mayor a la fecha actual.");
         }
@@ -68,18 +67,38 @@ public class PagoComisionService {
                 .orElseThrow(() -> new EntityNotFoundException("Doctor no encontrado: " + idDoctor));
 
         List<Comision> pendientes = comisionRepository
-                .findByDoctor_IdDoctorAndEstadoComision_NombreIgnoreCaseAndFechaLessThanEqual(
-                        doctor.getIdDoctor(), ESTADO_PENDIENTE, fechaCorte);
+                .findByDoctor_IdDoctorAndPagoComisionIsNullAndFechaLessThanEqual(doctor.getIdDoctor(), fechaCorte);
 
-        EstadoComision estadoPagada = estadoComisionRepository.findByNombreIgnoreCase(ESTADO_PAGADA)
-                .orElseThrow(() -> new EntityNotFoundException("Estado de comisión no encontrado: " + ESTADO_PAGADA));
+        if (pendientes.isEmpty()) {
+            throw new IllegalArgumentException("El doctor no tiene comisiones pendientes hasta la fecha de corte indicada.");
+        }
+
         LocalDateTime momentoPago = LocalDateTime.now();
+        Usuario usuarioPago = contexto.usuarioActual();
+
+        BigDecimal montoTotal = pendientes.stream()
+                .map(Comision::getMontoComision)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        PagoComision pago = new PagoComision();
+        pago.setDoctor(doctor);
+        pago.setFechaPago(momentoPago);
+        pago.setMontoTotal(montoTotal);
+        pago.setNumeroReferencia(numeroReferencia);
+        pago.setUsuarioPago(usuarioPago);
+        PagoComision pagoGuardado = pagoComisionRepository.save(pago);
+
+        LocalDate periodoDesde = pendientes.stream().map(Comision::getFecha).min(LocalDate::compareTo).orElse(fechaCorte);
+        LocalDate periodoHasta = pendientes.stream().map(Comision::getFecha).max(LocalDate::compareTo).orElse(fechaCorte);
+        PagoComisionResponse pagoRegistrado = new PagoComisionResponse(
+                momentoPago, montoTotal, periodoDesde, periodoHasta,
+                usuarioPago.getNombre() + " " + (usuarioPago.getApellido() != null ? usuarioPago.getApellido() : ""),
+                numeroReferencia);
+        bitacoraService.registrarCambio("pago_comision", pagoGuardado.getIdPagoComision(), "INSERT", null, pagoRegistrado);
 
         for (Comision comision : pendientes) {
             ComisionResponse antes = mapper.toResponse(comision);
-            comision.setEstadoComision(estadoPagada);
-            comision.setFechaPago(momentoPago);
-            comision.setUsuarioPago(contexto.usuarioActual());
+            comision.setPagoComision(pagoGuardado);
             comisionRepository.save(comision);
             bitacoraService.registrarCambio("comision", comision.getIdComision(), "UPDATE", antes, mapper.toResponse(comision));
         }

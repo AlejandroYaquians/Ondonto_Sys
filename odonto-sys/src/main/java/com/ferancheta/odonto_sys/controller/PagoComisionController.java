@@ -36,7 +36,7 @@ public class PagoComisionController {
 
     @PostMapping("/{idDoctor}/pagar")
     public ResponseEntity<Void> registrarPago(@PathVariable Integer idDoctor, @Valid @RequestBody RegistrarPagoRequest request) {
-        service.registrarPago(idDoctor, request.fechaCorte());
+        service.registrarPago(idDoctor, request.fechaCorte(), request.numeroReferencia());
         return ResponseEntity.noContent().build();
     }
 }

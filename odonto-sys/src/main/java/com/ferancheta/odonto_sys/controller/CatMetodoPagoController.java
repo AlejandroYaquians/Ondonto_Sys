@@ -17,8 +17,8 @@ public class CatMetodoPagoController {
     private final CatMetodoPagoService service;
 
     @GetMapping
-    public List<CatMetodoPagoResponse> listar(@RequestParam(required = false) Boolean activos) {
-        return Boolean.TRUE.equals(activos) ? service.listarActivos() : service.listar();
+    public List<CatMetodoPagoResponse> listar() {
+        return service.listar();
     }
 
     @PutMapping("/{id}")

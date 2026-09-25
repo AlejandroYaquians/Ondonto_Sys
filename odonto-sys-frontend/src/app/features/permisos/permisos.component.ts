@@ -3,6 +3,7 @@ import { forkJoin, Observable } from 'rxjs';
 import { PermisoService } from '../../core/services/permiso.service';
 import { RolService } from '../../core/services/rol.service';
 import { NavegacionService } from '../../core/services/navegacion.service';
+import { NotificacionService } from '../../core/services/notificacion.service';
 import { Permiso, PermisoRequest } from '../../core/models/permiso.models';
 import { Rol } from '../../core/models/rol.models';
 import { ModuloConMenus } from '../../core/models/menu.models';
@@ -27,6 +28,7 @@ export class PermisosComponent implements OnInit {
   private readonly permisoService = inject(PermisoService);
   private readonly rolService = inject(RolService);
   private readonly navegacionService = inject(NavegacionService);
+  private readonly notificacionService = inject(NotificacionService);
 
   protected readonly roles = signal<Rol[]>([]);
   protected readonly modulos = signal<ModuloConMenus[]>([]);
@@ -35,7 +37,6 @@ export class PermisosComponent implements OnInit {
   protected readonly cargando = signal(false);
   protected readonly guardando = signal(false);
   protected readonly error = signal<string | null>(null);
-  protected readonly mensajeExito = signal<string | null>(null);
 
   ngOnInit(): void {
     this.rolService.listar().subscribe((datos) => this.roles.set(datos));
@@ -45,7 +46,6 @@ export class PermisosComponent implements OnInit {
   seleccionarRol(valor: string): void {
     const idRol = valor ? Number(valor) : null;
     this.idRolSeleccionado.set(idRol);
-    this.mensajeExito.set(null);
     if (idRol === null) {
       this.celdas.set({});
       return;
@@ -109,7 +109,6 @@ export class PermisosComponent implements OnInit {
 
     this.guardando.set(true);
     this.error.set(null);
-    this.mensajeExito.set(null);
 
     const celdas = this.celdas();
     const operaciones: Observable<Permiso>[] = [];
@@ -135,14 +134,14 @@ export class PermisosComponent implements OnInit {
 
     if (operaciones.length === 0) {
       this.guardando.set(false);
-      this.mensajeExito.set('No hay cambios que guardar.');
+      this.notificacionService.exito('No hay cambios que guardar.');
       return;
     }
 
     forkJoin(operaciones).subscribe({
       next: () => {
         this.guardando.set(false);
-        this.mensajeExito.set('Permisos guardados correctamente.');
+        this.notificacionService.exito('Permisos guardados correctamente.');
         this.cargarPermisos(idRol);
       },
       error: () => {

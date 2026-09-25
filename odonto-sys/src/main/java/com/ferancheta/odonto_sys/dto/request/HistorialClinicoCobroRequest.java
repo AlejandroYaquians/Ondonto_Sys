@@ -30,6 +30,8 @@ public record HistorialClinicoCobroRequest(
 
         BigDecimal montoEfectivo,
 
-        BigDecimal montoTarjeta
+        BigDecimal montoTarjeta,
+
+        BigDecimal montoTransferencia
 ) {
 }

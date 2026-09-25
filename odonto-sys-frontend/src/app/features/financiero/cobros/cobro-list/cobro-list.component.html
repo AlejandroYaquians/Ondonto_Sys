@@ -54,7 +54,6 @@
     @if (cargando()) {
       <div class="text-center text-secondary py-5">
         <div class="spinner-border" role="status"></div>
-        <p class="mt-2 mb-0">Cargando cobros...</p>
       </div>
     } @else if (cobrosDelDia().length === 0) {
       <p class="text-secondary text-center py-4 mb-0">No hay cobros para la fecha seleccionada.</p>
@@ -70,6 +69,7 @@
               <th scope="col">Servicio</th>
               <th scope="col">Monto total</th>
               <th scope="col">Método de pago</th>
+              <th scope="col">Estado</th>
               <th scope="col" class="text-end">Acciones</th>
             </tr>
           </thead>
@@ -83,6 +83,13 @@
                 <td>{{ nombreServicio(cobro.idServicio) }}</td>
                 <td>{{ cobro.montoBruto !== null ? 'Q' + (cobro.montoBruto | number: '1.2-2') : '-' }}</td>
                 <td>{{ nombreMetodoPago(cobro.idMetodoPago) }}</td>
+                <td>
+                  @if (cobro.estado === 'Anulado') {
+                    <span class="badge text-bg-secondary">Anulado</span>
+                  } @else {
+                    <span class="badge text-bg-success">Pagado</span>
+                  }
+                </td>
                 <td class="text-end">
                   <a [routerLink]="['/cobros', cobro.idCobro]" class="btn btn-sm btn-outline-primary" title="Ver detalle">
                     <i class="bi bi-eye"></i>

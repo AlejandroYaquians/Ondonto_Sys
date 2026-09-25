@@ -163,6 +163,7 @@ export class DashboardFinancieroComponent implements OnInit {
           ['Ingresos brutos', r.ingresosBrutos],
           ['Efectivo', r.cobroEfectivo],
           ['Tarjeta', r.cobroTarjeta],
+          ['Transferencia', r.cobroTransferencia],
           ['Comisión bancaria', r.comisionBancaria],
           ['Costo de laboratorio', r.costoLaboratorio],
           ['Monto neto', r.montoNeto]
@@ -188,13 +189,14 @@ export class DashboardFinancieroComponent implements OnInit {
         ['Concepto', 'Monto'],
         [
           ['Gastos fijos', r.gastosFijos],
-          ['Gastos variables', r.gastosVariables]
+          ['Gastos variables', r.gastosVariables],
+          ['Comisiones a doctores', r.totalComisiones]
         ],
         [1]
       );
 
-      fila = this.excelService.agregarSeccion(hoja, fila, 'Ganancia neta');
-      this.excelService.agregarTabla(hoja, fila, ['Concepto', 'Monto'], [['Ganancia neta', r.gananciaNeta]], [1]);
+      fila = this.excelService.agregarSeccion(hoja, fila, 'Balance del período');
+      this.excelService.agregarTabla(hoja, fila, ['Concepto', 'Monto'], [['Balance del período', r.gananciaNeta]], [1]);
 
       await this.excelService.descargar(workbook, `Reporte_Financiero_${desde}_${hasta}.xlsx`);
       this.descargando.set(false);
@@ -236,6 +238,7 @@ export class DashboardFinancieroComponent implements OnInit {
         ['Ingresos brutos', `Q${r.ingresosBrutos.toFixed(2)}`],
         ['Efectivo', `Q${r.cobroEfectivo.toFixed(2)}`],
         ['Tarjeta', `Q${r.cobroTarjeta.toFixed(2)}`],
+        ['Transferencia', `Q${r.cobroTransferencia.toFixed(2)}`],
         ['Comisión bancaria', `Q${r.comisionBancaria.toFixed(2)}`],
         ['Costo de laboratorio', `Q${r.costoLaboratorio.toFixed(2)}`],
         ['Monto neto', `Q${r.montoNeto.toFixed(2)}`]
@@ -270,7 +273,8 @@ export class DashboardFinancieroComponent implements OnInit {
       columnStyles: { 0: { fontStyle: 'bold' } },
       body: [
         ['Gastos fijos', `Q${r.gastosFijos.toFixed(2)}`],
-        ['Gastos variables', `Q${r.gastosVariables.toFixed(2)}`]
+        ['Gastos variables', `Q${r.gastosVariables.toFixed(2)}`],
+        ['Comisiones a doctores', `Q${r.totalComisiones.toFixed(2)}`]
       ]
     });
     y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
@@ -279,7 +283,7 @@ export class DashboardFinancieroComponent implements OnInit {
       ...ESTILO_TABLA_PDF,
       startY: y,
       styles: { ...ESTILO_TABLA_PDF.styles, fontStyle: 'bold' },
-      body: [['Ganancia neta', `Q${r.gananciaNeta.toFixed(2)}`]]
+      body: [['Balance del período', `Q${r.gananciaNeta.toFixed(2)}`]]
     });
 
     this.pdfService.abrir(doc, `Reporte_Financiero_${desde}_${hasta}.pdf`);

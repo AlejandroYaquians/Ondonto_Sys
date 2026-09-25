@@ -79,7 +79,7 @@
   </div>
 } @else if (reporte(); as r) {
   <div class="row g-3 mb-4">
-    <div class="col-md-4 col-lg-2">
+    <div class="col-md-4 col-xl-3">
       <div class="card shadow-sm border-0 h-100">
         <div class="card-body">
           <div class="text-secondary small text-uppercase">Ingresos brutos</div>
@@ -87,23 +87,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4 col-lg-2">
-      <div class="card shadow-sm border-0 h-100">
-        <div class="card-body">
-          <div class="text-secondary small text-uppercase">Efectivo</div>
-          <div class="h4 mb-0">Q{{ r.cobroEfectivo | number: '1.2-2' }}</div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4 col-lg-2">
-      <div class="card shadow-sm border-0 h-100">
-        <div class="card-body">
-          <div class="text-secondary small text-uppercase">Tarjeta</div>
-          <div class="h4 mb-0">Q{{ r.cobroTarjeta | number: '1.2-2' }}</div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4 col-lg-2">
+    <div class="col-md-4 col-xl-3">
       <div class="card shadow-sm border-0 h-100">
         <div class="card-body">
           <div class="text-secondary small text-uppercase">Comisión bancaria</div>
@@ -111,7 +95,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4 col-lg-2">
+    <div class="col-md-4 col-xl-3">
       <div class="card shadow-sm border-0 h-100">
         <div class="card-body">
           <div class="text-secondary small text-uppercase">Costo laboratorio</div>
@@ -119,7 +103,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4 col-lg-2">
+    <div class="col-md-4 col-xl-3">
       <div class="card shadow-sm border-0 h-100 border-primary">
         <div class="card-body">
           <div class="text-secondary small text-uppercase">Monto neto</div>
@@ -127,26 +111,30 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4 col-lg-2">
-      <div class="card shadow-sm border-0 h-100">
-        <div class="card-body">
-          <div class="text-secondary small text-uppercase">Cobros</div>
-          <div class="h4 mb-0">
-            <span class="text-success">{{ r.cantidadCobrosPagados }}</span>
-            <span class="text-secondary fs-6"> pagados</span>
-          </div>
-          @if (r.cantidadCobrosAnulados > 0) {
-            <div class="small text-danger">
-              {{ r.cantidadCobrosAnulados }} anulado(s) · Q{{ r.montoCobrosAnulados | number: '1.2-2' }}
-            </div>
-          }
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <h2 class="h6 text-uppercase text-secondary mb-3">Desglose por forma de pago</h2>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="text-secondary small text-uppercase">Efectivo</div>
+          <div class="h5 mb-0">Q{{ r.cobroEfectivo | number: '1.2-2' }}</div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-secondary small text-uppercase">Tarjeta</div>
+          <div class="h5 mb-0">Q{{ r.cobroTarjeta | number: '1.2-2' }}</div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-secondary small text-uppercase">Transferencia</div>
+          <div class="h5 mb-0">Q{{ r.cobroTransferencia | number: '1.2-2' }}</div>
         </div>
       </div>
     </div>
   </div>
 
   <div class="row g-3 mb-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="card shadow-sm border-0 h-100">
         <div class="card-body">
           <div class="text-secondary small text-uppercase">Gastos fijos</div>
@@ -154,7 +142,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="card shadow-sm border-0 h-100">
         <div class="card-body">
           <div class="text-secondary small text-uppercase">Gastos variables</div>
@@ -162,10 +150,18 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="text-secondary small text-uppercase">Comisiones a doctores</div>
+          <div class="h5 mb-0">Q{{ r.totalComisiones | number: '1.2-2' }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
       <div class="card shadow-sm border-0 h-100 border-primary">
         <div class="card-body">
-          <div class="text-secondary small text-uppercase">Ganancia neta</div>
+          <div class="text-secondary small text-uppercase">Balance del período</div>
           <div class="h5 mb-0 text-primary">Q{{ r.gananciaNeta | number: '1.2-2' }}</div>
         </div>
       </div>
@@ -222,13 +218,17 @@
                     <div class="fw-medium">{{ nombrePaciente(cobro.idPaciente) }}</div>
                     <div class="text-secondary small">{{ formatoFecha(cobro.fecha) }} | {{ cobro.codigoCobro }}</div>
                   </div>
-                  <div class="d-flex align-items-center gap-2">
-                    @if (cobro.estado === 'Anulado') {
-                      <span class="badge text-bg-secondary">Anulado</span>
-                    } @else {
-                      <span class="badge text-bg-success">Pagado</span>
-                    }
-                    <span class="fw-medium">Q{{ cobro.montoBruto | number: '1.2-2' }}</span>
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="text-end">
+                      <div>
+                        @if (cobro.estado === 'Anulado') {
+                          <span class="badge text-bg-secondary">Anulado</span>
+                        } @else {
+                          <span class="badge text-bg-success">Pagado</span>
+                        }
+                      </div>
+                      <div class="fw-medium">Q{{ cobro.montoBruto | number: '1.2-2' }}</div>
+                    </div>
                     <a [routerLink]="['/cobros', cobro.idCobro]" class="btn btn-sm btn-outline-secondary">
                       <i class="bi bi-eye"></i>
                     </a>

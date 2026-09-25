@@ -10,7 +10,6 @@ import org.mapstruct.Mapping;
 public interface CatMetodoPagoMapper {
 
     @Mapping(target = "idMetodoPago", ignore = true)
-    @Mapping(target = "activo", ignore = true)
     CatMetodoPago toEntity(CatMetodoPagoRequest request);
 
     CatMetodoPagoResponse toResponse(CatMetodoPago entity);

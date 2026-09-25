@@ -20,9 +20,4 @@ public class ModuloService {
     public List<ModuloResponse> listar() {
         return repository.findAll().stream().map(mapper::toResponse).toList();
     }
-
-    @Transactional(readOnly = true)
-    public List<ModuloResponse> listarActivos() {
-        return repository.findByActivoTrue().stream().map(mapper::toResponse).toList();
-    }
 }

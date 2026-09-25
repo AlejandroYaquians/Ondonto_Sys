@@ -4,6 +4,7 @@ export interface Cobro {
   codigoCobro: number;
   montoEfectivo: number | null;
   montoTarjeta: number | null;
+  montoTransferencia: number | null;
   comisionTarjeta: number | null;
   costoLaboratorio: number | null;
   montoBruto: number | null;
@@ -29,6 +30,7 @@ export interface CobroRequest {
   idMetodoPago: number | null;
   montoEfectivo: number | null;
   montoTarjeta: number | null;
+  montoTransferencia: number | null;
 }
 
 export interface Comision {
@@ -36,9 +38,9 @@ export interface Comision {
   montoBase: number;
   porcentajeAplicado: number;
   montoComision: number;
-  estado: string;
   fecha: string;
   idDoctor: number;
   idCobro: number;
   idUsuarioCreacion: number | null;
+  idPagoComision: number | null;
 }

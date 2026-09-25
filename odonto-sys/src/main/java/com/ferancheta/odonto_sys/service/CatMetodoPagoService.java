@@ -26,11 +26,6 @@ public class CatMetodoPagoService {
         return repository.findAll().stream().map(mapper::toResponse).toList();
     }
 
-    @Transactional(readOnly = true)
-    public List<CatMetodoPagoResponse> listarActivos() {
-        return repository.findByActivoTrue().stream().map(mapper::toResponse).toList();
-    }
-
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public CatMetodoPagoResponse actualizar(Integer id, CatMetodoPagoRequest request) {

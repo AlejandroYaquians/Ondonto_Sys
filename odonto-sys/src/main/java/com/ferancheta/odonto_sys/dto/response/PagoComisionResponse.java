@@ -9,6 +9,7 @@ public record PagoComisionResponse(
         BigDecimal montoPagado,
         LocalDate periodoDesde,
         LocalDate periodoHasta,
-        String nombreUsuarioPago
+        String nombreUsuarioPago,
+        String numeroReferencia
 ) {
 }

@@ -43,15 +43,11 @@
   <div class="card shadow-sm border-0">
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center" [class.mb-3]="mostrarFormulario()">
-        <h2 class="h6 text-secondary text-uppercase mb-0">Contraseña</h2>
+        <h2 class="h6 text-uppercase text-secondary mb-0">Contraseña</h2>
         <button type="button" class="btn btn-sm btn-outline-primary" (click)="toggleFormulario()">
           {{ mostrarFormulario() ? 'Cancelar' : 'Cambiar contraseña' }}
         </button>
       </div>
-
-      @if (exitoPassword()) {
-        <div class="alert alert-success py-2 mb-0" role="alert">Contraseña actualizada correctamente.</div>
-      }
 
       @if (mostrarFormulario()) {
         <form [formGroup]="formulario" (ngSubmit)="guardarPassword()">

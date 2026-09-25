@@ -11,8 +11,10 @@ export interface PagoComision {
   periodoDesde: string;
   periodoHasta: string;
   nombreUsuarioPago: string;
+  numeroReferencia: string | null;
 }
 
 export interface RegistrarPagoRequest {
   fechaCorte: string;
+  numeroReferencia: string | null;
 }

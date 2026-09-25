@@ -23,9 +23,6 @@ public class Modulo {
     @Column(name = "descripcion", length = 255)
     private String descripcion;
 
-    @Column(name = "activo")
-    private Boolean activo = true;
-
     @OneToMany(mappedBy = "modulo", fetch = FetchType.LAZY)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
